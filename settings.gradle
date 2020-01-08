@@ -1,0 +1,2 @@
+include ':musicTransmitterAndroid', ':musicCommons', ':debug'
+rootProject.name='JatxMusicAndroid2'
