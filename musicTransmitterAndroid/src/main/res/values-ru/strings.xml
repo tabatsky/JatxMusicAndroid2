@@ -28,6 +28,8 @@
 	
 	<string name="toast_m3u8_ext">Файл должен иметь расширение m3u8</string>
 	<string name="toast_long_tap">Сделайте долгое нажатие на треке, чтобы удалить</string>
+	<string name="toast_no_mic_access">Нет доступа к микрофону</string>
+	<string name="toast_cannot_init_microphone">Не удается запустить микрофон</string>
 	
 	<string name="editor_file">Файл:</string>
 	<string name="editor_title">Название:</string>

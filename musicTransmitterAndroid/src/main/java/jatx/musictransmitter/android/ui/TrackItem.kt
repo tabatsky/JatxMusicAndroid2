@@ -33,13 +33,11 @@ class TrackItem(val track: Track, val position: Int, val isCurrent: Boolean): It
 
     override fun isSameAs(other: com.xwray.groupie.Item<*>?): Boolean =
         if (other is TrackItem) (track.path == other.track.path)
-            .and(position == other.position)
             .and(isCurrent == other.isCurrent)
         else false
 
     override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean =
         if (other is TrackItem) (track == other.track)
-            .and(position == other.position)
             .and(isCurrent == other.isCurrent)
         else false
 }

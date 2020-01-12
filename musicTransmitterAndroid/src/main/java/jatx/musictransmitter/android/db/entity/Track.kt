@@ -9,8 +9,6 @@ import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 
-const val MIC_PATH = "/:mic:"
-
 @Entity(tableName = "track_info")
 data class Track(
     @PrimaryKey

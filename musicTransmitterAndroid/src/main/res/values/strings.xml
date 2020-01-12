@@ -28,6 +28,8 @@
 	
 	<string name="toast_m3u8_ext">Playlist file must have m3u8 extension</string>
 	<string name="toast_long_tap">Make long tap on track to remove</string>
+	<string name="toast_no_mic_access">No microphone access</string>
+	<string name="toast_cannot_init_microphone">Cannot init microphone</string>
 	
 	<string name="editor_file">File:</string>
 	<string name="editor_title">Title:</string>

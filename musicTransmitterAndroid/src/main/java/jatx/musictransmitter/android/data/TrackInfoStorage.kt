@@ -2,9 +2,10 @@ package jatx.musictransmitter.android.data
 
 import android.util.Log
 import jatx.musictransmitter.android.db.dao.TrackDao
-import jatx.musictransmitter.android.db.entity.MIC_PATH
 import jatx.musictransmitter.android.db.entity.Track
 import java.io.File
+
+const val MIC_PATH = "/:mic:"
 
 class TrackInfoStorage(
     private val trackDao: TrackDao
@@ -57,11 +58,11 @@ class TrackInfoStorage(
                         onUpdateTrackListListener?.onUpdateTrackList(tracks)
                         continue
                     }
-                    if (counter % 20 == 0) {
-                        onUpdateTrackListListener?.onUpdateTrackList(tracks)
-                        counter++
+                    try {
+                        tracks.add(getTrackFromFile(files[current]))
+                    } catch (e: FileDoesNotExistException) {
+                        Log.e("tag worker", "file does not exist")
                     }
-                    tracks.add(getTrackFromFile(files[current]))
                 }
             } catch (e: InterruptedException) {
                 Log.e("tag worker", "interrupted")
@@ -85,8 +86,7 @@ class TrackInfoStorage(
         if (file.absolutePath == MIC_PATH)
             return getMicTrack()
 
-        if (!file.exists())
-            return Track(file.absolutePath, artist = "Error", title = "File does not exist")
+        if (!file.exists()) throw FileDoesNotExistException()
 
         val path = file.absolutePath
         val lastModified = file.lastModified()
@@ -119,3 +119,5 @@ class TrackInfoStorage(
 interface OnUpdateTrackListListener {
     fun onUpdateTrackList(tracks: List<Track>)
 }
+
+class FileDoesNotExistException: Exception()

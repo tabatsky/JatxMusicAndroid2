@@ -20,13 +20,15 @@
         />
     
     <SeekBar
-        android:id="@+id/progressBar"
+        android:id="@+id/seekBar"
         android:indeterminate="false"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="@dimen/progress_height" 
         android:progressDrawable="@drawable/progress"
 		android:thumb="@drawable/thumb"
+		android:layout_marginLeft="@dimen/progress_margin_horizontal"
+		android:layout_marginRight="@dimen/progress_margin_horizontal"
         />
     
     <View

@@ -30,7 +30,7 @@
         </activity>
 
         <service
-            android:name=".service.MusicTransmitterService"
+            android:name=".services.MusicTransmitterService"
             android:enabled="true"
             android:exported="true" />
     </application>

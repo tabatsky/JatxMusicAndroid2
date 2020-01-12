@@ -29,7 +29,8 @@
 	    	</group>
 	    </menu>
     </item>
-    
+
+	<!--
     <item 
         android:id="@+id/item_menu_playlist"
         android:title="@string/string_playlist"
@@ -41,7 +42,8 @@
 	    		<item android:id="@+id/item_menu_import_m3u8" android:title="@string/string_import_m3u8"></item>
 	    	</group>
 	    </menu>
-    </item>    
+    </item>
+    -->
     
     <item
         android:id="@+id/action_help"

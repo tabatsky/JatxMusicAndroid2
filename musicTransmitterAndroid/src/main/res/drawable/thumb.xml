@@ -7,7 +7,7 @@
         />
 
     <size
-        android:width="@dimen/progress_height"
+        android:width="@dimen/thumb_width"
         android:height="@dimen/progress_height"
         />
 

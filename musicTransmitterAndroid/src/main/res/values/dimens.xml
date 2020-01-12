@@ -21,5 +21,7 @@
     <dimen name="song_entry_artist">15dp</dimen>
     
     <dimen name="progress_height">20dp</dimen>
-    
+    <dimen name="progress_margin_horizontal">-20dp</dimen>
+    <dimen name="thumb_width">1dp</dimen>
+
 </resources>
