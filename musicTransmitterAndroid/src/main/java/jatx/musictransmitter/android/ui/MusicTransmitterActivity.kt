@@ -1,8 +1,12 @@
 package jatx.musictransmitter.android.ui
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -29,6 +33,8 @@ import javax.inject.Inject
 const val PERMISSION_MIC = Manifest.permission.RECORD_AUDIO
 val PERMISSIONS_MIC = arrayOf(PERMISSION_MIC)
 const val PERMISSION_MIC_REQUEST = 1111
+
+const val REQUEST_TAG_EDITOR = 2222
 
 class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     @Inject
@@ -90,26 +96,59 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 presenter.onAddFolderSelected()
                 true
             }
-            R.id.item_menu_remove -> {
-                true
-            }
-            R.id.item_menu_remove_all -> {
-                presenter.onRemoveAllTracksSelected()
+            R.id.item_menu_add_mic -> {
+                presenter.onAddMicSelected()
                 true
             }
             R.id.item_menu_remove_track -> {
                 presenter.onRemoveTrackSelected()
                 true
             }
-            R.id.item_menu_add_mic -> {
-                presenter.onAddMicSelected()
+            R.id.item_menu_remove_all -> {
+                presenter.onRemoveAllTracksSelected()
+                true
+            }
+            R.id.item_show_manual -> {
+                presenter.onShowManualSelected()
                 true
             }
             R.id.item_show_my_ip -> {
                 presenter.onShowIPSelected()
                 true
             }
+            R.id.item_review_app -> {
+                presenter.onReviewAppSelected()
+                true
+            }
+            R.id.item_receiver_android -> {
+                presenter.onReceiverAndroidSelected()
+                true
+            }
+            R.id.item_receiver_javafx -> {
+                presenter.onReceiverFXSelected()
+                true
+            }
+            R.id.item_transmitter_javafx -> {
+                presenter.onTransmitterFXSelected()
+                true
+            }
+            R.id.item_source_code -> {
+                presenter.onSourceCodeSelected()
+                true
+            }
+            R.id.item_dev_site -> {
+                presenter.onDevSiteSelected()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_TAG_EDITOR && resultCode == Activity.RESULT_OK) {
+            presenter.onReturnFromTagEditor()
         }
     }
 
@@ -248,7 +287,109 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
-    override fun close() {
+    override fun showTagEditor(uri: Uri) {
+        val intent = Intent()
+        intent.setClass(this, MusicEditorActivity::class.java)
+        intent.data = uri
+        startActivityForResult(intent, REQUEST_TAG_EDITOR)
+    }
+
+    override fun showManual() {
+        val builder = AlertDialog.Builder(this)
+        builder
+            .setTitle(R.string.manual_title)
+            .setMessage(R.string.manual_message)
+            .setNegativeButton(R.string.button_ok) { dialog, which -> dialog.dismiss() }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    override fun showReviewAppActivity() {
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=jatx.musictransmitter.android")
+                )
+            )
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musictransmitter.android")
+                )
+            )
+        }
+    }
+
+    override fun showReceiverAndroidActivity() {
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=jatx.musicreceiver.android")
+                )
+            )
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musicreceiver.android")
+                )
+            )
+        }
+    }
+
+    override fun showReceiverFXActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://yadi.sk/d/mUHvCxcchFZ7s")
+            )
+        )
+    }
+
+    override fun showTransmitterFXActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://yadi.sk/d/9vBoZFZVhFZ7D")
+            )
+        )
+    }
+
+    override fun showSourceCodeActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/tabatsky/JatxMusic")
+            )
+        )
+    }
+
+    override fun showDevSiteActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("http://tabatsky.ru")
+            )
+        )
+    }
+
+    override fun showQuitDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder
+            .setMessage(getString(R.string.really_quit))
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
+                dialog.dismiss()
+                presenter.onQuit()
+            }
+            .setNegativeButton(getString(R.string.no)) { dialog, _ -> dialog.dismiss() }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    override fun quit() {
         finish()
     }
 

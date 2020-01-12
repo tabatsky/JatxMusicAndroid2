@@ -12,7 +12,7 @@ import jatx.musictransmitter.android.db.entity.Track
     entities = [
         Track::class
     ],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun trackDao(): TrackDao
@@ -30,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context) = Room.databaseBuilder(context,
             AppDatabase::class.java, "musictransmitter.db")
+            .fallbackToDestructiveMigration()
             .allowMainThreadQueries()
             .build()
     }

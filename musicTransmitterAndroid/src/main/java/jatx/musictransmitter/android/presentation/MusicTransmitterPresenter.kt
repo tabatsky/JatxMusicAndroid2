@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Context.WIFI_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.text.format.Formatter
 import jatx.musictransmitter.android.R
@@ -52,7 +53,9 @@ class MusicTransmitterPresenter @Inject constructor(
         }
 
         files.addAll(settings.currentFileList)
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
+
+        viewState.showVolume(settings.volume)
 
         initBroadcastReceivers()
 
@@ -66,7 +69,9 @@ class MusicTransmitterPresenter @Inject constructor(
         context.sendBroadcast(intent)
     }
 
-    fun onBackPressed() = viewState.close()
+    fun onBackPressed() = viewState.showQuitDialog()
+
+    fun onQuit() = viewState.quit()
 
     fun onPlayClick() {
         if (files.isEmpty()) {
@@ -153,25 +158,23 @@ class MusicTransmitterPresenter @Inject constructor(
         files.add(file)
         settings.currentMusicDirPath = file.parentFile.absolutePath
         updateTpFiles()
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
     }
 
     fun onFolderOpened(path: String) {
         files.addAll(findFiles(path, ".*\\.mp3$"))
         settings.currentMusicDirPath = path
         updateTpFiles()
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
     }
 
     fun onRemoveAllTracksSelected() {
         files.clear()
         updateTpFiles()
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
     }
 
-    fun onRemoveTrackSelected() {
-        viewState.showRemoveTrackMessage()
-    }
+    fun onRemoveTrackSelected() = viewState.showRemoveTrackMessage()
 
     fun onTrackClick(position: Int) {
         currentPosition = position
@@ -181,9 +184,7 @@ class MusicTransmitterPresenter @Inject constructor(
         tpSetPosition(position)
     }
 
-    fun onTrackLongClick(position: Int) {
-        viewState.showTrackLongClickDialog(position)
-    }
+    fun onTrackLongClick(position: Int) = viewState.showTrackLongClickDialog(position)
 
     fun onDeleteTrack(position: Int) {
         files.removeAt(position)
@@ -193,25 +194,19 @@ class MusicTransmitterPresenter @Inject constructor(
             currentPosition = -1
         }
         updateTpFiles()
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
     }
 
-    fun onOpenTagEditor(position: Int) {
-        TODO("implement tag editor")
-    }
+    fun onOpenTagEditor(position: Int) = viewState.showTagEditor(Uri.fromFile(files[position]))
 
-    fun onProgressChanged(progress: Double) {
-        tpSeek(progress)
-    }
+    fun onProgressChanged(progress: Double) = tpSeek(progress)
 
-    fun onAddMicSelected() {
-        viewState.tryAddMic()
-    }
+    fun onAddMicSelected() = viewState.tryAddMic()
 
     fun onAddMicPermissionsAccepted() {
         files.add(File(MIC_PATH))
         updateTpFiles()
-        trackInfoStorage.files = files
+        updateTrackInfoStorageFiles()
     }
 
     fun onShowIPSelected() {
@@ -224,6 +219,22 @@ class MusicTransmitterPresenter @Inject constructor(
                 context.getString(R.string.not_detected_message)
         viewState.showIPAddress(ipAddress)
     }
+
+    fun onReturnFromTagEditor() = updateTrackInfoStorageFiles()
+
+    fun onShowManualSelected() = viewState.showManual()
+
+    fun onReviewAppSelected() = viewState.showReviewAppActivity()
+
+    fun onReceiverAndroidSelected() = viewState.showReceiverAndroidActivity()
+
+    fun onReceiverFXSelected() = viewState.showReceiverFXActivity()
+
+    fun onTransmitterFXSelected() = viewState.showTransmitterFXActivity()
+
+    fun onSourceCodeSelected() = viewState.showSourceCodeActivity()
+
+    fun onDevSiteSelected() = viewState.showDevSiteActivity()
 
     private fun startService() {
         val intent = Intent(context, MusicTransmitterService::class.java)
@@ -309,5 +320,9 @@ class MusicTransmitterPresenter @Inject constructor(
         val intent = Intent(TC_SET_VOLUME)
         intent.putExtra(KEY_VOLUME, volume)
         context.sendBroadcast(intent)
+    }
+
+    private fun updateTrackInfoStorageFiles() {
+        trackInfoStorage.files = files
     }
 }

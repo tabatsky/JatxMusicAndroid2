@@ -6,14 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.net.wifi.WifiManager
+import android.net.wifi.WifiManager.WifiLock
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import jatx.musictransmitter.android.App
-import jatx.musictransmitter.android.data.Settings
 import jatx.musictransmitter.android.audio.JLayerMp3Decoder
+import jatx.musictransmitter.android.data.Settings
 import jatx.musictransmitter.android.extensions.showToast
 import jatx.musictransmitter.android.threads.TimeUpdater
 import jatx.musictransmitter.android.threads.TransmitterController
@@ -58,6 +60,8 @@ class MusicTransmitterService: Service() {
     private var currentMs = 0f
     @Volatile
     private var trackLengthMs = 0f
+
+    private var lock: WifiLock? = null
 
     private val uiController = object: UIController {
         override fun setWifiStatus(status: Boolean) {
@@ -118,12 +122,21 @@ class MusicTransmitterService: Service() {
         val notification = builder.build()
         startForeground(2315, notification)
 
+        val wifiManager =
+            applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        lock = wifiManager.createWifiLock("music-transmitter-wifi-lock")
+        lock?.setReferenceCounted(false)
+        lock?.acquire()
+
+
         prepareAndStart(intent)
 
         return START_STICKY_COMPATIBILITY
     }
 
     override fun onDestroy() {
+        lock?.release()
+
         tu.interrupt()
         tc.interrupt()
         tp.interrupt()

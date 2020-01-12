@@ -12,7 +12,7 @@
         />
     
     <TextView
-        android:id="@+id/file_label"
+        android:id="@+id/fileNameTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
@@ -42,7 +42,7 @@
         />
     
     <EditText
-        android:id="@+id/edit_title"
+        android:id="@+id/titleET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
@@ -70,7 +70,7 @@
         />
     
     <EditText
-        android:id="@+id/edit_album"
+        android:id="@+id/albumET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
@@ -98,7 +98,7 @@
         />
     
     <EditText
-        android:id="@+id/edit_artist"
+        android:id="@+id/artistET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
@@ -128,7 +128,7 @@
         	/>
     
     	<EditText
-        	android:id="@+id/edit_number"
+        	android:id="@+id/numberET"
         	android:layout_width="0dp"
         	android:layout_height="wrap_content"
         	android:layout_weight="1"
@@ -148,7 +148,7 @@
         	/>
     
     	<EditText
-        	android:id="@+id/edit_year"
+        	android:id="@+id/yearET"
         	android:layout_width="0dp"
         	android:layout_height="wrap_content"
         	android:layout_weight="1"
@@ -176,7 +176,7 @@
     	    />
         
     	<Button
-        	android:id="@+id/win_to_utf_button"
+        	android:id="@+id/winToUtfBtn"
         	android:layout_width="0dp"
         	android:layout_height="wrap_content"
         	android:layout_weight="5"
@@ -210,7 +210,7 @@
     	    />
         
     	<Button
-        	android:id="@+id/save_button"
+        	android:id="@+id/saveBtn"
         	android:layout_width="0dp"
         	android:layout_height="wrap_content"
         	android:layout_weight="5"

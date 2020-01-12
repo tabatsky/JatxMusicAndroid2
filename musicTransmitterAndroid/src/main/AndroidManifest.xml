@@ -29,6 +29,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.MusicEditorActivity"
+            android:screenOrientation="portrait"></activity>
+
         <service
             android:name=".services.MusicTransmitterService"
             android:enabled="true"
