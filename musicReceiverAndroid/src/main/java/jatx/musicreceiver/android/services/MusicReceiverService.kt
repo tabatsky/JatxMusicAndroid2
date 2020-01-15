@@ -11,23 +11,68 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import jatx.musicreceiver.android.App
+import jatx.musicreceiver.android.audio.AndroidSoundOut
+import jatx.musicreceiver.android.data.Settings
+import jatx.musicreceiver.android.presentation.UI_START_JOB
+import jatx.musicreceiver.android.presentation.UI_STOP_JOB
+import jatx.musicreceiver.android.threads.AutoConnectThread
+import jatx.musicreceiver.android.threads.ReceiverController
+import jatx.musicreceiver.android.threads.ReceiverPlayer
+import jatx.musicreceiver.android.threads.ServiceController
 import jatx.musicreceiver.android.ui.MusicReceiverActivity
+import javax.inject.Inject
 
 const val STOP_SERVICE = "jatx.musicreceiver.android.STOP_SERVICE"
 const val SERVICE_START_JOB = "jatx.musicreceiver.android.SERVICE_START_JOB"
 const val SERVICE_STOP_JOB = "jatx.musicreceiver.android.SERVICE_STOP_JOB"
 
 class MusicReceiverService : Service() {
+    @Inject
+    lateinit var settings: Settings
 
     private lateinit var stopSelfReceiver: BroadcastReceiver
+    private lateinit var serviceStartJobReceiver: BroadcastReceiver
+    private lateinit var serviceStopJobReceiver: BroadcastReceiver
 
     private var lock: WifiManager.WifiLock? = null
+
+    private var isRunning = false
+
+    @Volatile private var rp: ReceiverPlayer? = null
+    @Volatile private var rc: ReceiverController? = null
+    private var act: AutoConnectThread? = null
+
+    private val serviceController = object : ServiceController {
+        override fun startJob() {
+            this@MusicReceiverService.startJob()
+        }
+
+        override fun stopJob() {
+            this@MusicReceiverService.stopJob()
+        }
+
+        override fun play() {
+            rp?.play()
+        }
+
+        override fun pause() {
+            rp?.pause()
+        }
+
+        override fun setVolume(volume: Int) {
+            rp?.setVolume(volume)
+        }
+
+    }
 
     override fun onBind(p0: Intent?): IBinder? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        App.appComponent?.injectMusicReceiverService(this)
+
         startForeground()
         lockWifi()
         prepareAndStart(intent)
@@ -37,6 +82,9 @@ class MusicReceiverService : Service() {
 
     override fun onDestroy() {
         unlockWifi()
+
+        act?.interrupt()
+        stopJob()
 
         unregisterReceivers()
 
@@ -79,6 +127,9 @@ class MusicReceiverService : Service() {
 
     private fun prepareAndStart(intent: Intent?) {
         initBroadcastReceivers()
+
+        act = AutoConnectThread(settings, serviceController)
+        act?.start()
     }
 
     private fun initBroadcastReceivers() {
@@ -88,10 +139,46 @@ class MusicReceiverService : Service() {
             }
         }
         registerReceiver(stopSelfReceiver, IntentFilter(STOP_SERVICE))
+
+        serviceStartJobReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                startJob()
+            }
+        }
+        registerReceiver(serviceStartJobReceiver, IntentFilter(SERVICE_START_JOB))
+
+        serviceStopJobReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                stopJob()
+            }
+        }
+        registerReceiver(serviceStopJobReceiver, IntentFilter(SERVICE_STOP_JOB))
     }
 
     private fun unregisterReceivers() {
         unregisterReceiver(stopSelfReceiver)
+        unregisterReceiver(serviceStartJobReceiver)
+        unregisterReceiver(serviceStopJobReceiver)
+    }
+
+    private fun startJob() {
+        if (isRunning) return
+        isRunning = true
+        rp = ReceiverPlayer(settings.host, serviceController, AndroidSoundOut())
+        rc = ReceiverController(settings.host, serviceController)
+        rp?.start()
+        rc?.start()
+        val intent = Intent(UI_START_JOB)
+        sendBroadcast(intent)
+    }
+
+    private fun stopJob() {
+        if (!isRunning) return
+        isRunning = false
+        rp?.setupFinishFlag()
+        rc?.setupFinishFlag()
+        val intent = Intent(UI_STOP_JOB)
+        sendBroadcast(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

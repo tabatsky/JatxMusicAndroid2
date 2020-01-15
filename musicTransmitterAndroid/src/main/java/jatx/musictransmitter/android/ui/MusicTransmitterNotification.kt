@@ -56,7 +56,7 @@ object MusicTransmitterNotification {
             .setWhen(System.currentTimeMillis())
             .setContentTitle(title)
             .setContentText(artist)
-            .setSmallIcon(R.drawable.icon_transmitter_96)
+            .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .setOngoing(true)
 

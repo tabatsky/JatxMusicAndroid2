@@ -1,10 +1,17 @@
 package jatx.musicreceiver.android.ui
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import dagger.Lazy
+import jatx.constants.DEV_SITE_URL
+import jatx.constants.FX_RECEIVER_URL
+import jatx.constants.FX_TRANSMITTER_URL
+import jatx.constants.SOURCE_CODE_URL
 import jatx.debug.AppDebug
 import jatx.extensions.showToast
 import jatx.musicreceiver.android.App
@@ -28,7 +35,7 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
         setContentView(R.layout.activity_music_receiver)
 
         toggleBtn.setOnClickListener {
-            presenter.onToggleClick(hostnameET.text.toString())
+            presenter.onToggleClick()
         }
 
         autoConnectCB.setOnClickListener {
@@ -43,6 +50,30 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.item_review_app -> {
+                presenter.onReviewAppSelected()
+                true
+            }
+            R.id.item_transmitter_android -> {
+                presenter.onTransmitterAndroidSelected()
+                true
+            }
+            R.id.item_receiver_javafx -> {
+                presenter.onReceiverFXSelected()
+                true
+            }
+            R.id.item_transmitter_javafx -> {
+                presenter.onTransmitterFXSelected()
+                true
+            }
+            R.id.item_source_code -> {
+                presenter.onSourceCodeSelected()
+                true
+            }
+            R.id.item_dev_site -> {
+                presenter.onDevSiteSelected()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -71,6 +102,79 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
     override fun showDisconnectOccured() {
         showToast(R.string.toast_disconnect)
     }
+
+    override fun showReviewAppActivity() {
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=jatx.musicreceiver.android")
+                )
+            )
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musicreceiver.android")
+                )
+            )
+        }
+    }
+
+    override fun showTransmitterAndroidActivity() {
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=jatx.musictransmitter.android")
+                )
+            )
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musictransmitter.android")
+                )
+            )
+        }
+    }
+
+    override fun showReceiverFXActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(FX_RECEIVER_URL)
+            )
+        )
+    }
+
+    override fun showTransmitterFXActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(FX_TRANSMITTER_URL)
+            )
+        )
+    }
+
+    override fun showSourceCodeActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(SOURCE_CODE_URL)
+            )
+        )
+    }
+
+    override fun showDevSiteActivity() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(DEV_SITE_URL)
+            )
+        )
+    }
+
 
     override fun showQuitDialog() {
         val builder = AlertDialog.Builder(this)

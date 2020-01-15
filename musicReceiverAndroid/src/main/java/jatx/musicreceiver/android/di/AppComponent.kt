@@ -6,6 +6,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import jatx.musicreceiver.android.data.Settings
+import jatx.musicreceiver.android.services.MusicReceiverService
 import jatx.musicreceiver.android.ui.MusicReceiverActivity
 import jatx.musicreceiver.android.ui.SelectHostDialog
 import javax.inject.Singleton
@@ -28,6 +29,8 @@ interface AppComponent: AppDeps {
     fun injectMusicReceiverActivity(musicReceiverActivity: MusicReceiverActivity)
 
     fun injectSelectHostDialog(selectHostDialog: SelectHostDialog)
+
+    fun injectMusicReceiverService(musicReceiverService: MusicReceiverService)
 }
 
 @Module

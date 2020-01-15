@@ -18,6 +18,10 @@ import com.obsez.android.lib.filechooser.ChooserDialog
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import dagger.Lazy
+import jatx.constants.DEV_SITE_URL
+import jatx.constants.FX_RECEIVER_URL
+import jatx.constants.FX_TRANSMITTER_URL
+import jatx.constants.SOURCE_CODE_URL
 import jatx.debug.AppDebug
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
@@ -329,7 +333,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://yadi.sk/d/mUHvCxcchFZ7s")
+                Uri.parse(FX_RECEIVER_URL)
             )
         )
     }
@@ -338,7 +342,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://yadi.sk/d/9vBoZFZVhFZ7D")
+                Uri.parse(FX_TRANSMITTER_URL)
             )
         )
     }
@@ -347,7 +351,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/tabatsky/JatxMusic")
+                Uri.parse(SOURCE_CODE_URL)
             )
         )
     }
@@ -356,7 +360,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("http://tabatsky.ru")
+                Uri.parse(DEV_SITE_URL)
             )
         )
     }
