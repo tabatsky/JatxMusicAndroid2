@@ -8,8 +8,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/debug" />
+            <option value="$PROJECT_DIR$/commons" />
             <option value="$PROJECT_DIR$/musicCommons" />
+            <option value="$PROJECT_DIR$/musicReceiverAndroid" />
             <option value="$PROJECT_DIR$/musicTransmitterAndroid" />
           </set>
         </option>

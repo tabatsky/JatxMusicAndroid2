@@ -5,15 +5,15 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -22,17 +22,13 @@ import jatx.debug.AppDebug
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.db.entity.Track
-import jatx.musictransmitter.android.extensions.showToast
+import jatx.extensions.showToast
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import kotlinx.android.synthetic.main.activity_music_transmitter.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
-
-const val PERMISSION_MIC = Manifest.permission.RECORD_AUDIO
-val PERMISSIONS_MIC = arrayOf(PERMISSION_MIC)
-const val PERMISSION_MIC_REQUEST = 1111
 
 const val REQUEST_TAG_EDITOR = 2222
 
@@ -152,22 +148,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray) {
-
-        if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            when (requestCode) {
-                PERMISSION_MIC_REQUEST -> presenter.onAddMicPermissionsAccepted()
-            }
-        } else {
-            when (requestCode) {
-                PERMISSION_MIC_REQUEST -> showToast(R.string.toast_no_mic_access)
-            }
-        }
-    }
-
     override fun onBackPressed() = presenter.onBackPressed()
 
     override fun showTracks(tracks: List<Track>, currentPosition: Int) {
@@ -276,15 +256,20 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun tryAddMic() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(PERMISSION_MIC) === PackageManager.PERMISSION_DENIED) {
-                requestPermissions(PERMISSIONS_MIC, PERMISSION_MIC_REQUEST)
-            } else {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {
                 presenter.onAddMicPermissionsAccepted()
             }
-        } else {
-            presenter.onAddMicPermissionsAccepted()
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                showToast(R.string.toast_no_mic_access)
+            }
         }
+
+        TedPermission.with(this)
+            .setPermissionListener(permissionListener)
+            .setPermissions(Manifest.permission.RECORD_AUDIO)
+            .check()
     }
 
     override fun showTagEditor(uri: Uri) {

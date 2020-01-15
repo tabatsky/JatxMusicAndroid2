@@ -1,4 +1,4 @@
-package jatx.musictransmitter.android.extensions
+package jatx.extensions
 
 import android.content.Context
 import android.widget.Toast

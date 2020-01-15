@@ -16,12 +16,12 @@ object Microphone {
 
     @Throws(MicrophoneInitException::class)
     fun start() {
-        audioRecord = findAudioRecord()
+        if (audioRecord == null) audioRecord = findAudioRecord()
         audioRecord?.startRecording() ?: throw MicrophoneInitException()
     }
 
     fun stop() {
-        audioRecord?.release()
+        audioRecord?.stop()
     }
 
     @Throws(MicrophoneReadException::class)

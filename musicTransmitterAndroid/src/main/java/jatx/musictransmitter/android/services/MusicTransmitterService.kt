@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.audio.JLayerMp3Decoder
 import jatx.musictransmitter.android.data.Settings
-import jatx.musictransmitter.android.extensions.showToast
+import jatx.extensions.showToast
 import jatx.musictransmitter.android.threads.TimeUpdater
 import jatx.musictransmitter.android.threads.TransmitterController
 import jatx.musictransmitter.android.threads.TransmitterPlayer
@@ -47,6 +47,14 @@ const val KEY_TRACK_LENGTH_MS = "trackLengthMs"
 class MusicTransmitterService: Service() {
     @Inject
     lateinit var settings: Settings
+
+    private lateinit var stopSelfReceiver: BroadcastReceiver
+    private lateinit var tpSetPositionReceiver: BroadcastReceiver
+    private lateinit var tpAndTcPlayReceiver: BroadcastReceiver
+    private lateinit var tpAndTcPauseReceiver: BroadcastReceiver
+    private lateinit var tpSeekReceiver: BroadcastReceiver
+    private lateinit var tpSetFileListReceiver: BroadcastReceiver
+    private lateinit var tcSetVolumeReceiver: BroadcastReceiver
 
     private lateinit var tu: TimeUpdater
     private lateinit var tc: TransmitterController
@@ -99,10 +107,29 @@ class MusicTransmitterService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e("service", "started")
-
         App.appComponent?.injectMusicTransmitterService(this)
 
+        startForeground()
+        lockWifi()
+        prepareAndStart(intent)
+
+        return START_STICKY_COMPATIBILITY
+    }
+
+    override fun onDestroy() {
+        unlockWifi()
+
+        tu.interrupt()
+        tc.interrupt()
+        tp.interrupt()
+
+        unregisterReceivers()
+
+        stopForeground(true)
+        super.onDestroy()
+    }
+
+    private fun startForeground() {
         val actIntent = Intent()
         actIntent.setClass(this, MusicTransmitterActivity::class.java)
         val pendingIntent =
@@ -121,28 +148,18 @@ class MusicTransmitterService: Service() {
 
         val notification = builder.build()
         startForeground(2315, notification)
+    }
 
+    private fun lockWifi() {
         val wifiManager =
             applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         lock = wifiManager.createWifiLock("music-transmitter-wifi-lock")
         lock?.setReferenceCounted(false)
         lock?.acquire()
-
-
-        prepareAndStart(intent)
-
-        return START_STICKY_COMPATIBILITY
     }
 
-    override fun onDestroy() {
+    private fun unlockWifi() {
         lock?.release()
-
-        tu.interrupt()
-        tc.interrupt()
-        tp.interrupt()
-
-        stopForeground(true)
-        super.onDestroy()
     }
 
     private fun prepareAndStart(intent: Intent?) {
@@ -165,14 +182,14 @@ class MusicTransmitterService: Service() {
     }
 
     private fun initBroadcastReceivers() {
-        val stopSelfReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        stopSelfReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 stopSelf()
             }
         }
         registerReceiver(stopSelfReceiver, IntentFilter(STOP_SERVICE))
 
-        val tpSetPositionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tpSetPositionReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val position = intent.getIntExtra(KEY_POSITION, 0)
                 tp.position = position
@@ -180,23 +197,23 @@ class MusicTransmitterService: Service() {
         }
         registerReceiver(tpSetPositionReceiver, IntentFilter(TP_SET_POSITION))
 
-        val tpPlayReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tpAndTcPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 tp.play()
                 tc.play()
             }
         }
-        registerReceiver(tpPlayReceiver, IntentFilter(TP_AND_TC_PLAY))
+        registerReceiver(tpAndTcPlayReceiver, IntentFilter(TP_AND_TC_PLAY))
 
-        val tpPauseReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 tp.pause()
                 tc.pause()
             }
         }
-        registerReceiver(tpPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
+        registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
 
-        val tpSeekReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tpSeekReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val progress = intent.getDoubleExtra(KEY_PROGRESS, 0.0)
                 tp.seek(progress)
@@ -204,20 +221,30 @@ class MusicTransmitterService: Service() {
         }
         registerReceiver(tpSeekReceiver, IntentFilter(TP_SEEK))
 
-        val tpSetFileListReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tpSetFileListReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 tp.files = settings.currentFileList
             }
         }
         registerReceiver(tpSetFileListReceiver, IntentFilter(TP_SET_FILE_LIST))
 
-        val tcSetVolumeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        tcSetVolumeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val volume = intent.getIntExtra("volume", 0)
                 tc.setVolume(volume)
             }
         }
         registerReceiver(tcSetVolumeReceiver, IntentFilter(TC_SET_VOLUME))
+    }
+
+    private fun unregisterReceivers() {
+        unregisterReceiver(stopSelfReceiver)
+        unregisterReceiver(tpSetPositionReceiver)
+        unregisterReceiver(tpAndTcPlayReceiver)
+        unregisterReceiver(tpAndTcPauseReceiver)
+        unregisterReceiver(tpSeekReceiver)
+        unregisterReceiver(tpSetFileListReceiver)
+        unregisterReceiver(tcSetVolumeReceiver)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

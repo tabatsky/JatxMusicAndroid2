@@ -1,2 +1,2 @@
-include ':musicTransmitterAndroid', ':musicCommons', ':debug'
+include ':musicTransmitterAndroid', ':musicCommons', ':commons', ':musicReceiverAndroid'
 rootProject.name='JatxMusicAndroid2'

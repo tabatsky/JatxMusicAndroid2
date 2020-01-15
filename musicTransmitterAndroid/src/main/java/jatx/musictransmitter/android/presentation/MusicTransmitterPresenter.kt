@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.presentation
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.WIFI_SERVICE
@@ -7,7 +8,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.telephony.TelephonyManager
 import android.text.format.Formatter
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.data.Settings
@@ -21,12 +25,22 @@ import moxy.MvpPresenter
 import java.io.File
 import javax.inject.Inject
 
+const val ACTION_PHONE_STATE = "android.intent.action.PHONE_STATE"
+
 @InjectViewState
 class MusicTransmitterPresenter @Inject constructor(
     private val context: Context,
     private val settings: Settings,
     private val trackInfoStorage: TrackInfoStorage
 ): MvpPresenter<MusicTransmitterView>() {
+
+    private lateinit var setCurrentTimeReceiver: BroadcastReceiver
+    private lateinit var setWifiStatusReceiver: BroadcastReceiver
+    private lateinit var nextTrackReceiver: BroadcastReceiver
+    private lateinit var prevTrackReceiver: BroadcastReceiver
+    private lateinit var clickPlayReceiver: BroadcastReceiver
+    private lateinit var clickPauseReceiver: BroadcastReceiver
+    private lateinit var incomingCallReceiver: BroadcastReceiver
 
     private val files = arrayListOf<File>()
     private var currentPosition = -1
@@ -57,16 +71,17 @@ class MusicTransmitterPresenter @Inject constructor(
 
         viewState.showVolume(settings.volume)
 
+        checkReadPhoneStatePermission()
         initBroadcastReceivers()
-
         startService()
     }
 
     override fun onDestroy() {
         MusicTransmitterNotification.hideNotification(context)
 
-        val intent = Intent(STOP_SERVICE)
-        context.sendBroadcast(intent)
+        stopService()
+
+        unregisterReceivers()
     }
 
     fun onBackPressed() = viewState.showQuitDialog()
@@ -236,13 +251,8 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onDevSiteSelected() = viewState.showDevSiteActivity()
 
-    private fun startService() {
-        val intent = Intent(context, MusicTransmitterService::class.java)
-        context.startService(intent)
-    }
-
     private fun initBroadcastReceivers() {
-        val setCurrentTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        setCurrentTimeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val currentMs = intent.getFloatExtra(KEY_CURRENT_MS, 0f)
                 val trackLengthMs = intent.getFloatExtra(KEY_TRACK_LENGTH_MS, 0f)
@@ -251,7 +261,7 @@ class MusicTransmitterPresenter @Inject constructor(
         }
         context.registerReceiver(setCurrentTimeReceiver, IntentFilter(SET_CURRENT_TIME))
 
-        val setWifiStatusReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        setWifiStatusReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val status = intent.getBooleanExtra(EXTRA_WIFI_STATUS, false)
                 viewState.showWifiStatus(status)
@@ -259,7 +269,7 @@ class MusicTransmitterPresenter @Inject constructor(
         }
         context.registerReceiver(setWifiStatusReceiver, IntentFilter(SET_WIFI_STATUS))
 
-        val nextTrackReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        nextTrackReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onFwdClick()
             }
@@ -267,26 +277,55 @@ class MusicTransmitterPresenter @Inject constructor(
         context.registerReceiver(nextTrackReceiver, IntentFilter(NEXT_TRACK))
         context.registerReceiver(nextTrackReceiver, IntentFilter(CLICK_FWD))
 
-        val prevTrackReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        prevTrackReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onRevClick()
             }
         }
         context.registerReceiver(prevTrackReceiver, IntentFilter(CLICK_REV))
 
-        val clickPlayReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        clickPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onPlayClick()
             }
         }
         context.registerReceiver(clickPlayReceiver, IntentFilter(CLICK_PLAY))
 
-        val clickPauseReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        clickPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onPauseClick()
             }
         }
         context.registerReceiver(clickPauseReceiver, IntentFilter(CLICK_PAUSE))
+
+        incomingCallReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.getStringExtra(TelephonyManager.EXTRA_STATE) == TelephonyManager.EXTRA_STATE_RINGING) {
+                    onPauseClick()
+                }
+            }
+        }
+        context.registerReceiver(incomingCallReceiver, IntentFilter(ACTION_PHONE_STATE))
+    }
+
+    private fun unregisterReceivers() {
+        context.unregisterReceiver(setCurrentTimeReceiver)
+        context.unregisterReceiver(setWifiStatusReceiver)
+        context.unregisterReceiver(nextTrackReceiver)
+        context.unregisterReceiver(prevTrackReceiver)
+        context.unregisterReceiver(clickPlayReceiver)
+        context.unregisterReceiver(clickPauseReceiver)
+        context.unregisterReceiver(incomingCallReceiver)
+    }
+
+    private fun startService() {
+        val intent = Intent(context, MusicTransmitterService::class.java)
+        context.startService(intent)
+    }
+
+    private fun stopService() {
+        val intent = Intent(STOP_SERVICE)
+        context.sendBroadcast(intent)
     }
 
     private fun updateTpFiles() {
@@ -324,5 +363,17 @@ class MusicTransmitterPresenter @Inject constructor(
 
     private fun updateTrackInfoStorageFiles() {
         trackInfoStorage.files = files
+    }
+
+    private fun checkReadPhoneStatePermission() {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {}
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
+        }
+
+        TedPermission.with(context)
+            .setPermissionListener(permissionListener)
+            .setPermissions(Manifest.permission.READ_PHONE_STATE)
+            .check()
     }
 }

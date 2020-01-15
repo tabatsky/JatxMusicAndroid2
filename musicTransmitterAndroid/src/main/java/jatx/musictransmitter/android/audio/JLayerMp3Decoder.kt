@@ -5,6 +5,7 @@ import jatx.musiccommons.Frame
 import jatx.musiccommons.WrongFrameException
 import jatx.musiccommons.frameFromSampleBuffer
 import jatx.musictransmitter.android.data.FileDoesNotExistException
+import jatx.musictransmitter.android.data.MIC_PATH
 import javazoom.jl.decoder.*
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.*
@@ -15,8 +16,12 @@ class JLayerMp3Decoder : Mp3Decoder() {
     private var msFrame = 0f
 
     override var file: File? = null
-        get() = field
         set(value) {
+            if (value != null && value.absolutePath == MIC_PATH) {
+                field = value
+                return
+            }
+
             if (value == null || !value.exists()) {
                 throw Mp3DecoderException(FileDoesNotExistException())
             }
