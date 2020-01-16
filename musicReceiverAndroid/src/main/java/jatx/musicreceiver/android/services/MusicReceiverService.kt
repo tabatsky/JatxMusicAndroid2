@@ -19,7 +19,7 @@ import jatx.musicreceiver.android.presentation.UI_STOP_JOB
 import jatx.musicreceiver.android.threads.AutoConnectThread
 import jatx.musicreceiver.android.threads.ReceiverController
 import jatx.musicreceiver.android.threads.ReceiverPlayer
-import jatx.musicreceiver.android.threads.ServiceController
+import jatx.musicreceiver.android.threads.UIController
 import jatx.musicreceiver.android.ui.MusicReceiverActivity
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ class MusicReceiverService : Service() {
     @Volatile private var rc: ReceiverController? = null
     private var act: AutoConnectThread? = null
 
-    private val serviceController = object : ServiceController {
+    private val uiController = object : UIController {
         override fun startJob() {
             this@MusicReceiverService.startJob()
         }
@@ -51,19 +51,6 @@ class MusicReceiverService : Service() {
         override fun stopJob() {
             this@MusicReceiverService.stopJob()
         }
-
-        override fun play() {
-            rp?.play()
-        }
-
-        override fun pause() {
-            rp?.pause()
-        }
-
-        override fun setVolume(volume: Int) {
-            rp?.setVolume(volume)
-        }
-
     }
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -128,7 +115,7 @@ class MusicReceiverService : Service() {
     private fun prepareAndStart(intent: Intent?) {
         initBroadcastReceivers()
 
-        act = AutoConnectThread(settings, serviceController)
+        act = AutoConnectThread(settings, uiController)
         act?.start()
     }
 
@@ -164,8 +151,9 @@ class MusicReceiverService : Service() {
     private fun startJob() {
         if (isRunning) return
         isRunning = true
-        rp = ReceiverPlayer(settings.host, serviceController, AndroidSoundOut())
-        rc = ReceiverController(settings.host, serviceController)
+        rp = ReceiverPlayer(settings.host, uiController, AndroidSoundOut())
+        rc = ReceiverController(settings.host, uiController)
+        rc?.rp = rp
         rp?.start()
         rc?.start()
         val intent = Intent(UI_START_JOB)

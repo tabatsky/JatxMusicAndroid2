@@ -11,11 +11,10 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 
 const val CONNECT_PORT_PLAYER = 7171
-const val FRAME_HEADER_SIZE = 32
 
 class ReceiverPlayer(
     private val host: String,
-    private val serviceController: ServiceController,
+    private val uiController: UIController,
     @Volatile private var soundOut: SoundOut
 ) : Thread() {
 
@@ -87,7 +86,7 @@ class ReceiverPlayer(
             soundOut.destroy()
             inputStream?.close()
             s?.close()
-            serviceController.stopJob()
+            uiController.stopJob()
         }
     }
 

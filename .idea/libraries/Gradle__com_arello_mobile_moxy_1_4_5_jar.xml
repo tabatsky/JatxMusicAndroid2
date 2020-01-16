@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.arello-mobile:moxy:1.4.5@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.arello-mobile/moxy/1.4.5/9fab3764b015b170560f790b0a2a79fec84fbd24/moxy-1.4.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.arello-mobile/moxy/1.4.5/9e0e7bf1bd3bff044ebace3a7a530d1c089d5f1/moxy-1.4.5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.arello-mobile/moxy/1.4.5/428c873960c9961afa7ff3359c2830091145736f/moxy-1.4.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

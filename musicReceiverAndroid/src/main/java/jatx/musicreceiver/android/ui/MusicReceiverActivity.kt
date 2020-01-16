@@ -8,10 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import dagger.Lazy
-import jatx.constants.DEV_SITE_URL
-import jatx.constants.FX_RECEIVER_URL
-import jatx.constants.FX_TRANSMITTER_URL
-import jatx.constants.SOURCE_CODE_URL
+import jatx.constants.*
 import jatx.debug.AppDebug
 import jatx.extensions.showToast
 import jatx.musicreceiver.android.App
@@ -108,14 +105,14 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=jatx.musicreceiver.android")
+                    Uri.parse(RECEIVER_MARKET_URL1)
                 )
             )
         } catch (e: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musicreceiver.android")
+                    Uri.parse(RECEIVER_MARKET_URL2)
                 )
             )
         }
@@ -126,14 +123,14 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=jatx.musictransmitter.android")
+                    Uri.parse(TRANSMITTER_MARKET_URL1)
                 )
             )
         } catch (e: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musictransmitter.android")
+                    Uri.parse(TRANSMITTER_MARKET_URL2)
                 )
             )
         }

@@ -18,11 +18,9 @@ import com.obsez.android.lib.filechooser.ChooserDialog
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import dagger.Lazy
-import jatx.constants.DEV_SITE_URL
-import jatx.constants.FX_RECEIVER_URL
-import jatx.constants.FX_TRANSMITTER_URL
-import jatx.constants.SOURCE_CODE_URL
+import jatx.constants.*
 import jatx.debug.AppDebug
+import jatx.extensions.onSeek
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.db.entity.Track
@@ -66,19 +64,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         volumeUpBtn.setOnClickListener { presenter.onVolumeUpClick() }
 
         seekBar.max = 1000
-        seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, i: Int, b: Boolean) {
-                if (b) {
-                    val progress = if (i < 1000) (i / 1000.0) else 0.999
-                    presenter.onProgressChanged(progress)
-                }
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {}
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {}
-
-        })
+        seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -298,14 +284,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=jatx.musictransmitter.android")
+                    Uri.parse(TRANSMITTER_MARKET_URL1)
                 )
             )
         } catch (e: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musictransmitter.android")
+                    Uri.parse(TRANSMITTER_MARKET_URL2)
                 )
             )
         }
@@ -316,14 +302,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=jatx.musicreceiver.android")
+                    Uri.parse(RECEIVER_MARKET_URL1)
                 )
             )
         } catch (e: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=jatx.musicreceiver.android")
+                    Uri.parse(RECEIVER_MARKET_URL2)
                 )
             )
         }

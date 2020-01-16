@@ -78,9 +78,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
     override fun onDestroy() {
         MusicTransmitterNotification.hideNotification(context)
-
         stopService()
-
         unregisterReceivers()
     }
 
@@ -109,8 +107,10 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showPlayingState(false)
         tpAndTcPause()
 
-        val track = tracks[realPosition]
-        MusicTransmitterNotification.showNotification(context, track.artist, track.title, false)
+        if (currentPosition > -1) {
+            val track = tracks[realPosition]
+            MusicTransmitterNotification.showNotification(context, track.artist, track.title, false)
+        }
     }
     
     fun onRepeatClick() {
@@ -187,6 +187,7 @@ class MusicTransmitterPresenter @Inject constructor(
         files.clear()
         updateTpFiles()
         updateTrackInfoStorageFiles()
+        currentPosition = -1
     }
 
     fun onRemoveTrackSelected() = viewState.showRemoveTrackMessage()
@@ -227,12 +228,7 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onShowIPSelected() {
         val wifiMgr = context.getSystemService(WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiMgr.connectionInfo
-        val ip = wifiInfo.ipAddress
-        val ipAddress =
-            if (ip > 0) Formatter.formatIpAddress(ip)
-            else
-                context.getString(R.string.not_detected_message)
-        viewState.showIPAddress(ipAddress)
+        viewState.showIPAddress(Formatter.formatIpAddress(wifiInfo.ipAddress))
     }
 
     fun onReturnFromTagEditor() = updateTrackInfoStorageFiles()
@@ -250,6 +246,65 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onSourceCodeSelected() = viewState.showSourceCodeActivity()
 
     fun onDevSiteSelected() = viewState.showDevSiteActivity()
+
+    private fun updateTpFiles() {
+        settings.currentFileList = files
+        context.sendBroadcast(Intent(TP_SET_FILE_LIST))
+    }
+
+    private fun updateTrackInfoStorageFiles() {
+        trackInfoStorage.files = files
+    }
+
+    private fun startService() {
+        val intent = Intent(context, MusicTransmitterService::class.java)
+        context.startService(intent)
+    }
+
+    private fun stopService() {
+        val intent = Intent(STOP_SERVICE)
+        context.sendBroadcast(intent)
+    }
+
+    private fun tpSetPosition(position: Int) {
+        val intent = Intent(TP_SET_POSITION)
+        intent.putExtra(KEY_POSITION, position)
+        context.sendBroadcast(intent)
+    }
+
+    private fun tpAndTcPlay() {
+        val intent = Intent(TP_AND_TC_PLAY)
+        context.sendBroadcast(intent)
+    }
+
+    private fun tpAndTcPause() {
+        val intent = Intent(TP_AND_TC_PAUSE)
+        context.sendBroadcast(intent)
+    }
+
+    private fun tpSeek(progress: Double) {
+        val intent = Intent(TP_SEEK)
+        intent.putExtra(KEY_PROGRESS, progress)
+        context.sendBroadcast(intent)
+    }
+
+    private fun tcSetVolume(volume: Int) {
+        val intent = Intent(TC_SET_VOLUME)
+        intent.putExtra(KEY_VOLUME, volume)
+        context.sendBroadcast(intent)
+    }
+
+    private fun checkReadPhoneStatePermission() {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {}
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
+        }
+
+        TedPermission.with(context)
+            .setPermissionListener(permissionListener)
+            .setPermissions(Manifest.permission.READ_PHONE_STATE)
+            .check()
+    }
 
     private fun initBroadcastReceivers() {
         setCurrentTimeReceiver = object : BroadcastReceiver() {
@@ -316,64 +371,5 @@ class MusicTransmitterPresenter @Inject constructor(
         context.unregisterReceiver(clickPlayReceiver)
         context.unregisterReceiver(clickPauseReceiver)
         context.unregisterReceiver(incomingCallReceiver)
-    }
-
-    private fun startService() {
-        val intent = Intent(context, MusicTransmitterService::class.java)
-        context.startService(intent)
-    }
-
-    private fun stopService() {
-        val intent = Intent(STOP_SERVICE)
-        context.sendBroadcast(intent)
-    }
-
-    private fun updateTpFiles() {
-        settings.currentFileList = files
-        context.sendBroadcast(Intent(TP_SET_FILE_LIST))
-    }
-
-    private fun tpSetPosition(position: Int) {
-        val intent = Intent(TP_SET_POSITION)
-        intent.putExtra(KEY_POSITION, position)
-        context.sendBroadcast(intent)
-    }
-
-    private fun tpAndTcPlay() {
-        val intent = Intent(TP_AND_TC_PLAY)
-        context.sendBroadcast(intent)
-    }
-
-    private fun tpAndTcPause() {
-        val intent = Intent(TP_AND_TC_PAUSE)
-        context.sendBroadcast(intent)
-    }
-
-    private fun tpSeek(progress: Double) {
-        val intent = Intent(TP_SEEK)
-        intent.putExtra(KEY_PROGRESS, progress)
-        context.sendBroadcast(intent)
-    }
-
-    private fun tcSetVolume(volume: Int) {
-        val intent = Intent(TC_SET_VOLUME)
-        intent.putExtra(KEY_VOLUME, volume)
-        context.sendBroadcast(intent)
-    }
-
-    private fun updateTrackInfoStorageFiles() {
-        trackInfoStorage.files = files
-    }
-
-    private fun checkReadPhoneStatePermission() {
-        val permissionListener = object: PermissionListener {
-            override fun onPermissionGranted() {}
-            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
-        }
-
-        TedPermission.with(context)
-            .setPermissionListener(permissionListener)
-            .setPermissions(Manifest.permission.READ_PHONE_STATE)
-            .check()
     }
 }

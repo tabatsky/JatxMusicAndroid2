@@ -20,8 +20,10 @@ const val COMMAND_PLAY = 125.toByte()
 
 class ReceiverController(
     private val host: String,
-    private val serviceController: ServiceController
+    private val uiController: UIController
 ) : Thread() {
+
+    var rp: ReceiverPlayer? = null
 
     @Volatile private var finishFlag = false
 
@@ -61,7 +63,7 @@ class ReceiverController(
                             }
                             COMMAND_STOP -> {
                                 println("(controller) stop command received")
-                                serviceController.stopJob()
+                                uiController.stopJob()
                             }
                         }
                     }
@@ -87,22 +89,22 @@ class ReceiverController(
             println("(controller) " + "thread finish")
             inputStream?.close()
             s?.close()
-            serviceController.stopJob()
+            uiController.stopJob()
         }
     }
 
     private fun play() {
         println("(controller) play command received")
-        serviceController.play()
+        rp?.play()
     }
 
     private fun pause() {
         println("(controller) pause command received")
-        serviceController.pause()
+        rp?.pause()
     }
 
     private fun setVolume(volume: Int) {
         println("(controller) volume command received: $volume")
-        serviceController.setVolume(volume)
+        rp?.setVolume(volume)
     }
 }

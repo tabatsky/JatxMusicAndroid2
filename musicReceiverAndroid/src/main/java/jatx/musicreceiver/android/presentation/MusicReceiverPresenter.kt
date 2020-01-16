@@ -30,17 +30,13 @@ class MusicReceiverPresenter @Inject constructor(
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-
         initBroadcastReceivers()
-
         viewState.showSelectHostDialog()
     }
 
     override fun onDestroy() {
         stopService()
-
         unregisterReceivers()
-
         super.onDestroy()
     }
 
@@ -82,6 +78,16 @@ class MusicReceiverPresenter @Inject constructor(
         viewState.showHost(settings.host)
         viewState.showAutoConnect(settings.isAutoConnect)
         startService()
+    }
+
+    private fun startService() {
+        val intent = Intent(context, MusicReceiverService::class.java)
+        context.startService(intent)
+    }
+
+    private fun stopService() {
+        val intent = Intent(STOP_SERVICE)
+        context.sendBroadcast(intent)
     }
 
     private fun uiStartJob() {
@@ -126,15 +132,5 @@ class MusicReceiverPresenter @Inject constructor(
     private fun unregisterReceivers() {
         context.unregisterReceiver(uiStartJobReceiver)
         context.unregisterReceiver(uiStopJobReceiver)
-    }
-
-    private fun startService() {
-        val intent = Intent(context, MusicReceiverService::class.java)
-        context.startService(intent)
-    }
-
-    private fun stopService() {
-        val intent = Intent(STOP_SERVICE)
-        context.sendBroadcast(intent)
     }
 }

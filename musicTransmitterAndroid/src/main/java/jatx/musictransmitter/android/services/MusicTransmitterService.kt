@@ -10,7 +10,6 @@ import android.net.wifi.WifiManager
 import android.net.wifi.WifiManager.WifiLock
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import jatx.musictransmitter.android.App
@@ -60,8 +59,6 @@ class MusicTransmitterService: Service() {
     private lateinit var tc: TransmitterController
     private lateinit var tp: TransmitterPlayer
 
-    @Volatile
-    private var position = 0
     @Volatile
     private var wifiStatus = false
     @Volatile

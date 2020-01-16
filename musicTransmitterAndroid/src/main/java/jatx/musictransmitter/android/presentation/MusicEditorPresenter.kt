@@ -41,7 +41,7 @@ class MusicEditorPresenter @Inject constructor() : MvpPresenter<MusicEditorView>
         }
     }
 
-    fun onNeedClose() {
+    fun onNeedQuit() {
         viewState.quit()
     }
 
@@ -61,7 +61,7 @@ class MusicEditorPresenter @Inject constructor() : MvpPresenter<MusicEditorView>
             tag.setField(FieldKey.ALBUM_ARTIST, artist)
             tag.setField(FieldKey.ALBUM, album)
             tag.setField(FieldKey.TITLE, title)
-            tag.setField(FieldKey.YEAR, correctNumber(year))
+            tag.setField(FieldKey.YEAR, year)
             tag.setField(FieldKey.TRACK, correctNumber(number))
             tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
 

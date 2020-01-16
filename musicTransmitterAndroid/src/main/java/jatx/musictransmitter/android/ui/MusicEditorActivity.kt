@@ -34,20 +34,20 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
 
         winToUtfBtn.setOnClickListener {
             presenter.onWinToUtfClick(
-                artistET.text.toString(),
-                albumET.text.toString(),
-                titleET.text.toString()
+                artist = artistET.text.toString(),
+                album = albumET.text.toString(),
+                title = titleET.text.toString()
             )
         }
     }
 
     override fun onBackPressed() {
         presenter.onBackPressed(
-            artistET.text.toString(),
-            albumET.text.toString(),
-            titleET.text.toString(),
-            yearET.text.toString(),
-            numberET.text.toString()
+            artist = artistET.text.toString(),
+            album = albumET.text.toString(),
+            title = titleET.text.toString(),
+            year = yearET.text.toString(),
+            number = numberET.text.toString()
         )
     }
 
@@ -71,11 +71,11 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
 
     override fun saveTags() {
         presenter.onSaveTags(
-            artistET.text.toString(),
-            albumET.text.toString(),
-            titleET.text.toString(),
-            yearET.text.toString(),
-            numberET.text.toString()
+            artist = artistET.text.toString(),
+            album = albumET.text.toString(),
+            title = titleET.text.toString(),
+            year = yearET.text.toString(),
+            number = numberET.text.toString()
         )
     }
 
@@ -86,12 +86,12 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
             .setPositiveButton("Да") { dialog, _ ->
                 presenter.onSaveClick()
                 dialog.dismiss()
-                presenter.onNeedClose()
+                presenter.onNeedQuit()
             }
             .setNegativeButton(
                 "Нет") { dialog, _ ->
                 dialog.dismiss()
-                presenter.onNeedClose()
+                presenter.onNeedQuit()
             }
             .create()
             .show()

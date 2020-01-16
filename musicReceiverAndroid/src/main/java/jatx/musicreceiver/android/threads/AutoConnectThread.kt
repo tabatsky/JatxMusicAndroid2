@@ -4,14 +4,14 @@ import jatx.musicreceiver.android.data.Settings
 
 class AutoConnectThread(
     @Volatile private var settings: Settings,
-    @Volatile private var serviceController: ServiceController
+    @Volatile private var uiController: UIController
 ) : Thread() {
 
     override fun run() {
         try {
             while (true) {
                 if (settings.isAutoConnect) {
-                    serviceController.startJob()
+                    uiController.startJob()
                 }
                 sleep(5000)
             }

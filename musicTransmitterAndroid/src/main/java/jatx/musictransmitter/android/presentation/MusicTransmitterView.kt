@@ -3,12 +3,12 @@ package jatx.musictransmitter.android.presentation
 import android.net.Uri
 import jatx.musictransmitter.android.db.entity.Track
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.SkipStrategy
 import moxy.viewstate.strategy.StateStrategyType
+
 interface MusicTransmitterView: MvpView {
-    @StateStrategyType(AddToEndSingleStrategy::class) fun showTracks(tracks: List<Track>, currentPosition: Int)
+    @StateStrategyType(OneExecutionStateStrategy::class) fun showTracks(tracks: List<Track>, currentPosition: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun scrollToPosition(position: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showWifiStatus(isWifiOk: Boolean)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showPlayingState(isPlaying: Boolean)
