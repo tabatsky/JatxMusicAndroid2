@@ -1,6 +1,7 @@
 package jatx.musictransmitter.android.ui
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -8,7 +9,12 @@ import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import jatx.musictransmitter.android.R
+
+const val CHANNEL_ID = "jatxMusicTransmitter"
+const val CHANNEL_NAME = "jatxMusicTransmitter"
 
 const val CLICK_PLAY = "jatx.musictransmitter.android.CLICK_PLAY"
 const val CLICK_PAUSE = "jatx.musictransmitter.android.CLICK_PAUSE"
@@ -19,10 +25,14 @@ object MusicTransmitterNotification {
     fun showNotification(context: Context, artist: String, title: String, isPlaying: Boolean) {
         if (Build.VERSION.SDK_INT < 16) return
 
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = NotificationManagerCompat.from(context)
 
-        val builder = Notification.Builder(context)
+        if (Build.VERSION.SDK_INT >= 26) {
+            val channel = NotificationChannel(CHANNEL_ID , CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         val contentView = RemoteViews(context.packageName, R.layout.notification)
 
         contentView.setTextViewText(R.id.text_title, title)
@@ -51,7 +61,7 @@ object MusicTransmitterNotification {
         val contentIntent =
             PendingIntent.getActivity(context, 0, mainActivityIntent, 0)
 
-        builder
+        val notification = builder
             .setTicker("JatxMusicTransmitter")
             .setWhen(System.currentTimeMillis())
             .setContentTitle(title)
@@ -59,17 +69,16 @@ object MusicTransmitterNotification {
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .setOngoing(true)
-
-        val notification = builder.build()
-        notification.bigContentView = contentView
-        notification.priority = Notification.PRIORITY_MAX
+            .setCustomBigContentView(contentView)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setSound(null)
+            .build()
 
         notificationManager.notify(1, notification)
     }
 
     fun hideNotification(context: Context) {
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = NotificationManagerCompat.from(context)
         notificationManager.cancel(1)
     }
 }
