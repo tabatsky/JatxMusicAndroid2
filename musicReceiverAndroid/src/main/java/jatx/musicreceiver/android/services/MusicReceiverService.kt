@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import jatx.musicreceiver.android.App
@@ -23,6 +25,11 @@ import jatx.musicreceiver.android.threads.UIController
 import jatx.musicreceiver.android.ui.MusicReceiverActivity
 import javax.inject.Inject
 
+const val CHANNEL_ID_SERVICE = "jatxMusicReceiverService"
+const val CHANNEL_NAME_SERVICE = "jatxMusicReceiverService"
+const val WAKE_LOCK_TAG = "jatxMusicReceiverService::wakeLock"
+const val WIFI_LOCK_TAG = "music-receiver-wifi-lock"
+
 const val STOP_SERVICE = "jatx.musicreceiver.android.STOP_SERVICE"
 const val SERVICE_START_JOB = "jatx.musicreceiver.android.SERVICE_START_JOB"
 const val SERVICE_STOP_JOB = "jatx.musicreceiver.android.SERVICE_STOP_JOB"
@@ -35,7 +42,8 @@ class MusicReceiverService : Service() {
     private lateinit var serviceStartJobReceiver: BroadcastReceiver
     private lateinit var serviceStopJobReceiver: BroadcastReceiver
 
-    private var lock: WifiManager.WifiLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     private var isRunning = false
 
@@ -62,12 +70,14 @@ class MusicReceiverService : Service() {
 
         startForeground()
         lockWifi()
+        lockWake()
         prepareAndStart(intent)
 
         return START_STICKY_COMPATIBILITY
     }
 
     override fun onDestroy() {
+        unlockWake()
         unlockWifi()
 
         act?.interrupt()
@@ -86,30 +96,49 @@ class MusicReceiverService : Service() {
             PendingIntent.getActivity(this, 0, actIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel("music receiver service", "Music receiver service")
+            createNotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE)
         } else {
             ""
         }
 
         val builder = NotificationCompat.Builder(this, channelId)
-        builder.setContentTitle("JatxMusicReceiver")
-        builder.setContentText("Foreground service is running")
-        builder.setContentIntent(pendingIntent)
 
-        val notification = builder.build()
+        val notification = builder
+            .setContentTitle("JatxMusicReceiver")
+            .setContentText("Foreground service is running")
+            .setContentIntent(pendingIntent)
+            .build()
         startForeground(1523, notification)
     }
 
     private fun lockWifi() {
         val wifiManager =
             applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        lock = wifiManager.createWifiLock("music-transmitter-wifi-lock")
-        lock?.setReferenceCounted(false)
-        lock?.acquire()
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, WIFI_LOCK_TAG)
+        wifiLock?.setReferenceCounted(false)
+        wifiLock?.acquire()
     }
 
     private fun unlockWifi() {
-        lock?.release()
+        wifiLock?.release()
+    }
+
+    private fun lockWake() {
+        Log.e("wakeLock", WAKE_LOCK_TAG)
+        val wifiManager =
+            applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = wifiManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG).apply {
+            acquire()
+        }
+    }
+
+    private fun unlockWake() {
+        Log.e("wakeUnlock", WAKE_LOCK_TAG)
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+        }
     }
 
     private fun prepareAndStart(intent: Intent?) {
@@ -171,9 +200,9 @@ class MusicReceiverService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(channelId: String, channelName: String): String {
-        val chan = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+        val chan = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN)
         chan.lightColor = Color.BLUE
-        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        chan.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         val service =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         service.createNotificationChannel(chan)

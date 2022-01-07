@@ -1,6 +1,5 @@
 package jatx.musictransmitter.android.ui
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -28,7 +27,7 @@ object MusicTransmitterNotification {
         val notificationManager = NotificationManagerCompat.from(context)
 
         if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(CHANNEL_ID , CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(CHANNEL_ID , CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -70,8 +69,6 @@ object MusicTransmitterNotification {
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .setCustomBigContentView(contentView)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setSound(null)
             .build()
 
         notificationManager.notify(1, notification)
