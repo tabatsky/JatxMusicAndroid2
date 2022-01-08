@@ -12,7 +12,6 @@ import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
-import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.data.Settings
 import jatx.musictransmitter.android.data.TrackInfoStorage
@@ -50,20 +49,27 @@ class MusicTransmitterPresenter @Inject constructor(
     private var isShuffle = false
 
     private val realPosition: Int
-        get() = if (isShuffle)
-                    shuffledList[currentPosition] % files.size
-                else
-                    currentPosition
+        get() = when {
+            currentPosition < 0 -> {
+                currentPosition
+            }
+            isShuffle -> {
+                shuffledList[currentPosition] % files.size
+            }
+            else -> {
+                (currentPosition % shuffledList.size) % files.size
+            }
+        }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        for (i in 0 until 10000) shuffledList.add(i)
+        for (i in 0 until 100000) shuffledList.add(i)
         shuffledList.shuffle()
 
         trackInfoStorage.setOnUpdateTrackListListener { tracks ->
             this.tracks = tracks
-            viewState.showTracks(tracks, currentPosition)
+            viewState.showTracks(tracks, realPosition)
         }
 
         files.addAll(settings.currentFileList)
@@ -115,21 +121,30 @@ class MusicTransmitterPresenter @Inject constructor(
     
     fun onRepeatClick() {
         isShuffle = true
+        currentPosition = shuffledList.indexOf(currentPosition)
         viewState.showShuffleState(true)
     }
 
     fun onShuffleClick() {
         isShuffle = false
+        currentPosition = shuffledList[currentPosition]
         viewState.showShuffleState(false)
     }
 
     fun onRevClick() {
         if (files.isEmpty()) return
 
-        currentPosition = if (currentPosition > 0)
-            currentPosition - 1
-        else
-            files.size - 1
+        currentPosition = when {
+            currentPosition > 0 -> {
+                currentPosition - 1
+            }
+            isShuffle -> {
+                shuffledList.size - 1
+            }
+            else -> {
+                files.size - 1
+            }
+        }
 
         onPlayClick()
         tpSetPosition(realPosition)
@@ -140,7 +155,7 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onFwdClick() {
         if (files.isEmpty()) return
 
-        currentPosition = (currentPosition + 1) % files.size
+        currentPosition += 1
 
         onPlayClick()
         tpSetPosition(realPosition)
@@ -193,24 +208,37 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onRemoveTrackSelected() = viewState.showRemoveTrackMessage()
 
     fun onTrackClick(position: Int) {
-        currentPosition = position
-        viewState.showTracks(tracks, currentPosition)
-        viewState.scrollToPosition(currentPosition)
+        currentPosition = if (isShuffle) {
+            shuffledList.indexOf(position)
+        } else {
+            position
+        }
+        viewState.showTracks(tracks, realPosition)
+        viewState.scrollToPosition(realPosition)
         onPlayClick()
-        tpSetPosition(position)
+        tpSetPosition(realPosition)
     }
 
     fun onTrackLongClick(position: Int) = viewState.showTrackLongClickDialog(position)
 
     fun onDeleteTrack(position: Int) {
         files.removeAt(position)
-        if (position < currentPosition) {
-            currentPosition -= 1
-        } else if (position == currentPosition) {
+        if (position < realPosition) {
+            if (isShuffle) {
+                currentPosition = shuffledList.indexOf(realPosition - 1)
+            } else {
+                currentPosition -= 1
+            }
+        } else if (position == realPosition) {
             currentPosition = -1
+        } else if (isShuffle) {
+            currentPosition = shuffledList.indexOf(realPosition)
         }
         updateTpFiles()
         updateTrackInfoStorageFiles()
+        if (isShuffle) {
+            viewState.showTracks(tracks, realPosition)
+        }
     }
 
     fun onOpenTagEditor(position: Int) = viewState.showTagEditor(Uri.fromFile(files[position]))
