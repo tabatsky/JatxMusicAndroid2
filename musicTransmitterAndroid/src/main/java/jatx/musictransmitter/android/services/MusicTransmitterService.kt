@@ -16,7 +16,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import jatx.musictransmitter.android.App
-import jatx.musictransmitter.android.audio.JLayerMp3Decoder
 import jatx.musictransmitter.android.data.Settings
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.threads.TimeUpdater
@@ -192,11 +191,9 @@ class MusicTransmitterService: Service() {
     private fun prepareAndStart(intent: Intent?) {
         initBroadcastReceivers()
 
-        val decoder = JLayerMp3Decoder()
-
-        tu = TimeUpdater(uiController, decoder)
+        tu = TimeUpdater(uiController)
         tc = TransmitterController(settings.volume)
-        tp = TransmitterPlayer(uiController, decoder)
+        tp = TransmitterPlayer(uiController)
 
         tc.tp = tp
         tp.tc = tc

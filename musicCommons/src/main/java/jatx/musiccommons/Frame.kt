@@ -7,12 +7,13 @@ import java.io.InputStream
 import kotlin.experimental.and
 
 const val FRAME_HEADER_SIZE = 64
-val FRAME_RATES = intArrayOf(32000, 44100, 48000)
+val FRAME_RATES = intArrayOf(32000, 44100, 48000, 96000, 192000)
 
 data class Frame(
     val size: Int,
     val freq: Int,
     val channels: Int,
+    val depth: Int,
     val position: Int,
     val data: ByteArray
 )
@@ -42,6 +43,7 @@ fun frameToByteArray(frame: Frame?): ByteArray? {
     val pos4 = (frame.position shr 0 and 0xff).toByte()
 
     val ch = (frame.channels and 0xff).toByte()
+    val dpth = (frame.depth and 0xff).toByte()
 
     for (i in 0 until FRAME_HEADER_SIZE) {
         result[i] = 0x00.toByte()
@@ -58,6 +60,7 @@ fun frameToByteArray(frame: Frame?): ByteArray? {
     result[7] = freq4
 
     result[8] = ch
+    result[9] = dpth
 
     result[12] = pos1
     result[13] = pos2
@@ -74,6 +77,7 @@ fun frameFromSampleBuffer(sampleBuffer: SampleBuffer, position: Int): Frame {
 
     val freq = sampleBuffer.sampleFrequency
     val channels = sampleBuffer.channelCount
+    val depth = 16
 
     val pcm = sampleBuffer.buffer
 
@@ -85,24 +89,28 @@ fun frameFromSampleBuffer(sampleBuffer: SampleBuffer, position: Int): Frame {
 
     if (wrongRate) throw WrongFrameException("(player) wrong frame rate: $freq")
 
-    if (channels == 2) {
-        for (i in 0 until pcm.size / 2) {
-            val shrt1 = pcm[2 * i]
-            val shrt2 = pcm[2 * i + 1]
-            outStream.write(shrt1.toInt() and 0xff)
-            outStream.write(shrt1.toInt() shr 8 and 0xff)
-            outStream.write(shrt2.toInt() and 0xff)
-            outStream.write(shrt2.toInt() shr 8 and 0xff)
+    when (channels) {
+        2 -> {
+            for (i in 0 until pcm.size / 2) {
+                val shrt1 = pcm[2 * i]
+                val shrt2 = pcm[2 * i + 1]
+                outStream.write(shrt1.toInt() and 0xff)
+                outStream.write(shrt1.toInt() shr 8 and 0xff)
+                outStream.write(shrt2.toInt() and 0xff)
+                outStream.write(shrt2.toInt() shr 8 and 0xff)
+            }
         }
-    } else if (channels == 1) {
-        throw WrongFrameException("(player) mono sound")
-    } else {
-        throw WrongFrameException("(player) $channels channels")
+        1 -> {
+            throw WrongFrameException("(player) mono sound")
+        }
+        else -> {
+            throw WrongFrameException("(player) $channels channels")
+        }
     }
 
     val data = outStream.toByteArray()
 
-    return Frame(data.size, freq, channels, position, data)
+    return Frame(data.size, freq, channels, depth, position, data)
 }
 
 @Throws(IOException::class, InterruptedException::class)
@@ -123,6 +131,7 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
     var pos4 = 0
 
     var channels = 0
+    var depth = 0
 
     val header = ByteArray(1)
     var bytesRead = 0
@@ -148,6 +157,8 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
                     freq4 = header[0].toInt() and 0xff
                 } else if (bytesRead == 8) {
                     channels = header[0].toInt() and 0xff
+                } else if (bytesRead == 9) {
+                    depth = header[0].toInt() and 0xff
                 } else if (bytesRead == 12) {
                     pos1 = header[0].toInt() and 0xff
                 } else if (bytesRead == 13) {
@@ -181,11 +192,11 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
         }
     }
 
-    return Frame(size, freq, channels, pos, data)
+    return Frame(size, freq, channels, depth, pos, data)
 }
 
 fun frameFromMicRawData(rawData: ByteArray, dataSize: Int, position: Int, sampleRate: Int): Frame {
-    return Frame(dataSize, sampleRate, 2, position, rawData.copyOf(dataSize))
+    return Frame(dataSize, sampleRate, 2, 16, position, rawData.copyOf(dataSize))
 }
 
 class WrongFrameException(msg: String): Exception(msg)

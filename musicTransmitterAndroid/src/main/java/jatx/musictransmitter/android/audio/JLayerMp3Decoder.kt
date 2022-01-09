@@ -10,7 +10,7 @@ import javazoom.jl.decoder.*
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.*
 
-class JLayerMp3Decoder : Mp3Decoder() {
+class JLayerMp3Decoder : MusicDecoder() {
     private var decoder: Decoder? = null
     private var bitstream: Bitstream? = null
     private var msFrame = 0f
@@ -23,7 +23,11 @@ class JLayerMp3Decoder : Mp3Decoder() {
             }
 
             if (value == null || !value.exists()) {
-                throw Mp3DecoderException(FileDoesNotExistException())
+                throw MusicDecoderException(FileDoesNotExistException())
+            }
+
+            if (value.extension != "mp3") {
+                throw MusicDecoderException("File extension is not mp3")
             }
 
             field = value
@@ -41,7 +45,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
                 try {
                     this.close()
                 } catch (e: BitstreamException) {
-                    throw Mp3DecoderException(e)
+                    throw MusicDecoderException(e)
                 }
                 bitstream = null
             }
@@ -50,7 +54,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
                 val inputStream: InputStream = BufferedInputStream(FileInputStream(value), 32 * 1024)
                 bitstream = Bitstream(inputStream)
             } catch (e: FileNotFoundException) {
-                throw Mp3DecoderException(e)
+                throw MusicDecoderException(e)
             }
 
             currentMs = 0f
@@ -64,7 +68,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
             val frameHeader = (if (bitstream != null) {
                 bitstream!!.readFrame()
             } else {
-                throw Mp3DecoderException("bitstream: null")
+                throw MusicDecoderException("bitstream: null")
             })
                 ?: throw TrackFinishException()
             msFrame = frameHeader.ms_per_frame()
@@ -73,7 +77,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
             currentMs += msFrame
             val output = try {
                 decoder!!.decodeFrame(frameHeader, bitstream)
-            } catch (e: ArrayIndexOutOfBoundsException) { //Log.e("readFrame", "ArrayIndexOutOfBounds");
+            } catch (e: ArrayIndexOutOfBoundsException) {
                 bitstream!!.closeFrame()
                 throw TrackFinishException()
             }
@@ -84,9 +88,9 @@ class JLayerMp3Decoder : Mp3Decoder() {
         } catch (e: WrongFrameException) {
             throw e
         } catch (e: BitstreamException) {
-            throw Mp3DecoderException(e)
+            throw MusicDecoderException(e)
         } catch (e: DecoderException) {
-            throw Mp3DecoderException(e)
+            throw MusicDecoderException(e)
         }
 
         return f
@@ -99,7 +103,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
                 val frameHeader = if (bitstream != null) {
                     bitstream!!.readFrame()
                 } else {
-                    throw Mp3DecoderException("bitstream: null")
+                    throw MusicDecoderException("bitstream: null")
                 }
                 if (frameHeader != null) {
                     msFrame = frameHeader.ms_per_frame()
@@ -112,7 +116,7 @@ class JLayerMp3Decoder : Mp3Decoder() {
                 }
             }
         } catch (e: BitstreamException) {
-            throw Mp3DecoderException(e)
+            throw MusicDecoderException(e)
         }
 
         resetTimeFlag = true

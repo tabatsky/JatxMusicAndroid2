@@ -7,7 +7,7 @@ import android.media.AudioTrack
 class AndroidSoundOut : SoundOut {
     private var audioTrack: AudioTrack? = null
 
-    override fun renew(frameRate: Int, channels: Int) {
+    override fun renew(frameRate: Int, channels: Int, depth: Int) {
         audioTrack?.stop()
         audioTrack?.release()
 
@@ -19,13 +19,19 @@ class AndroidSoundOut : SoundOut {
             chFormat = AudioFormat.CHANNEL_OUT_STEREO
         }
 
+        val encoding = when (depth) {
+            8 -> AudioFormat.ENCODING_PCM_8BIT
+            else -> AudioFormat.ENCODING_PCM_16BIT
+        }
+
         val bufferSize = AudioTrack.getMinBufferSize(
             frameRate,
-            chFormat, AudioFormat.ENCODING_PCM_16BIT
+            chFormat,
+            encoding
         )
         audioTrack = AudioTrack(
             AudioManager.STREAM_MUSIC,
-            frameRate, chFormat, AudioFormat.ENCODING_PCM_16BIT,
+            frameRate, chFormat, encoding,
             bufferSize, AudioTrack.MODE_STREAM
         )
 

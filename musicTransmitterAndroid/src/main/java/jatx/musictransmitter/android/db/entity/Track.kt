@@ -7,6 +7,7 @@ import jatx.debug.logError
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.flac.FlacTag
 import java.io.File
 
 @Entity(tableName = "track_info")
@@ -30,19 +31,36 @@ data class Track(
             val sec = len % 60
             val min = (len - sec) / 60
             length = String.format("%02d:%02d", min, sec)
-            val mp3f = MP3File(file)
-            val tag = mp3f.getTag()
-            artist = tag.getFirst(FieldKey.ARTIST).trim()
-            album = tag.getFirst(FieldKey.ALBUM).trim()
-            title = tag.getFirst(FieldKey.TITLE).trim()
-            year = tag.getFirst(FieldKey.YEAR)
-            number = tag.getFirst(FieldKey.TRACK)
-            if (number != "") {
-                val num: Int = number.toInt()
-                if (num < 10) {
-                    number = "00$num"
-                } else if (num < 100) {
-                    number = "0$num"
+            if (file.extension == "mp3") {
+                val mp3f = MP3File(file)
+                val tag = mp3f.tag
+                artist = tag.getFirst(FieldKey.ARTIST).trim()
+                album = tag.getFirst(FieldKey.ALBUM).trim()
+                title = tag.getFirst(FieldKey.TITLE).trim()
+                year = tag.getFirst(FieldKey.YEAR)
+                number = tag.getFirst(FieldKey.TRACK)
+                if (number != "") {
+                    val num: Int = number.toInt()
+                    if (num < 10) {
+                        number = "00$num"
+                    } else if (num < 100) {
+                        number = "0$num"
+                    }
+                }
+            } else if (file.extension == "flac") {
+                val tag = af.tag as FlacTag
+                artist = tag.getFirst(FieldKey.ARTIST).trim()
+                album = tag.getFirst(FieldKey.ALBUM).trim()
+                title = tag.getFirst(FieldKey.TITLE).trim()
+                year = tag.getFirst(FieldKey.YEAR)
+                number = tag.getFirst(FieldKey.TRACK)
+                if (number != "") {
+                    val num: Int = number.toInt()
+                    if (num < 10) {
+                        number = "00$num"
+                    } else if (num < 100) {
+                        number = "0$num"
+                    }
                 }
             }
         } catch (e: Throwable) {

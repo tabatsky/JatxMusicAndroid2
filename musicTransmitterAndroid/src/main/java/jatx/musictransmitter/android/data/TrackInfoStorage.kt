@@ -70,7 +70,7 @@ class TrackInfoStorage(
         }
     }.apply { this.start() }
 
-    fun getMicTrack(): Track {
+    private fun getMicTrack(): Track {
         val track =
             Track(MIC_PATH)
         track.artist = "Microphone"

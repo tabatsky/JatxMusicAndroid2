@@ -16,8 +16,7 @@ import java.util.*
 const val CONNECT_PORT_PLAYER = 7171
 
 class TransmitterPlayer(
-    @Volatile private var uiController: UIController,
-    @Volatile private var decoder: Mp3Decoder
+    @Volatile private var uiController: UIController
 ): Thread() {
 
     @Volatile
@@ -56,9 +55,9 @@ class TransmitterPlayer(
             println("(player) path: $path")
 
             try {
-                decoder.setPath(path!!)
-                decoder.position = position
-            } catch (e: Mp3DecoderException) {
+                MusicDecoder.setPath(path!!)
+                MusicDecoder.position = position
+            } catch (e: MusicDecoderException) {
                 logError(e)
             }
 
@@ -100,7 +99,7 @@ class TransmitterPlayer(
                     sleep(250)
                 } finally {
                     forceDisconnectFlag = false
-                    decoder.disconnectResetTimeFlag = true
+                    MusicDecoder.disconnectResetTimeFlag = true
                     os?.close()
                     println("(player) outstream closed")
                     ss?.close()
@@ -147,8 +146,8 @@ class TransmitterPlayer(
         val needToPlay = isPlaying
         pause()
         try {
-            decoder.seek(progress)
-        } catch (e: Mp3DecoderException) {
+            MusicDecoder.INSTANCE?.seek(progress)
+        } catch (e: MusicDecoderException) {
             logError(e)
         }
         if (needToPlay) play()
@@ -163,24 +162,24 @@ class TransmitterPlayer(
 
         while (true) {
             if (isPlaying) {
-                if (decoder.resetTimeFlag) {
+                if (MusicDecoder.resetTimeFlag) {
                     do {
                         t2 = System.currentTimeMillis()
-                        dt = decoder.msTotal - (t2 - t1)
+                        dt = (MusicDecoder.INSTANCE?.msTotal ?: 0f) - (t2 - t1)
                         sleep(10)
                     } while (dt > 0)
-                    decoder.msRead = 0f
-                    decoder.msTotal = 0f
+                    MusicDecoder.INSTANCE?.msRead = 0f
+                    MusicDecoder.INSTANCE?.msTotal = 0f
                     t1 = System.currentTimeMillis()
                     t2 = t1
-                    decoder.resetTimeFlag = false
+                    MusicDecoder.resetTimeFlag = false
                 }
-                if (decoder.disconnectResetTimeFlag) {
+                if (MusicDecoder.disconnectResetTimeFlag) {
                     t1 = Date().time
                     t2 = t1
-                    decoder.msRead = 0f
-                    decoder.msTotal = 0f
-                    decoder.disconnectResetTimeFlag = false
+                    MusicDecoder.INSTANCE?.msRead = 0f
+                    MusicDecoder.INSTANCE?.msTotal = 0f
+                    MusicDecoder.disconnectResetTimeFlag = false
                 }
                 try {
                     data = if (path == MIC_PATH) {
@@ -189,9 +188,9 @@ class TransmitterPlayer(
                         else
                             null
                     } else {
-                        frameToByteArray(decoder.readFrame())
+                        frameToByteArray(MusicDecoder.INSTANCE?.readFrame())
                     }
-                } catch (e: Mp3DecoderException) {
+                } catch (e: MusicDecoderException) {
                     println("(player) decoder exception")
                     data = null
                     sleep(200)
@@ -216,8 +215,8 @@ class TransmitterPlayer(
                 }
             } else {
                 sleep(10)
-                decoder.msRead = 0f
-                decoder.msTotal = 0f
+                MusicDecoder.INSTANCE?.msRead = 0f
+                MusicDecoder.INSTANCE?.msTotal = 0f
                 t1 = Date().time
                 t2 = t1
                 dt = 0f
@@ -226,13 +225,13 @@ class TransmitterPlayer(
                 println("(player) disconnect flag: throwing DisconnectException")
                 throw ForceDisconnectException()
             }
-            if (decoder.msRead > 300) {
+            if (MusicDecoder.INSTANCE?.msRead ?: 0f > 300) {
                 do {
                     t2 = System.currentTimeMillis()
-                    dt = decoder.msTotal - (t2 - t1)
+                    dt = (MusicDecoder.INSTANCE?.msTotal ?: 0f) - (t2 - t1)
                     sleep(10)
                 } while (dt > 200)
-                decoder.msRead = 0f
+                MusicDecoder.INSTANCE?.msRead = 0f
             }
         }
     }

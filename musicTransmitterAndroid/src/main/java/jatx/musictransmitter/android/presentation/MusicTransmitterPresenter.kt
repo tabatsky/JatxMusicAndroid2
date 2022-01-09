@@ -193,6 +193,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onFolderOpened(path: String) {
         files.addAll(findFiles(path, ".*\\.mp3$"))
+        files.addAll(findFiles(path, ".*\\.flac$"))
         settings.currentMusicDirPath = path
         updateTpFiles()
         updateTrackInfoStorageFiles()

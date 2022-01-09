@@ -1,16 +1,17 @@
 package jatx.musictransmitter.android.threads
 
-import jatx.musictransmitter.android.audio.Mp3Decoder
+import jatx.musictransmitter.android.audio.MusicDecoder
 
 class TimeUpdater(
-    @Volatile private var uiController: UIController,
-    @Volatile private var decoder: Mp3Decoder
+    @Volatile private var uiController: UIController
 ): Thread() {
 
     override fun run() {
         try {
             while (true) {
-                uiController.setCurrentTime(decoder.currentMs, decoder.trackLengthSec * 1000f)
+                uiController.setCurrentTime(
+                    MusicDecoder.INSTANCE?.currentMs ?: 0f,
+                    (MusicDecoder.INSTANCE?.trackLengthSec ?: 1) * 1000f)
                 sleep(500)
             }
         } catch (e: InterruptedException) {
