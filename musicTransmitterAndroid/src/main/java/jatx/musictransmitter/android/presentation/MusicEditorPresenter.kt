@@ -79,7 +79,7 @@ class MusicEditorPresenter @Inject constructor(
                 }
                 "flac" -> {
                     val af = AudioFileIO.read(file)
-                    val tag = af.tag as FlacTag
+                    val tag = af.tagOrCreateDefault as FlacTag
                     tag.setField(FieldKey.ARTIST, artist)
                     tag.setField(FieldKey.ALBUM_ARTIST, artist)
                     tag.setField(FieldKey.ALBUM, album)
@@ -93,6 +93,7 @@ class MusicEditorPresenter @Inject constructor(
             }
         } catch (e: Throwable) {
             logError(e)
+            viewState.saveTagErrorToast()
         }
     }
 

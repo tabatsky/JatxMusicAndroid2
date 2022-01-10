@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import dagger.Lazy
+import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.presentation.MusicEditorPresenter
@@ -101,5 +102,9 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
         val intent = Intent()
         setResult(RESULT_OK, intent)
         finish()
+    }
+
+    override fun saveTagErrorToast() {
+        showToast(R.string.toast_saving_tag_error)
     }
 }
