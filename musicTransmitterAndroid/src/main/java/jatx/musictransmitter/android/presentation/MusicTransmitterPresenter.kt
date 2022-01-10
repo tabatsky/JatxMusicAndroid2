@@ -192,8 +192,7 @@ class MusicTransmitterPresenter @Inject constructor(
     }
 
     fun onFolderOpened(path: String) {
-        files.addAll(findFiles(path, ".*\\.mp3$"))
-        files.addAll(findFiles(path, ".*\\.flac$"))
+        files.addAll(findFiles(path) { it.extension in setOf("mp3", "flac") } )
         settings.currentMusicDirPath = path
         updateTpFiles()
         updateTrackInfoStorageFiles()
@@ -242,7 +241,14 @@ class MusicTransmitterPresenter @Inject constructor(
         }
     }
 
-    fun onOpenTagEditor(position: Int) = viewState.showTagEditor(Uri.fromFile(files[position]))
+    fun onOpenTagEditor(position: Int) {
+        val file = files[position]
+        if (file.extension in setOf("mp3", "flac")) {
+            viewState.showTagEditor(Uri.fromFile(file))
+        } else {
+            viewState.showWrongFileFormatToast()
+        }
+    }
 
     fun onProgressChanged(progress: Double) = tpSeek(progress)
 

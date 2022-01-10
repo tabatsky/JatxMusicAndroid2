@@ -31,35 +31,38 @@ data class Track(
             val sec = len % 60
             val min = (len - sec) / 60
             length = String.format("%02d:%02d", min, sec)
-            if (file.extension == "mp3") {
-                val mp3f = MP3File(file)
-                val tag = mp3f.tag
-                artist = tag.getFirst(FieldKey.ARTIST).trim()
-                album = tag.getFirst(FieldKey.ALBUM).trim()
-                title = tag.getFirst(FieldKey.TITLE).trim()
-                year = tag.getFirst(FieldKey.YEAR)
-                number = tag.getFirst(FieldKey.TRACK)
-                if (number != "") {
-                    val num: Int = number.toInt()
-                    if (num < 10) {
-                        number = "00$num"
-                    } else if (num < 100) {
-                        number = "0$num"
+            when (file.extension) {
+                "mp3" -> {
+                    val mp3f = MP3File(file)
+                    val tag = mp3f.tag
+                    artist = tag.getFirst(FieldKey.ARTIST).trim()
+                    album = tag.getFirst(FieldKey.ALBUM).trim()
+                    title = tag.getFirst(FieldKey.TITLE).trim()
+                    year = tag.getFirst(FieldKey.YEAR)
+                    number = tag.getFirst(FieldKey.TRACK)
+                    if (number != "") {
+                        val num: Int = number.toInt()
+                        if (num < 10) {
+                            number = "00$num"
+                        } else if (num < 100) {
+                            number = "0$num"
+                        }
                     }
                 }
-            } else if (file.extension == "flac") {
-                val tag = af.tag as FlacTag
-                artist = tag.getFirst(FieldKey.ARTIST).trim()
-                album = tag.getFirst(FieldKey.ALBUM).trim()
-                title = tag.getFirst(FieldKey.TITLE).trim()
-                year = tag.getFirst(FieldKey.YEAR)
-                number = tag.getFirst(FieldKey.TRACK)
-                if (number != "") {
-                    val num: Int = number.toInt()
-                    if (num < 10) {
-                        number = "00$num"
-                    } else if (num < 100) {
-                        number = "0$num"
+                "flac" -> {
+                    val tag = af.tag as FlacTag
+                    artist = tag.getFirst(FieldKey.ARTIST).trim()
+                    album = tag.getFirst(FieldKey.ALBUM).trim()
+                    title = tag.getFirst(FieldKey.TITLE).trim()
+                    year = tag.getFirst(FieldKey.YEAR)
+                    number = tag.getFirst(FieldKey.TRACK)
+                    if (number != "") {
+                        val num: Int = number.toInt()
+                        if (num < 10) {
+                            number = "00$num"
+                        } else if (num < 100) {
+                            number = "0$num"
+                        }
                     }
                 }
             }

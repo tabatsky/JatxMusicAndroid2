@@ -30,5 +30,6 @@ interface MusicTransmitterView: MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class) fun showSourceCodeActivity()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showDevSiteActivity()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showQuitDialog()
+    @StateStrategyType(OneExecutionStateStrategy::class) fun showWrongFileFormatToast()
     @StateStrategyType(SkipStrategy::class) fun quit()
 }

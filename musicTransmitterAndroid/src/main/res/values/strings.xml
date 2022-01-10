@@ -30,7 +30,8 @@
 	<string name="toast_long_tap">Make long tap on track to remove</string>
 	<string name="toast_no_mic_access">No microphone access</string>
 	<string name="toast_cannot_init_microphone">Cannot init microphone</string>
-	
+	<string name="toast_wrong_file_format">Unsupported file format for tag editor</string>
+
 	<string name="editor_file">File:</string>
 	<string name="editor_title">Title:</string>
 	<string name="editor_album">Album:</string>

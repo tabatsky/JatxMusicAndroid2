@@ -187,7 +187,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     override fun showOpenTrackDialog(initPath: String) {
         ChooserDialog(this)
-            .withFilter(false, false, "mp3")
+            .withFilter(false, false, "mp3", "flac")
             .withStartFile(initPath)
             .withChosenListener { path, _ ->
                 presenter.onTrackOpened(path)
@@ -382,5 +382,9 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 false
             }
         }
+    }
+
+    override fun showWrongFileFormatToast() {
+        showToast(R.string.toast_wrong_file_format)
     }
 }

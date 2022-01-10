@@ -2,17 +2,25 @@ package jatx.musictransmitter.android.presentation
 
 import android.util.Log
 import jatx.debug.logError
+import jatx.musictransmitter.android.data.TrackInfoStorage
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import org.jaudiotagger.audio.AudioFile
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.audio.flac.FlacTagWriter
 import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.Tag
+import org.jaudiotagger.tag.flac.FlacTag
 import java.io.File
+import java.io.RandomAccessFile
 import java.io.UnsupportedEncodingException
 import javax.inject.Inject
 
 @InjectViewState
-class MusicEditorPresenter @Inject constructor() : MvpPresenter<MusicEditorView>() {
+class MusicEditorPresenter @Inject constructor(
+    private val trackInfoStorage: TrackInfoStorage
+) : MvpPresenter<MusicEditorView>() {
     private lateinit var file: File
     private lateinit var artist: String
     private lateinit var album: String
@@ -53,20 +61,36 @@ class MusicEditorPresenter @Inject constructor() : MvpPresenter<MusicEditorView>
             this.year = year
             this.number = number
 
-            val mp3f = MP3File(file)
+            when (file.extension) {
+                "mp3" -> {
+                    val mp3f = MP3File(file)
+                    val tag = mp3f.createDefaultTag()
 
-            val tag: Tag = mp3f.createDefaultTag()
+                    tag.setField(FieldKey.ARTIST, artist)
+                    tag.setField(FieldKey.ALBUM_ARTIST, artist)
+                    tag.setField(FieldKey.ALBUM, album)
+                    tag.setField(FieldKey.TITLE, title)
+                    tag.setField(FieldKey.YEAR, year)
+                    tag.setField(FieldKey.TRACK, correctNumber(number))
+                    tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
 
-            tag.setField(FieldKey.ARTIST, artist)
-            tag.setField(FieldKey.ALBUM_ARTIST, artist)
-            tag.setField(FieldKey.ALBUM, album)
-            tag.setField(FieldKey.TITLE, title)
-            tag.setField(FieldKey.YEAR, year)
-            tag.setField(FieldKey.TRACK, correctNumber(number))
-            tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
-
-            mp3f.tag = tag
-            mp3f.save(file)
+                    mp3f.tag = tag
+                    mp3f.save(file)
+                }
+                "flac" -> {
+                    val af = AudioFileIO.read(file)
+                    val tag = af.tag as FlacTag
+                    tag.setField(FieldKey.ARTIST, artist)
+                    tag.setField(FieldKey.ALBUM_ARTIST, artist)
+                    tag.setField(FieldKey.ALBUM, album)
+                    tag.setField(FieldKey.TITLE, title)
+                    tag.setField(FieldKey.YEAR, year)
+                    tag.setField(FieldKey.TRACK, correctNumber(number))
+                    tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
+                    val raf = RandomAccessFile(file, "rw")
+                    FlacTagWriter().write(tag, raf, null)
+                }
+            }
         } catch (e: Throwable) {
             logError(e)
         }
@@ -92,13 +116,12 @@ class MusicEditorPresenter @Inject constructor() : MvpPresenter<MusicEditorView>
 
     private fun openTags() {
         try {
-            val mp3f = MP3File(file)
-            val tag: Tag = mp3f.tagOrCreateDefault
-            artist = tag.getFirst(FieldKey.ARTIST)
-            album = tag.getFirst(FieldKey.ALBUM)
-            title = tag.getFirst(FieldKey.TITLE)
-            year = tag.getFirst(FieldKey.YEAR)
-            number = tag.getFirst(FieldKey.TRACK)
+            val track = trackInfoStorage.getTrackFromFile(file)
+            artist = track.artist
+            album = track.album
+            title = track.title
+            year = track.year
+            number = track.number
 
             viewState.showTags(artist, album, title, year, number)
         } catch (e: Throwable) {

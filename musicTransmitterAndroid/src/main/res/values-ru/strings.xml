@@ -30,6 +30,7 @@
 	<string name="toast_long_tap">Сделайте долгое нажатие на треке, чтобы удалить</string>
 	<string name="toast_no_mic_access">Нет доступа к микрофону</string>
 	<string name="toast_cannot_init_microphone">Не удается запустить микрофон</string>
+	<string name="toast_wrong_file_format">Неподдерживаемый формат файла для редактора тегов</string>
 	
 	<string name="editor_file">Файл:</string>
 	<string name="editor_title">Название:</string>
