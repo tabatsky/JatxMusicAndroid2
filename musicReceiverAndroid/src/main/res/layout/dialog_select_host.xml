@@ -9,6 +9,8 @@
     	android:id="@+id/hostSpinner"
     	android:layout_width="match_parent"
     	android:layout_height="wrap_content"
+		android:background="@drawable/background_white"
+		android:layout_margin="5dp"
     	/>
     
     <View
@@ -21,6 +23,8 @@
     	android:layout_width="match_parent"
     	android:layout_height="wrap_content"
     	android:hint="@string/string_input_host"
+		android:background="@drawable/background_white"
+		android:layout_margin="5dp"
     	/>
     
     <View
@@ -39,6 +43,8 @@
     		android:layout_height="wrap_content"
     		android:layout_weight="1"
     		android:text="@string/string_ok"
+			android:background="@drawable/background_aa"
+			android:layout_margin="5dp"
     		/>
     
     	<Button
@@ -47,6 +53,8 @@
     		android:layout_height="wrap_content"
     		android:layout_weight="1"
     		android:text="@string/string_exit"
+			android:background="@drawable/background_aa"
+			android:layout_margin="5dp"
     		/>
     </LinearLayout>
 

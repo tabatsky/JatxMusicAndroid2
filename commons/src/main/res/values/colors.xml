@@ -3,4 +3,7 @@
     <item name="black" type="color">#FF000000</item>
     <item name="white" type="color">#FFFFFFFF</item>
     <item name="light_gray" type="color">#FFC0C0C0</item>
+    <item name="gray_aa" type="color">#FFAAAAAA</item>
+    <item name="gray_77" type="color">#FF777777</item>
+    <item name="gray_33" type="color">#FF333333</item>
 </resources>
