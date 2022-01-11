@@ -46,7 +46,11 @@ class MusicTransmitterPresenter @Inject constructor(
     private var tracks = listOf<Track>()
 
     private val shuffledList = arrayListOf<Int>()
-    private var isShuffle = false
+    private var isShuffle: Boolean
+        get() = settings.isShuffle
+        set(value) {
+            settings.isShuffle = value
+        }
 
     private val realPosition: Int
         get() = when {
@@ -54,7 +58,7 @@ class MusicTransmitterPresenter @Inject constructor(
                 currentPosition
             }
             isShuffle -> {
-                shuffledList[currentPosition] % files.size
+                shuffledList[currentPosition % shuffledList.size] % files.size
             }
             else -> {
                 (currentPosition % shuffledList.size) % files.size
@@ -76,6 +80,7 @@ class MusicTransmitterPresenter @Inject constructor(
         updateTrackInfoStorageFiles()
 
         viewState.showVolume(settings.volume)
+        viewState.showShuffleState(isShuffle)
 
         checkReadPhoneStatePermission()
         initBroadcastReceivers()
@@ -127,7 +132,9 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onShuffleClick() {
         isShuffle = false
-        currentPosition = shuffledList[currentPosition]
+        if (currentPosition >= 0) {
+            currentPosition = shuffledList[currentPosition]
+        }
         viewState.showShuffleState(false)
     }
 

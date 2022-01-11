@@ -9,6 +9,7 @@ const val PREFS_NAME = "MusicTransmitterPreferences"
 const val KEY_MUSIC_DIR = "musicDirPath"
 const val KEY_FILE_LIST = "fileList"
 const val KEY_VOLUME = "volume"
+const val KEY_IS_SHUFFLE = "isShuffle"
 
 class Settings(
     context: Context
@@ -43,6 +44,14 @@ class Settings(
         set(value) {
             val editor = sp.edit()
             editor.putInt(KEY_VOLUME, value)
+            editor.commit()
+        }
+
+    var isShuffle: Boolean
+        get() = sp.getBoolean(KEY_IS_SHUFFLE, false)
+        set(value) {
+            val editor = sp.edit()
+            editor.putBoolean(KEY_IS_SHUFFLE, value)
             editor.commit()
         }
 }
