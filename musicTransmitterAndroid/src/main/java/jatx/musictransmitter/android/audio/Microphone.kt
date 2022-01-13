@@ -4,7 +4,6 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import jatx.musiccommons.Frame
-import jatx.musiccommons.frameFromMicRawData
 
 object Microphone {
     private var sampleRate = 0
@@ -60,6 +59,8 @@ object Microphone {
                                 return audioRecord
                             }
                         }
+                    } catch (e: SecurityException) {
+                        println("Security exception")
                     } catch (e: Throwable) {
                         println("Find audio record attempt failed: $rate")
                     }
@@ -71,8 +72,11 @@ object Microphone {
 
 }
 
-class MicrophoneReadException: Exception {
-    constructor(e: Throwable): super(e)
+private fun frameFromMicRawData(rawData: ByteArray, dataSize: Int, position: Int, sampleRate: Int): Frame {
+    return Frame(dataSize, sampleRate, 2, 16, position, rawData.copyOf(dataSize))
 }
+
+
+class MicrophoneReadException(e: Throwable): Exception(e)
 
 class MicrophoneInitException: Exception()

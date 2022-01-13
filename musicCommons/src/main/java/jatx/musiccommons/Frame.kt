@@ -1,10 +1,7 @@
 package jatx.musiccommons
 
-import javazoom.jl.decoder.SampleBuffer
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import kotlin.experimental.and
 
 const val FRAME_HEADER_SIZE = 64
 val FRAME_RATES = intArrayOf(32000, 44100, 48000, 96000, 192000)
@@ -68,49 +65,6 @@ fun frameToByteArray(frame: Frame?): ByteArray? {
     result[15] = pos4
 
     return result
-}
-
-fun frameFromSampleBuffer(sampleBuffer: SampleBuffer, position: Int): Frame {
-    val position = position
-
-    val outStream = ByteArrayOutputStream(10240)
-
-    val freq = sampleBuffer.sampleFrequency
-    val channels = sampleBuffer.channelCount
-    val depth = 16
-
-    val pcm = sampleBuffer.buffer
-
-    var wrongRate = true
-
-    for (rate in FRAME_RATES) {
-        if (rate == freq) wrongRate = false
-    }
-
-    if (wrongRate) throw WrongFrameException("(player) wrong frame rate: $freq")
-
-    when (channels) {
-        2 -> {
-            for (i in 0 until pcm.size / 2) {
-                val shrt1 = pcm[2 * i]
-                val shrt2 = pcm[2 * i + 1]
-                outStream.write(shrt1.toInt() and 0xff)
-                outStream.write(shrt1.toInt() shr 8 and 0xff)
-                outStream.write(shrt2.toInt() and 0xff)
-                outStream.write(shrt2.toInt() shr 8 and 0xff)
-            }
-        }
-        1 -> {
-            throw WrongFrameException("(player) mono sound")
-        }
-        else -> {
-            throw WrongFrameException("(player) $channels channels")
-        }
-    }
-
-    val data = outStream.toByteArray()
-
-    return Frame(data.size, freq, channels, depth, position, data)
 }
 
 @Throws(IOException::class, InterruptedException::class)
@@ -193,10 +147,6 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
     }
 
     return Frame(size, freq, channels, depth, pos, data)
-}
-
-fun frameFromMicRawData(rawData: ByteArray, dataSize: Int, position: Int, sampleRate: Int): Frame {
-    return Frame(dataSize, sampleRate, 2, 16, position, rawData.copyOf(dataSize))
 }
 
 class WrongFrameException(msg: String): Exception(msg)

@@ -1,9 +1,9 @@
 package jatx.musictransmitter.android.audio
 
 import jatx.debug.logError
+import jatx.musiccommons.FRAME_RATES
 import jatx.musiccommons.Frame
 import jatx.musiccommons.WrongFrameException
-import jatx.musiccommons.frameFromSampleBuffer
 import jatx.musictransmitter.android.data.FileDoesNotExistException
 import jatx.musictransmitter.android.data.MIC_PATH
 import javazoom.jl.decoder.*
@@ -121,4 +121,47 @@ class JLayerMp3Decoder : MusicDecoder() {
 
         resetTimeFlag = true
     }
+}
+
+private fun frameFromSampleBuffer(sampleBuffer: SampleBuffer, position: Int): Frame {
+    val position = position
+
+    val outStream = ByteArrayOutputStream(10240)
+
+    val freq = sampleBuffer.sampleFrequency
+    val channels = sampleBuffer.channelCount
+    val depth = 16
+
+    val pcm = sampleBuffer.buffer
+
+    var wrongRate = true
+
+    for (rate in FRAME_RATES) {
+        if (rate == freq) wrongRate = false
+    }
+
+    if (wrongRate) throw WrongFrameException("(player) wrong frame rate: $freq")
+
+    when (channels) {
+        2 -> {
+            for (i in 0 until pcm.size / 2) {
+                val shrt1 = pcm[2 * i]
+                val shrt2 = pcm[2 * i + 1]
+                outStream.write(shrt1.toInt() and 0xff)
+                outStream.write(shrt1.toInt() shr 8 and 0xff)
+                outStream.write(shrt2.toInt() and 0xff)
+                outStream.write(shrt2.toInt() shr 8 and 0xff)
+            }
+        }
+        1 -> {
+            throw WrongFrameException("(player) mono sound")
+        }
+        else -> {
+            throw WrongFrameException("(player) $channels channels")
+        }
+    }
+
+    val data = outStream.toByteArray()
+
+    return Frame(data.size, freq, channels, depth, position, data)
 }
