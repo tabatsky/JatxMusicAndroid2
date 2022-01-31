@@ -95,8 +95,6 @@ class FlacMusicDecoder: MusicDecoder() {
 
         when (channels) {
             2 -> {
-                var valMax = 0
-                var valMin = 0
                 for (i in 0 until blockSamples) {
                     for (ch in 0 until channels) {
                         val value = samples[ch][i]
