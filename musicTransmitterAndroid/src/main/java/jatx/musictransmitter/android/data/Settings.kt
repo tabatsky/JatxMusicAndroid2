@@ -17,7 +17,8 @@ class Settings(
     private val sp = context.getSharedPreferences(PREFS_NAME, 0)
 
     var currentMusicDirPath: String
-        get() = sp.getString(KEY_MUSIC_DIR, null) ?: Environment.getExternalStorageDirectory().absolutePath
+        get() = sp.getString(KEY_MUSIC_DIR, null) ?:
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath
         set(value) {
             val editor = sp.edit()
             editor.putString(KEY_MUSIC_DIR, value)

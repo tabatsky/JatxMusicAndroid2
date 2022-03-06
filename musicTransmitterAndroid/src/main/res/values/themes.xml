@@ -1,0 +1,44 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.MusicTransmitter" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorAccent">@color/gray5F</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+        <!-- Customize your theme here. -->
+        <item name="android:background">@color/white</item>
+
+        <item name="actionBarTheme">@style/Theme.MusicTransmitter.ActionBar</item>
+        <item name="materialButtonStyle">@style/Theme.MusicTransmitter.Button</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="android:background">@color/black</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:titleTextStyle">@style/Theme.MusicTransmitter.TitleText</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.TitleText" parent="TextAppearance.Material3.ActionBar.Title">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/black</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.Editor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorAccent">@color/gray5F</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+        <!-- Customize your theme here. -->
+        <item name="android:background">@color/white</item>
+
+        <item name="materialButtonStyle">@style/Theme.MusicTransmitter.Button</item>
+    </style>
+</resources>

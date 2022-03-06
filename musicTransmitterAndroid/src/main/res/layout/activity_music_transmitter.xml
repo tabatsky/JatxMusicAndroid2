@@ -1,9 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:orientation="vertical"
-	android:background="@color/white">
+	android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tracksRV"
@@ -16,7 +16,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/black"
+        android:background="?attr/colorPrimary"
         />
     
     <SeekBar
@@ -34,7 +34,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/black"
+        android:background="?attr/colorPrimary"
         />
     
     <LinearLayout
@@ -50,8 +50,9 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_wifi_ok"
         	android:scaleType="fitXY"
-        	android:background="@color/grayE"
+        	android:background="@color/gray7F"
         	android:visibility="gone"
+			app:tint="?attr/colorPrimary"
             />
         
         <ImageView
@@ -59,17 +60,18 @@
             android:layout_width="@dimen/button_size"
         	android:layout_height="@dimen/button_size"
         	android:padding="@dimen/button_padding"
-        	android:src="@drawable/ic_wifi_no"
+        	android:src="@drawable/ic_wifi_ok"
         	android:scaleType="fitXY"
-        	android:background="@color/grayE"
+        	android:background="@color/gray7F"
         	android:visibility="visible"
+			app:tint="?attr/colorAccent"
             />
         
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/grayC"
+            android:background="@color/gray7F"
             />
         
         <ImageButton
@@ -79,7 +81,8 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_rev"
         	android:scaleType="fitXY"
-        	android:background="@color/grayC"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
         
         <ImageButton
@@ -89,7 +92,8 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_play"
         	android:scaleType="fitXY"
-        	android:background="@color/grayC"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
         
         <ImageButton
@@ -100,7 +104,8 @@
         	android:src="@drawable/ic_pause"
         	android:scaleType="fitXY"
         	android:visibility="gone"
-        	android:background="@color/grayC"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
         
         <ImageButton
@@ -110,14 +115,15 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_fwd"
         	android:scaleType="fitXY"
-        	android:background="@color/grayC"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
         
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/grayC"
+            android:background="@color/gray7F"
             />
         
         <ImageButton
@@ -127,7 +133,8 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_down"
         	android:scaleType="fitXY"
-        	android:background="@color/grayE"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
      
         <TextView
@@ -138,8 +145,8 @@
             android:textSize="@dimen/volume_label_text"
             android:gravity="center"
             android:text="100%"
-            android:background="@color/grayE"
-            android:textColor="@color/black"
+            android:background="@color/gray7F"
+            android:textColor="?attr/colorPrimary"
             />
         
         <ImageButton
@@ -149,7 +156,8 @@
         	android:padding="@dimen/button_padding"
         	android:src="@drawable/ic_up"
         	android:scaleType="fitXY"
-        	android:background="@color/grayE"
+        	android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
 
         <ImageButton
@@ -159,7 +167,8 @@
             android:padding="@dimen/button_padding"
             android:src="@drawable/ic_repeat"
             android:scaleType="fitXY"
-            android:background="@color/grayC"
+            android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
 
         <ImageButton
@@ -170,7 +179,8 @@
             android:src="@drawable/ic_shuffle"
             android:scaleType="fitXY"
             android:visibility="gone"
-            android:background="@color/grayC"
+            android:background="@color/gray7F"
+			app:tint="?attr/colorPrimary"
             />
 
     </LinearLayout>
@@ -178,6 +188,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/black"
+        android:background="?attr/colorPrimary"
         />
 </LinearLayout>

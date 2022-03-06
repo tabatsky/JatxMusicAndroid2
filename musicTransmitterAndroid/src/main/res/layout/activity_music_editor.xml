@@ -1,10 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white" >
+    android:orientation="vertical" >
 
-	
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -16,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorPrimary"
         android:textStyle="bold"
         />
 	
@@ -32,7 +30,7 @@
         android:layout_height="wrap_content"
         android:text="@string/editor_title" 
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -46,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -60,7 +58,7 @@
         android:layout_height="wrap_content"
         android:text="@string/editor_album" 
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -74,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -88,7 +86,7 @@
         android:layout_height="wrap_content"
         android:text="@string/editor_artist"
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -102,7 +100,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/editor_text"
-        android:textColor="@color/black"
+		android:textColor="?attr/colorPrimary"
         />
     
     <View
@@ -123,7 +121,7 @@
         	android:layout_weight="1"
         	android:text="@string/editor_number"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
+			android:textColor="?attr/colorPrimary"
         	android:gravity="center"
         	/>
     
@@ -133,7 +131,7 @@
         	android:layout_height="wrap_content"
         	android:layout_weight="1"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
+			android:textColor="?attr/colorPrimary"
         	android:inputType="number"
         	/>
     	
@@ -143,7 +141,7 @@
         	android:layout_weight="1"
         	android:text="@string/editor_year"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
+			android:textColor="?attr/colorPrimary"
         	android:gravity="center"
         	/>
     
@@ -153,7 +151,7 @@
         	android:layout_height="wrap_content"
         	android:layout_weight="1"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
+			android:textColor="?attr/colorPrimary"
         	android:inputType="number"
         	/>
     </LinearLayout>
@@ -181,7 +179,6 @@
         	android:layout_height="wrap_content"
         	android:layout_weight="5"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
         	android:text="CP-1251 to UTF-8"
         	/>
     
@@ -215,7 +212,6 @@
         	android:layout_height="wrap_content"
         	android:layout_weight="5"
         	android:textSize="@dimen/editor_text"
-        	android:textColor="@color/black"
         	android:text="@string/editor_save"
         	/>
     
