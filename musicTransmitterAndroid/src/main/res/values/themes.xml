@@ -29,6 +29,14 @@
         <item name="backgroundTint">@color/black</item>
     </style>
 
+    <style name="Theme.MusicTransmitter.NotificationText">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.NotificationButton">
+        <item name="android:tint">@color/black</item>
+    </style>
+
     <style name="Theme.MusicTransmitter.Editor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/black</item>

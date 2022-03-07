@@ -71,7 +71,7 @@ class MusicReceiverService : Service() {
         startForeground()
         lockWifi()
         lockWake()
-        prepareAndStart(intent)
+        prepareAndStart()
 
         return START_STICKY_COMPATIBILITY
     }
@@ -92,8 +92,13 @@ class MusicReceiverService : Service() {
     private fun startForeground() {
         val actIntent = Intent()
         actIntent.setClass(this, MusicReceiverActivity::class.java)
+        val flags = if (Build.VERSION.SDK_INT < 23) {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        }
         val pendingIntent =
-            PendingIntent.getActivity(this, 0, actIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(this, 0, actIntent, flags)
 
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE)
@@ -141,7 +146,7 @@ class MusicReceiverService : Service() {
         }
     }
 
-    private fun prepareAndStart(intent: Intent?) {
+    private fun prepareAndStart() {
         initBroadcastReceivers()
 
         act = AutoConnectThread(settings, uiController)

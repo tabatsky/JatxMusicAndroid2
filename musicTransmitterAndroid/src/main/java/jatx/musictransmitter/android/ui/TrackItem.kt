@@ -1,8 +1,6 @@
 package jatx.musictransmitter.android.ui
 
-import android.util.Log
 import android.util.TypedValue
-import androidx.annotation.ColorInt
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import jatx.musictransmitter.android.R
@@ -30,8 +28,6 @@ class TrackItem(val track: Track, val position: Int, private val isCurrent: Bool
         val typedValueOnPrimary = TypedValue()
         theme.resolveAttribute(R.attr.colorOnPrimary, typedValueOnPrimary, true)
         val colorOnPrimary = typedValueOnPrimary.data
-        Log.e("primary", colorPrimary.toString())
-        Log.e("onPrimary", colorOnPrimary.toString())
         if (isCurrent) {
             viewHolder.wholeLayout.setBackgroundColor(colorPrimary)
             viewHolder.titleTV.setBackgroundColor(colorPrimary)

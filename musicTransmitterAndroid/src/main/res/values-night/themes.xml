@@ -29,6 +29,14 @@
         <item name="backgroundTint">@color/white</item>
     </style>
 
+    <style name="Theme.MusicTransmitter.NotificationText">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Theme.MusicTransmitter.NotificationButton">
+        <item name="android:tint">@color/white</item>
+    </style>
+
     <style name="Theme.MusicTransmitter.Editor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/white</item>

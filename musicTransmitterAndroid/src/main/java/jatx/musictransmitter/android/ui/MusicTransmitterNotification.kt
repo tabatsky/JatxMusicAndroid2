@@ -22,8 +22,6 @@ const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 
 object MusicTransmitterNotification {
     fun showNotification(context: Context, artist: String, title: String, isPlaying: Boolean) {
-        if (Build.VERSION.SDK_INT < 16) return
-
         val notificationManager = NotificationManagerCompat.from(context)
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -40,25 +38,31 @@ object MusicTransmitterNotification {
         contentView.setViewVisibility(R.id.pause, if (isPlaying) View.VISIBLE else View.GONE)
         contentView.setViewVisibility(R.id.play, if (isPlaying) View.GONE else View.VISIBLE)
 
+        val flags = if (Build.VERSION.SDK_INT < 23) {
+            0
+        } else {
+            PendingIntent.FLAG_IMMUTABLE
+        }
+
         val playIntent = Intent(CLICK_PLAY)
-        val pPlayIntent = PendingIntent.getBroadcast(context, 0, playIntent, 0)
+        val pPlayIntent = PendingIntent.getBroadcast(context, 0, playIntent, flags)
         contentView.setOnClickPendingIntent(R.id.play, pPlayIntent)
 
         val pauseIntent = Intent(CLICK_PAUSE)
-        val pPauseIntent = PendingIntent.getBroadcast(context, 0, pauseIntent, 0)
+        val pPauseIntent = PendingIntent.getBroadcast(context, 0, pauseIntent, flags)
         contentView.setOnClickPendingIntent(R.id.pause, pPauseIntent)
 
         val revIntent = Intent(CLICK_REV)
-        val pRevIntent = PendingIntent.getBroadcast(context, 0, revIntent, 0)
+        val pRevIntent = PendingIntent.getBroadcast(context, 0, revIntent, flags)
         contentView.setOnClickPendingIntent(R.id.rev, pRevIntent)
 
         val fwdIntent = Intent(CLICK_FWD)
-        val pFwdIntent = PendingIntent.getBroadcast(context, 0, fwdIntent, 0)
+        val pFwdIntent = PendingIntent.getBroadcast(context, 0, fwdIntent, flags)
         contentView.setOnClickPendingIntent(R.id.fwd, pFwdIntent)
 
         val mainActivityIntent = Intent(context, MusicTransmitterActivity::class.java)
         val contentIntent =
-            PendingIntent.getActivity(context, 0, mainActivityIntent, 0)
+            PendingIntent.getActivity(context, 0, mainActivityIntent, flags)
 
         val notification = builder
             .setTicker("JatxMusicTransmitter")

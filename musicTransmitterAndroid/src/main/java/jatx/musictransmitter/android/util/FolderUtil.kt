@@ -1,7 +1,6 @@
 package jatx.musictransmitter.android.util
 
 import java.io.File
-import java.util.*
 
 fun findFiles(startPath: String, filter: (File) -> Boolean): List<File> {
     val dirs = arrayListOf<File>()
