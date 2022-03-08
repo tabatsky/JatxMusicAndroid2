@@ -12,8 +12,8 @@
 	<string name="string_remove_track">Удалить трек</string>
 	<string name="string_remove_all">Удалить всё</string>
 	<string name="string_playlist">Плейлист</string>
-	<string name="string_export_m3u8">Сохранить в M3U8</string>
-	<string name="string_import_m3u8">Загрузить из M3U8</string>
+	<string name="string_export_playlist">Сохранить</string>
+	<string name="string_import_playlist">Загрузить</string>
 	
 	<string name="question_remove_track">Удалить этот трек?</string>
 	<string name="question_remove_all">Удалить все треки?</string>
@@ -22,6 +22,11 @@
 	<string name="button_remove_this_track">Удалить этот трек</string>
 	<string name="button_open_tag_editor">Открыть редактор тегов</string>
 	<string name="button_cancel">Отмена</string>
+
+	<string name="button_save">Сохранить</string>
+	<string name="hint_playlist_name">Название плейлиста</string>
+
+	<string name="button_load">Загрузить</string>
 	
 	<string name="yes">Да</string>
 	<string name="no">Нет</string>
@@ -29,9 +34,17 @@
 	<string name="toast_m3u8_ext">Файл должен иметь расширение m3u8</string>
 	<string name="toast_long_tap">Сделайте долгое нажатие на треке, чтобы удалить</string>
 	<string name="toast_no_mic_access">Нет доступа к микрофону</string>
+	<string name="toast_no_sdcard_write_access">Нет доступа на запись на карту памяти</string>
+	<string name="toast_no_sdcard_read_access">Нет доступа на чтение с карты памяти</string>
 	<string name="toast_cannot_init_microphone">Не удается запустить микрофон</string>
 	<string name="toast_wrong_file_format">Неподдерживаемый формат файла для редактора тегов</string>
 	<string name="toast_saving_tag_error">Ошибка сохранения тега</string>
+	<string name="toast_saving_playlist_error">Ошибка сохранения плейлиста</string>
+	<string name="toast_saving_playlist_success">Плейлист сохранен успешно</string>
+	<string name="toast_loading_playlist_error">Ошибка загрузки плейлиста</string>
+	<string name="toast_loading_playlist_success">Плейлист загружен успешно</string>
+	<string name="toast_no_playlists">Плейлисты не найдены</string>
+	<string name="toast_empty_playlist_name">Название плейлиста не должно быть пустым</string>
 	
 	<string name="editor_file">Файл:</string>
 	<string name="editor_title">Название:</string>

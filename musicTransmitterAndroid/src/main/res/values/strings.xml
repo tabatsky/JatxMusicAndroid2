@@ -12,8 +12,8 @@
 	<string name="string_remove_track">Remove Track</string>
 	<string name="string_remove_all">Remove All</string>
 	<string name="string_playlist">Playlist</string>
-	<string name="string_export_m3u8">Export M3U8</string>
-	<string name="string_import_m3u8">Import M3U8</string>
+	<string name="string_export_playlist">Export</string>
+	<string name="string_import_playlist">Import</string>
 	
 	<string name="question_remove_track">Remove This Track?</string>
 	<string name="question_remove_all">Remove All Tracks?</string>
@@ -22,16 +22,29 @@
 	<string name="button_remove_this_track">Remove This Track</string>
 	<string name="button_open_tag_editor">Open Tag Editor</string>
 	<string name="button_cancel">Cancel</string>
-	
+
+	<string name="button_save">Save</string>
+	<string name="hint_playlist_name">Playlist name</string>
+
+	<string name="button_load">Load</string>
+
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	
 	<string name="toast_m3u8_ext">Playlist file must have m3u8 extension</string>
 	<string name="toast_long_tap">Make long tap on track to remove</string>
 	<string name="toast_no_mic_access">No microphone access</string>
+	<string name="toast_no_sdcard_write_access">No sdcard write access</string>
+	<string name="toast_no_sdcard_read_access">No sdcard read access</string>
 	<string name="toast_cannot_init_microphone">Cannot init microphone</string>
 	<string name="toast_wrong_file_format">Unsupported file format for tag editor</string>
 	<string name="toast_saving_tag_error">Tag saving error</string>
+	<string name="toast_saving_playlist_error">Playlist saving error</string>
+	<string name="toast_saving_playlist_success">Playlist saving success</string>
+	<string name="toast_loading_playlist_error">Playlist loading error</string>
+	<string name="toast_loading_playlist_success">Playlist loading success</string>
+	<string name="toast_no_playlists">No playlists found</string>
+	<string name="toast_empty_playlist_name">Playlist name must not be empty</string>
 
 	<string name="editor_file">File:</string>
 	<string name="editor_title">Title:</string>

@@ -8,8 +8,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Environment
 import android.telephony.TelephonyManager
 import android.text.format.Formatter
+import android.util.Log
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import jatx.musictransmitter.android.data.MIC_PATH
@@ -22,6 +24,8 @@ import jatx.musictransmitter.android.util.findFiles
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import java.io.File
+import java.io.PrintWriter
+import java.util.*
 import javax.inject.Inject
 
 const val ACTION_PHONE_STATE = "android.intent.action.PHONE_STATE"
@@ -214,6 +218,10 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onRemoveTrackSelected() = viewState.showRemoveTrackMessage()
 
+    fun onExportPlaylistSelected() = viewState.showSavePlaylistDialog()
+
+    fun onImportPlaylistSelected() = viewState.tryLoadPlaylists()
+
     fun onTrackClick(position: Int) {
         currentPosition = if (isShuffle) {
             shuffledList.indexOf(position)
@@ -254,6 +262,74 @@ class MusicTransmitterPresenter @Inject constructor(
             viewState.showTagEditor(Uri.fromFile(file))
         } else {
             viewState.showWrongFileFormatToast()
+        }
+    }
+
+    fun onSavePlaylist(playlistName: String) = viewState.trySavePlaylist(playlistName)
+
+    fun onSavePlaylistPermissionsAccepted(playlistName: String) {
+        val playlistContent = files
+            .map { it.absolutePath }
+            .joinToString("\n")
+        Log.e("playlist", playlistContent)
+        try {
+            val dir = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            dir.mkdirs()
+            val outFile = File(dir, "$playlistName.m3u8")
+            val pw = PrintWriter(outFile)
+            pw.println(playlistContent)
+            pw.flush()
+            pw.close()
+            viewState.showSavePlaylistSuccess()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            viewState.showSavePlaylistError()
+        }
+    }
+
+    fun onLoadPlaylist(playlistName: String) {
+        try {
+            val dir = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val sc = Scanner(File(dir, "$playlistName.m3u8"))
+
+            files.clear()
+
+            while (sc.hasNextLine()) {
+                val path = sc.nextLine()
+                files.add(File(path))
+            }
+
+            updateTpFiles()
+            updateTrackInfoStorageFiles()
+            currentPosition = -1
+
+            viewState.showLoadPlaylistSuccess()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            viewState.showLoadPlaylistError()
+        }
+    }
+
+    fun onLoadPlaylistsPermissionsAccepted() {
+        try {
+            val dir = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val playlistNames = dir
+                .listFiles()
+                ?.filter { it.name.endsWith(".m3u8") }
+                ?.map { it.nameWithoutExtension }
+                ?.sorted() ?: listOf()
+            if (playlistNames.isEmpty()) {
+                viewState.showNoPlaylists()
+            } else {
+                Log.e("playlists", playlistNames.toString())
+                viewState.showLoadPlaylistDialog(playlistNames)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            viewState.showLoadPlaylistError()
         }
     }
 

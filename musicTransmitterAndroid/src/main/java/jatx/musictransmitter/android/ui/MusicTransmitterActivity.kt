@@ -93,6 +93,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 presenter.onRemoveAllTracksSelected()
                 true
             }
+            R.id.item_menu_export_playlist -> {
+                presenter.onExportPlaylistSelected()
+                true
+            }
+            R.id.item_menu_import_playlist -> {
+                presenter.onImportPlaylistSelected()
+                true
+            }
             R.id.item_show_manual -> {
                 presenter.onShowManualSelected()
                 true
@@ -234,6 +242,40 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         dialog.show(supportFragmentManager, "longClickDialog")
     }
 
+    override fun showSavePlaylistDialog() {
+        val dialog = SavePlaylistDialog()
+        dialog.onSavePlaylist = { presenter.onSavePlaylist(it) }
+        dialog.show(supportFragmentManager, "savePlaylistDialog")
+    }
+
+    override fun showLoadPlaylistDialog(playlistNames: List<String>) {
+        val dialog = LoadPlaylistDialog()
+        dialog.playlistNames = playlistNames
+        dialog.onLoadPlaylist = { presenter.onLoadPlaylist(it) }
+        dialog.show(supportFragmentManager, "loadPlaylistDialog")
+    }
+
+    override fun showSavePlaylistSuccess() {
+        showToast(R.string.toast_saving_playlist_success)
+    }
+
+    override fun showSavePlaylistError() {
+        showToast(R.string.toast_saving_playlist_error)
+    }
+
+    override fun showLoadPlaylistSuccess() {
+        showToast(R.string.toast_loading_playlist_success)
+    }
+
+    override fun showLoadPlaylistError() {
+        showToast(R.string.toast_loading_playlist_error)
+    }
+
+    override fun showNoPlaylists() {
+        showToast(R.string.toast_no_playlists)
+    }
+
+
     override fun showIPAddress(ipAddress: String) {
         val builder = AlertDialog.Builder(this)
         builder
@@ -258,6 +300,45 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         TedPermission.with(this)
             .setPermissionListener(permissionListener)
             .setPermissions(Manifest.permission.RECORD_AUDIO)
+            .check()
+    }
+
+    override fun trySavePlaylist(playlistName: String) {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {
+                presenter.onSavePlaylistPermissionsAccepted(playlistName)
+            }
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                showToast(R.string.toast_no_sdcard_write_access)
+            }
+        }
+
+        TedPermission.with(this)
+            .setPermissionListener(permissionListener)
+            .setPermissions(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            .check()
+    }
+
+    override fun tryLoadPlaylists() {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {
+                presenter.onLoadPlaylistsPermissionsAccepted()
+            }
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                showToast(R.string.toast_no_sdcard_read_access)
+            }
+        }
+
+        TedPermission.with(this)
+            .setPermissionListener(permissionListener)
+            .setPermissions(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
             .check()
     }
 

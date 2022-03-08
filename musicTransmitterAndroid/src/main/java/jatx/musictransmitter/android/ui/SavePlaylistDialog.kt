@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import androidx.fragment.app.DialogFragment
+import jatx.extensions.showToast
 import jatx.musictransmitter.android.R
 
-class TrackLongClickDialog : DialogFragment() {
-    var onRemoveThisTrack: () -> Unit = {}
-    var onOpenTagEditor: () -> Unit = {}
+class SavePlaylistDialog: DialogFragment() {
+    var onSavePlaylist: (String) -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,20 +27,21 @@ class TrackLongClickDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.dialog_track_edit_delete, container, false)
+        val v = inflater.inflate(R.layout.dialog_save_playlist, container, false)
 
         val cancelBtn = v.findViewById<Button>(R.id.cancelBtn)
-        val removeThisTrackBtn = v.findViewById<Button>(R.id.removeThisTrackBtn)
-        val openTagEditorBtn = v.findViewById<Button>(R.id.openTagEditorBtn)
+        val saveBtn = v.findViewById<Button>(R.id.saveBtn)
+        val playlistNameEt = v.findViewById<EditText>(R.id.playlistNameEt)
 
         cancelBtn.setOnClickListener { dismiss() }
-        removeThisTrackBtn.setOnClickListener {
-            onRemoveThisTrack()
-            dismiss()
-        }
-        openTagEditorBtn.setOnClickListener {
-            onOpenTagEditor()
-            dismiss()
+        saveBtn.setOnClickListener {
+            val playlistName = playlistNameEt.text.toString().trim()
+            if (playlistName.isNotEmpty()) {
+                dismiss()
+                onSavePlaylist(playlistName)
+            } else {
+                v.context.showToast(R.string.toast_empty_playlist_name)
+            }
         }
 
         return v

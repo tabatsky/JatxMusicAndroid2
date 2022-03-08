@@ -29,7 +29,20 @@
 	    	</group>
 	    </menu>
     </item>
-    
+
+	<item
+		android:id="@+id/item_menu_playlist"
+		android:title="@string/string_playlist"
+		android:visible="true"
+		app:showAsAction="always|withText">
+		<menu>
+			<group>
+				<item android:id="@+id/item_menu_export_playlist" android:title="@string/string_export_playlist"></item>
+				<item android:id="@+id/item_menu_import_playlist" android:title="@string/string_import_playlist"></item>
+			</group>
+		</menu>
+	</item>
+
     <item
         android:id="@+id/action_help"
         android:icon="@drawable/ic_question"
