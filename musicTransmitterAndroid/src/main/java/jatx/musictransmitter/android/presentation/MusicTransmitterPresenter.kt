@@ -277,10 +277,10 @@ class MusicTransmitterPresenter @Inject constructor(
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
             dir.mkdirs()
             val outFile = File(dir, "$playlistName.m3u8")
-            val pw = PrintWriter(outFile)
-            pw.println(playlistContent)
-            pw.flush()
-            pw.close()
+            PrintWriter(outFile).use { pw ->
+                pw.println(playlistContent)
+                pw.flush()
+            }
             viewState.showSavePlaylistSuccess()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -292,13 +292,13 @@ class MusicTransmitterPresenter @Inject constructor(
         try {
             val dir = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val sc = Scanner(File(dir, "$playlistName.m3u8"))
-
             files.clear()
 
-            while (sc.hasNextLine()) {
-                val path = sc.nextLine()
-                files.add(File(path))
+            Scanner(File(dir, "$playlistName.m3u8")).use { sc ->
+                while (sc.hasNextLine()) {
+                    val path = sc.nextLine()
+                    files.add(File(path))
+                }
             }
 
             updateTpFiles()
