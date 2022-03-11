@@ -69,4 +69,12 @@ dependencies {
     implementation project(':commons')
     implementation project(':musicCommons')
     implementation project(':flac')
+
+    androidTestImplementation 'androidx.test:core:1.4.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
 }

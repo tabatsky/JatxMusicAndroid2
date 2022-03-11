@@ -186,12 +186,20 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showVolume(settings.volume)
     }
 
-    fun onAddTrackSelected() {
-        viewState.showOpenTrackDialog(settings.currentMusicDirPath)
-    }
-
     fun onAddFolderSelected() {
         viewState.showOpenFolderDialog(settings.currentMusicDirPath)
+    }
+
+    fun onAddTrackSelected() {
+        viewState.tryShowTrackSelectDialog()
+    }
+
+    fun onAddArtistSelected() {
+        viewState.tryShowArtistSelectDialog()
+    }
+
+    fun onAddAlbumSelected() {
+        viewState.tryShowAlbumSelectDialog()
     }
 
     fun onTrackOpened(path: String) {
@@ -205,6 +213,12 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onFolderOpened(path: String) {
         files.addAll(findFiles(path) { it.extension in setOf("mp3", "flac") } )
         settings.currentMusicDirPath = path
+        updateTpFiles()
+        updateTrackInfoStorageFiles()
+    }
+
+    fun addFiles(files: List<File>) {
+        this.files.addAll(files)
         updateTpFiles()
         updateTrackInfoStorageFiles()
     }

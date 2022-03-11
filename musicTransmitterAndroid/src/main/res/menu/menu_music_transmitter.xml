@@ -11,7 +11,9 @@
         <menu>
         	<group>
 	    		<item android:id="@+id/item_menu_add_track" android:title="@string/string_add_track"></item>
-	    		<item android:id="@+id/item_menu_add_folder" android:title="@string/string_add_folder"></item>
+<!--	    		<item android:id="@+id/item_menu_add_folder" android:title="@string/string_add_folder"></item>-->
+				<item android:id="@+id/item_menu_add_album" android:title="@string/string_add_album"></item>
+				<item android:id="@+id/item_menu_add_artist" android:title="@string/string_add_artist"></item>
 				<item android:id="@+id/item_menu_add_mic" android:title="@string/string_add_mic"></item>
 	    	</group>
 	    </menu>

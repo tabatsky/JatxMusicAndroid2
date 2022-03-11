@@ -7,6 +7,8 @@
     <string name="string_add">Add</string>
     <string name="string_add_track">Add Track</string>
     <string name="string_add_folder">Add Folder</string>
+	<string name="string_add_album">Add Album</string>
+	<string name="string_add_artist">Add Artist</string>
 	<string name="string_add_mic">Add Microphone</string>
 	<string name="string_remove">Remove</string>
 	<string name="string_remove_track">Remove Track</string>

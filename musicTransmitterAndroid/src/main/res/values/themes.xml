@@ -13,6 +13,7 @@
         <item name="actionBarTheme">@style/Theme.MusicTransmitter.ActionBar</item>
         <item name="materialButtonStyle">@style/Theme.MusicTransmitter.Button</item>
         <item name="android:actionMenuTextColor">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
     </style>
 
     <style name="Theme.MusicTransmitter.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">

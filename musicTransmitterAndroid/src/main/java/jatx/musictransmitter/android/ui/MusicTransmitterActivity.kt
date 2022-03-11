@@ -6,7 +6,10 @@ import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +32,7 @@ import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import kotlinx.android.synthetic.main.activity_music_transmitter.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
+import java.io.File
 import javax.inject.Inject
 
 const val REQUEST_TAG_EDITOR = 2222
@@ -77,8 +81,16 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 presenter.onAddTrackSelected()
                 true
             }
-            R.id.item_menu_add_folder -> {
-                presenter.onAddFolderSelected()
+//            R.id.item_menu_add_folder -> {
+//                presenter.onAddFolderSelected()
+//                true
+//            }
+            R.id.item_menu_add_album -> {
+                presenter.onAddAlbumSelected()
+                true
+            }
+            R.id.item_menu_add_artist -> {
+                presenter.onAddArtistSelected()
                 true
             }
             R.id.item_menu_add_mic -> {
@@ -219,6 +231,218 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
             .build()
             .show()
+    }
+
+    override fun tryShowArtistSelectDialog() {
+        tryShowMusicSelectDialog {
+            getArtistEntries()
+        }
+    }
+
+    override fun tryShowAlbumSelectDialog() {
+        tryShowMusicSelectDialog {
+            getAlbumEntries()
+        }
+    }
+
+    override fun tryShowTrackSelectDialog() {
+        tryShowMusicSelectDialog {
+            getTrackEntries()
+        }
+    }
+
+    private fun tryShowMusicSelectDialog(requestEntries: () -> List<MusicEntry>) {
+        val permissionListener = object: PermissionListener {
+            override fun onPermissionGranted() {
+                val dialog = MusicSelectorDialog()
+                dialog.entries = requestEntries()
+                dialog.onEntrySelected = { entry ->
+                    presenter.addFiles(getFilesByEntry(entry))
+                }
+                dialog.show(supportFragmentManager, "musicSelectorDialog")
+            }
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                showToast(R.string.toast_no_sdcard_read_access)
+            }
+        }
+
+        checkMediaPermissions(permissionListener)
+    }
+
+    private fun checkMediaPermissions(permissionListener: PermissionListener) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            TedPermission.with(this)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+                .check()
+        } else {
+            TedPermission.with(this)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                .check()
+        }
+    }
+
+    private fun getExternalContentUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        MediaStore.Audio.Media.getContentUri(
+            MediaStore.VOLUME_EXTERNAL_PRIMARY
+        )
+    } else {
+        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    }
+
+    private fun getArtistEntries(): List<MusicEntry> {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+
+        val sortOrder = MediaStore.Audio.Media.ARTIST + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.ARTIST
+        )
+
+        val cursor = contentResolver.query(
+            getExternalContentUri(),
+            projection,
+            selection,
+            null,
+            sortOrder
+        )
+
+        val entries = arrayListOf<MusicEntry>()
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val artist = it.getString(0)
+                entries.add(ArtistEntry(artist))
+            }
+        }
+
+        return entries.distinct()
+    }
+
+    private fun getAlbumEntries(): List<MusicEntry> {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+
+        val sortOrder = MediaStore.Audio.Media.ALBUM + " || " +
+            MediaStore.Audio.Media.ARTIST + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM
+        )
+
+        val cursor = contentResolver.query(
+            getExternalContentUri(),
+            projection,
+            selection,
+            null,
+            sortOrder
+        )
+
+        val entries = arrayListOf<MusicEntry>()
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val artist = it.getString(0)
+                val album = it.getString(1)
+                entries.add(AlbumEntry(artist, album))
+            }
+        }
+
+        return entries.distinct()
+    }
+
+    private fun getTrackEntries(): List<MusicEntry> {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+
+        val sortOrder =
+                MediaStore.Audio.Media.TITLE + " || " +
+                MediaStore.Audio.Media.ALBUM + " || " +
+                MediaStore.Audio.Media.ARTIST + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.TITLE
+        )
+
+        val cursor = contentResolver.query(
+            getExternalContentUri(),
+            projection,
+            selection,
+            null,
+            sortOrder
+        )
+
+        val entries = arrayListOf<MusicEntry>()
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val artist = it.getString(0)
+                val album = it.getString(1)
+                val title = it.getString(2)
+                entries.add(TrackEntry(artist, album, title))
+            }
+        }
+
+        return entries.distinct()
+    }
+
+    private fun getFilesByEntry(entry: MusicEntry): List<File> {
+        val selection = when (entry) {
+            is ArtistEntry ->
+                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
+                        MediaStore.Audio.Media.ARTIST + " = ?"
+            is AlbumEntry ->
+                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
+                        MediaStore.Audio.Media.ARTIST + " = ? AND " +
+                        MediaStore.Audio.Media.ALBUM + " = ?"
+            is TrackEntry ->
+                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
+                        MediaStore.Audio.Media.ARTIST + " = ? AND " +
+                        MediaStore.Audio.Media.ALBUM + " = ? AND " +
+                        MediaStore.Audio.Media.TITLE + " = ?"
+        }
+
+        val sortOrder = MediaStore.Audio.Media.ARTIST + " || " +
+                MediaStore.Audio.Media.ALBUM + " || " +
+                MediaStore.Audio.Media.TRACK + " || " +
+                MediaStore.Audio.Media.TITLE + " ASC"
+
+
+        val selectionArgs = when (entry) {
+            is ArtistEntry -> arrayOf(entry.artist)
+            is AlbumEntry -> arrayOf(entry.artist, entry.album)
+            is TrackEntry -> arrayOf(entry.artist, entry.album, entry.title)
+        }
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.DATA
+        )
+
+        val cursor = contentResolver.query(
+            getExternalContentUri(),
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )
+
+        val files = arrayListOf<File>()
+        cursor?.use {
+            while (it.moveToNext()) {
+                val path = it.getString(0)
+                files.add(File(path))
+            }
+        }
+
+        return files
     }
 
     override fun showCurrentTime(currentMs: Float, trackLengthMs: Float) {

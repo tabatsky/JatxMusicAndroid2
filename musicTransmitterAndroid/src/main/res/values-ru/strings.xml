@@ -7,6 +7,8 @@
     <string name="string_add">Добавить</string>
     <string name="string_add_track">Добавить трек</string>
     <string name="string_add_folder">Добавить папку</string>
+	<string name="string_add_album">Добавить альбом</string>
+	<string name="string_add_artist">Добавить исполнителя</string>
 	<string name="string_add_mic">Добавить микрофон</string>
 	<string name="string_remove">Удалить</string>
 	<string name="string_remove_track">Удалить трек</string>
