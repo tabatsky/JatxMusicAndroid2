@@ -13,7 +13,7 @@ class MusicSelectorItem(
     override fun getLayout() = R.layout.item_music_selector
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.musicSelectorItemBtn.text = entry.asString()
+        viewHolder.musicSelectorItemBtn.text = entry.asString
         viewHolder.musicSelectorItemBtn.setOnClickListener {
             onClick()
         }
@@ -21,20 +21,23 @@ class MusicSelectorItem(
 }
 
 sealed class MusicEntry {
-    open fun asString() = ""
+    abstract val asString: String
+    val searchString by lazy {
+        asString.lowercase().trim()
+    }
 }
 
 data class ArtistEntry(
     val artist: String
 ): MusicEntry() {
-    override fun asString() = artist
+    override val asString = artist
 }
 
 data class AlbumEntry(
     val artist: String,
     val album: String
 ): MusicEntry() {
-    override fun asString() = "$album ($artist)"
+    override val asString = "$album ($artist)"
 }
 
 data class TrackEntry(
@@ -42,5 +45,5 @@ data class TrackEntry(
     val album: String,
     val title: String
 ): MusicEntry() {
-    override fun asString() = "$title ($album, $artist)"
+    override val asString = "$title ($album, $artist)"
 }

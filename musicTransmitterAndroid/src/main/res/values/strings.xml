@@ -30,6 +30,8 @@
 
 	<string name="button_load">Load</string>
 
+	<string name="hint_search">Search</string>
+
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	
@@ -47,6 +49,7 @@
 	<string name="toast_loading_playlist_success">Playlist loading success</string>
 	<string name="toast_no_playlists">No playlists found</string>
 	<string name="toast_empty_playlist_name">Playlist name must not be empty</string>
+	<string name="toast_unsopported_files_format">Found files with unsupported format</string>
 
 	<string name="editor_file">File:</string>
 	<string name="editor_title">Title:</string>

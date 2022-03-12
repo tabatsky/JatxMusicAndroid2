@@ -5,14 +5,15 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
@@ -297,22 +298,30 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     }
 
-    private fun getArtistEntries(): List<MusicEntry> {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+    private fun allMusicQuery(projection: Array<String>, sortOrder: String): Cursor? {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND (" +
+                MediaStore.Files.FileColumns.MIME_TYPE + " = ? OR " +
+                MediaStore.Files.FileColumns.MIME_TYPE + " = ?)"
+        val mimeTypeMP3 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3")
+        val mimeTypeFLAC = MimeTypeMap.getSingleton().getMimeTypeFromExtension("flac")
 
+        return contentResolver.query(
+            getExternalContentUri(),
+            projection,
+            selection,
+            arrayOf(mimeTypeMP3, mimeTypeFLAC),
+            sortOrder
+        )
+    }
+
+    private fun getArtistEntries(): List<MusicEntry> {
         val sortOrder = MediaStore.Audio.Media.ARTIST + " ASC"
 
         val projection = arrayOf(
             MediaStore.Audio.Media.ARTIST
         )
 
-        val cursor = contentResolver.query(
-            getExternalContentUri(),
-            projection,
-            selection,
-            null,
-            sortOrder
-        )
+        val cursor = allMusicQuery(projection, sortOrder)
 
         val entries = arrayListOf<MusicEntry>()
 
@@ -327,8 +336,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     private fun getAlbumEntries(): List<MusicEntry> {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-
         val sortOrder = MediaStore.Audio.Media.ALBUM + " || " +
             MediaStore.Audio.Media.ARTIST + " ASC"
 
@@ -337,13 +344,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             MediaStore.Audio.Media.ALBUM
         )
 
-        val cursor = contentResolver.query(
-            getExternalContentUri(),
-            projection,
-            selection,
-            null,
-            sortOrder
-        )
+        val cursor = allMusicQuery(projection, sortOrder)
 
         val entries = arrayListOf<MusicEntry>()
 
@@ -359,8 +360,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     private fun getTrackEntries(): List<MusicEntry> {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-
         val sortOrder =
                 MediaStore.Audio.Media.TITLE + " || " +
                 MediaStore.Audio.Media.ALBUM + " || " +
@@ -372,13 +371,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             MediaStore.Audio.Media.TITLE
         )
 
-        val cursor = contentResolver.query(
-            getExternalContentUri(),
-            projection,
-            selection,
-            null,
-            sortOrder
-        )
+        val cursor = allMusicQuery(projection, sortOrder)
 
         val entries = arrayListOf<MusicEntry>()
 
@@ -442,7 +435,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
         }
 
-        return files
+        val filteredFiles = files
+            .filter { it.name.endsWith(".mp3") || it.name.endsWith(".flac") }
+
+        if (files.size != filteredFiles.size) {
+            showToast(R.string.toast_unsopported_files_format)
+        }
+
+        return filteredFiles
     }
 
     override fun showCurrentTime(currentMs: Float, trackLengthMs: Float) {

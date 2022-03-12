@@ -29,6 +29,8 @@
 	<string name="hint_playlist_name">Название плейлиста</string>
 
 	<string name="button_load">Загрузить</string>
+
+	<string name="hint_search">Поиск</string>
 	
 	<string name="yes">Да</string>
 	<string name="no">Нет</string>
@@ -47,6 +49,7 @@
 	<string name="toast_loading_playlist_success">Плейлист загружен успешно</string>
 	<string name="toast_no_playlists">Плейлисты не найдены</string>
 	<string name="toast_empty_playlist_name">Название плейлиста не должно быть пустым</string>
+	<string name="toast_unsopported_files_format">Обнаружены файлы неподдерживаемого формата</string>
 	
 	<string name="editor_file">Файл:</string>
 	<string name="editor_title">Название:</string>
