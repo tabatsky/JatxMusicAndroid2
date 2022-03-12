@@ -97,4 +97,7 @@
 		Do you like this application, and do you want it to continue developing?
         \nYou can help in its promotion by putting an estimate or writing a review.
 	</string>
+
+	<string name="label_filename">File: %s</string>
+	<string name="label_volume">%d%%</string>
 </resources>

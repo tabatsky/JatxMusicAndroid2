@@ -12,7 +12,7 @@ interface MusicEditorView: MvpView {
     @StateStrategyType(AddToEndSingleStrategy::class) fun showTags(
         artist: String, album: String, title: String, year: String, number: String
     )
-    @StateStrategyType(AddToEndSingleStrategy::class) fun saveTags()
+    @StateStrategyType(AddToEndSingleStrategy::class) fun saveTags(needQuit: Boolean)
     @StateStrategyType(AddToEndSingleStrategy::class) fun showNeedToSaveDialog()
     @StateStrategyType(OneExecutionStateStrategy::class) fun saveTagErrorToast()
     @StateStrategyType(SkipStrategy::class) fun quit()

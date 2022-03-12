@@ -21,7 +21,8 @@ import javax.inject.Inject
 class MusicEditorPresenter @Inject constructor(
     private val trackInfoStorage: TrackInfoStorage
 ) : MvpPresenter<MusicEditorView>() {
-    private lateinit var file: File
+    lateinit var file: File
+        private set
     private lateinit var artist: String
     private lateinit var album: String
     private lateinit var title: String
@@ -37,8 +38,8 @@ class MusicEditorPresenter @Inject constructor(
         openTags()
     }
 
-    fun onSaveClick() {
-        viewState.saveTags()
+    fun onSaveClick(needQuit: Boolean) {
+        viewState.saveTags(needQuit)
     }
 
     fun onBackPressed(artist: String, album: String, title: String, year: String, number: String) {
@@ -88,7 +89,7 @@ class MusicEditorPresenter @Inject constructor(
                     tag.setField(FieldKey.TRACK, correctNumber(number))
                     tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
                     val raf = RandomAccessFile(file, "rw")
-                    FlacTagWriter().write(tag, raf, null)
+                    FlacTagWriter().write(tag, raf, raf)
                 }
             }
         } catch (e: Throwable) {

@@ -272,7 +272,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     private fun checkMediaPermissions(permissionListener: PermissionListener) {
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= 30) {
             TedPermission.with(this)
                 .setPermissionListener(permissionListener)
                 .setPermissions(
@@ -452,7 +452,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun showVolume(volume: Int) {
-        volumeValueTV.text = "$volume%"
+        volumeValueTV.text = getString(R.string.label_volume, volume)
     }
 
     override fun showRemoveTrackMessage() {
