@@ -3,6 +3,7 @@ package jatx.musictransmitter.android.ui
 import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.Intent
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -121,6 +122,7 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
             year = yearET.text.toString(),
             number = numberET.text.toString()
         )
+        MediaScannerConnection.scanFile(this, arrayOf(presenter.file.absolutePath), null, null)
         if (needQuit) {
             presenter.onNeedQuit()
         }
