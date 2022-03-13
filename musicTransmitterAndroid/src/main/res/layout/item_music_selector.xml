@@ -3,10 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="4dp"
     android:background="?attr/colorPrimary"
     >
+    <ImageView
+        android:id="@+id/musicSelectorAlbumArtIV"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:padding="3dp"
+        />
+
     <Button
         android:id="@+id/musicSelectorItemBtn"
         android:layout_width="match_parent"

@@ -10,6 +10,8 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.media.AlbumArtKeeper
+import jatx.musictransmitter.android.media.AlbumEntry
 import kotlinx.android.synthetic.main.item_track.*
 
 
@@ -53,28 +55,22 @@ class TrackItem(val track: Track, val position: Int, private val isCurrent: Bool
     }
 
     private fun getAlbumCover(context: Context): Bitmap {
-        albumArts[AlbumEntry(track.artist, track.album)]?.let {
+        AlbumArtKeeper.albumArts[AlbumEntry(track.artist, track.album)]?.let {
             return it
         }
 
         val bitmap = if (track.path == MIC_PATH) {
-            return BitmapFactory.decodeResource(context.resources, R.drawable.ic_microphone)
-        } else try {
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(track.path)
-            mmr.embeddedPicture?.let {
-                BitmapFactory.decodeByteArray(it, 0, it.size)
-            } ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
-        } catch (e: Exception) {
-            BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_microphone)
+        } else {
+            AlbumArtKeeper.retrieveAlbumArt(context, track.path)
         }
 
-        albumArts[AlbumEntry(track.artist, track.album)] = bitmap
+        AlbumArtKeeper.albumArts[AlbumEntry(track.artist, track.album)] = bitmap
 
         return bitmap
     }
 
     companion object {
-        private val albumArts: HashMap<AlbumEntry, Bitmap> = hashMapOf()
+
     }
 }

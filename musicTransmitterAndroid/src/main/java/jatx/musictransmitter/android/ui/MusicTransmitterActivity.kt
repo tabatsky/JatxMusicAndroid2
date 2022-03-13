@@ -3,6 +3,7 @@ package jatx.musictransmitter.android.ui
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.database.Cursor
@@ -10,10 +11,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
@@ -28,9 +31,13 @@ import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.db.entity.Track
 import jatx.extensions.showToast
+import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import kotlinx.android.synthetic.main.activity_music_transmitter.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import java.io.File
@@ -69,6 +76,12 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         seekBar.max = 1000
         seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                getAlbumEntries()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -255,12 +268,25 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     private fun tryShowMusicSelectDialog(requestEntries: () -> List<MusicEntry>) {
         val permissionListener = object: PermissionListener {
             override fun onPermissionGranted() {
-                val dialog = MusicSelectorDialog()
-                dialog.entries = requestEntries()
-                dialog.onEntrySelected = { entry ->
-                    presenter.addFiles(getFilesByEntry(entry))
+                lifecycleScope.launch {
+                    withContext(Dispatchers.Main) {
+                        val pd = ProgressDialog(this@MusicTransmitterActivity)
+                        pd.setCancelable(false)
+                        pd.show()
+                        withContext(Dispatchers.IO) {
+                            val entries = requestEntries()
+                            withContext(Dispatchers.Main) {
+                                pd.dismiss()
+                                val dialog = MusicSelectorDialog()
+                                dialog.entries = entries
+                                dialog.onEntrySelected = { entry ->
+                                    presenter.addFiles(getFilesByEntry(entry))
+                                }
+                                dialog.show(supportFragmentManager, "musicSelectorDialog")
+                            }
+                        }
+                    }
                 }
-                dialog.show(supportFragmentManager, "musicSelectorDialog")
             }
 
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
@@ -341,7 +367,8 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         val projection = arrayOf(
             MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.DATA
         )
 
         val cursor = allMusicQuery(projection, sortOrder)
@@ -352,7 +379,15 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             while (it.moveToNext()) {
                 val artist = it.getString(0)
                 val album = it.getString(1)
-                entries.add(AlbumEntry(artist, album))
+                val albumEntry = AlbumEntry(artist, album)
+                entries.add(albumEntry)
+
+                val path = it.getString(2)
+                Log.e("path", path)
+
+                if (!AlbumArtKeeper.albumArts.containsKey(albumEntry)) {
+                    AlbumArtKeeper.albumArts[albumEntry] = AlbumArtKeeper.retrieveAlbumArt(this, path)
+                }
             }
         }
 
@@ -368,7 +403,8 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         val projection = arrayOf(
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.TITLE
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.DATA
         )
 
         val cursor = allMusicQuery(projection, sortOrder)
@@ -380,7 +416,16 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 val artist = it.getString(0)
                 val album = it.getString(1)
                 val title = it.getString(2)
-                entries.add(TrackEntry(artist, album, title))
+
+                val trackEntry = TrackEntry(artist, album, title)
+
+                entries.add(trackEntry)
+
+                val path = it.getString(3)
+
+                if (!AlbumArtKeeper.albumArts.containsKey(trackEntry.albumEntry)) {
+                    AlbumArtKeeper.albumArts[trackEntry.albumEntry] = AlbumArtKeeper.retrieveAlbumArt(this, path)
+                }
             }
         }
 
