@@ -450,7 +450,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         val sortOrder = MediaStore.Audio.Media.ARTIST + " || " +
                 MediaStore.Audio.Media.ALBUM + " || " +
-                MediaStore.Audio.Media.TRACK + " || " +
+                " (10000 + " + MediaStore.Audio.Media.TRACK + ") || " +
                 MediaStore.Audio.Media.TITLE + " ASC"
 
 
