@@ -290,7 +290,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
-    private fun getExternalContentUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    private fun getMusicExternalContentUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStore.Audio.Media.getContentUri(
             MediaStore.VOLUME_EXTERNAL_PRIMARY
         )
@@ -306,7 +306,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         val mimeTypeFLAC = MimeTypeMap.getSingleton().getMimeTypeFromExtension("flac")
 
         return contentResolver.query(
-            getExternalContentUri(),
+            getMusicExternalContentUri(),
             projection,
             selection,
             arrayOf(mimeTypeMP3, mimeTypeFLAC),
@@ -420,7 +420,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         )
 
         val cursor = contentResolver.query(
-            getExternalContentUri(),
+            getMusicExternalContentUri(),
             projection,
             selection,
             selectionArgs,
