@@ -64,38 +64,46 @@ class MusicEditorPresenter @Inject constructor(
 
             when (file.extension) {
                 "mp3" -> {
-                    val mp3f = MP3File(file)
-                    val tag = mp3f.createDefaultTag()
-
-                    tag.setField(FieldKey.ARTIST, artist)
-                    tag.setField(FieldKey.ALBUM_ARTIST, artist)
-                    tag.setField(FieldKey.ALBUM, album)
-                    tag.setField(FieldKey.TITLE, title)
-                    tag.setField(FieldKey.YEAR, year)
-                    tag.setField(FieldKey.TRACK, correctNumber(number))
-                    tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
-
-                    mp3f.tag = tag
-                    mp3f.save(file)
+                    saveMP3Tags()
                 }
                 "flac" -> {
-                    val af = AudioFileIO.read(file)
-                    val tag = af.tagOrCreateDefault as FlacTag
-                    tag.setField(FieldKey.ARTIST, artist)
-                    tag.setField(FieldKey.ALBUM_ARTIST, artist)
-                    tag.setField(FieldKey.ALBUM, album)
-                    tag.setField(FieldKey.TITLE, title)
-                    tag.setField(FieldKey.YEAR, year)
-                    tag.setField(FieldKey.TRACK, correctNumber(number))
-                    tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
-                    val raf = RandomAccessFile(file, "rw")
-                    FlacTagWriter().write(tag, raf, raf)
+                    saveFLACTags()
                 }
             }
         } catch (e: Throwable) {
             logError(e)
             viewState.saveTagErrorToast()
         }
+    }
+
+    private fun saveMP3Tags() {
+        val mp3f = MP3File(file)
+        val tag = mp3f.createDefaultTag()
+
+        tag.setField(FieldKey.ARTIST, artist)
+        tag.setField(FieldKey.ALBUM_ARTIST, artist)
+        tag.setField(FieldKey.ALBUM, album)
+        tag.setField(FieldKey.TITLE, title)
+        tag.setField(FieldKey.YEAR, year)
+        tag.setField(FieldKey.TRACK, correctNumber(number))
+        tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
+
+        mp3f.tag = tag
+        mp3f.save(file)
+    }
+
+    private fun saveFLACTags() {
+        val af = AudioFileIO.read(file)
+        val tag = af.tagOrCreateDefault as FlacTag
+        tag.setField(FieldKey.ARTIST, artist)
+        tag.setField(FieldKey.ALBUM_ARTIST, artist)
+        tag.setField(FieldKey.ALBUM, album)
+        tag.setField(FieldKey.TITLE, title)
+        tag.setField(FieldKey.YEAR, year)
+        tag.setField(FieldKey.TRACK, correctNumber(number))
+        tag.setField(FieldKey.COMMENT, "tag created with jatx music tag editor")
+        val raf = RandomAccessFile(file, "rw")
+        FlacTagWriter().write(tag, raf, raf)
     }
 
     fun onWinToUtfClick(artist: String, album: String, title: String) {

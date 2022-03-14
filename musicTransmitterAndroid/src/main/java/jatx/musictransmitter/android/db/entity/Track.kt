@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import jatx.debug.logError
+import org.jaudiotagger.audio.AudioFile
 import org.jaudiotagger.audio.AudioFileIO
-import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.flac.FlacTag
 import java.io.File
@@ -33,41 +33,51 @@ data class Track(
             length = String.format("%02d:%02d", min, sec)
             when (file.extension) {
                 "mp3" -> {
-                    val mp3f = MP3File(file)
-                    val tag = mp3f.tag
-                    artist = tag.getFirst(FieldKey.ARTIST).trim()
-                    album = tag.getFirst(FieldKey.ALBUM).trim()
-                    title = tag.getFirst(FieldKey.TITLE).trim()
-                    year = tag.getFirst(FieldKey.YEAR)
-                    number = tag.getFirst(FieldKey.TRACK)
-                    if (number != "") {
-                        val num: Int = number.toInt()
-                        if (num < 10) {
-                            number = "00$num"
-                        } else if (num < 100) {
-                            number = "0$num"
-                        }
-                    }
+                    fillFromMP3File(af)
                 }
                 "flac" -> {
-                    val tag = af.tag as FlacTag
-                    artist = tag.getFirst(FieldKey.ARTIST).trim()
-                    album = tag.getFirst(FieldKey.ALBUM).trim()
-                    title = tag.getFirst(FieldKey.TITLE).trim()
-                    year = tag.getFirst(FieldKey.YEAR)
-                    number = tag.getFirst(FieldKey.TRACK)
-                    if (number != "") {
-                        val num: Int = number.toInt()
-                        if (num < 10) {
-                            number = "00$num"
-                        } else if (num < 100) {
-                            number = "0$num"
-                        }
-                    }
+                    fillFromFLACFile(af)
                 }
+            }
+            if (title.trim().isEmpty()) {
+                title = file.name
             }
         } catch (e: Throwable) {
             logError(e)
+        }
+    }
+
+    private fun fillFromMP3File(af: AudioFile) {
+        val tag = af.tag
+        artist = tag.getFirst(FieldKey.ARTIST).trim()
+        album = tag.getFirst(FieldKey.ALBUM).trim()
+        title = tag.getFirst(FieldKey.TITLE).trim()
+        year = tag.getFirst(FieldKey.YEAR)
+        number = tag.getFirst(FieldKey.TRACK)
+        if (number != "") {
+            val num: Int = number.toInt()
+            if (num < 10) {
+                number = "00$num"
+            } else if (num < 100) {
+                number = "0$num"
+            }
+        }
+    }
+
+    private fun fillFromFLACFile(af: AudioFile) {
+        val tag = af.tag as FlacTag
+        artist = tag.getFirst(FieldKey.ARTIST).trim()
+        album = tag.getFirst(FieldKey.ALBUM).trim()
+        title = tag.getFirst(FieldKey.TITLE).trim()
+        year = tag.getFirst(FieldKey.YEAR)
+        number = tag.getFirst(FieldKey.TRACK)
+        if (number != "") {
+            val num: Int = number.toInt()
+            if (num < 10) {
+                number = "00$num"
+            } else if (num < 100) {
+                number = "0$num"
+            }
         }
     }
 }
