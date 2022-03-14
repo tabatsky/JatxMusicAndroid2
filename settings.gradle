@@ -1,3 +1,4 @@
 include ':musicTransmitterAndroid', ':musicCommons', ':commons', ':musicReceiverAndroid'
 rootProject.name='JatxMusicAndroid2'
 include ':flac'
+include ':jAudioTagger'

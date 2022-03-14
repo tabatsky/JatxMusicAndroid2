@@ -62,7 +62,6 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation 'com.xwray:groupie:2.7.1'
     implementation 'com.xwray:groupie-kotlin-android-extensions:2.7.1'
-    implementation 'org:jaudiotagger:2.0.3'
     implementation 'javazoom:jlayer:1.0.1'
     implementation 'gun0912.ted:tedpermission:2.2.3'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
@@ -70,6 +69,7 @@ dependencies {
     implementation project(':commons')
     implementation project(':musicCommons')
     implementation project(':flac')
+    implementation project(':jAudioTagger')
 
     androidTestImplementation 'androidx.test:core:1.4.0'
     androidTestImplementation 'androidx.test:runner:1.4.0'
