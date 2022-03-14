@@ -75,16 +75,17 @@
 
 	<string name="manual_title">Manual</string>
 	<string name="manual_message">
-		In connection with mass misunderstanding of users, publish this manual.\n\n
+		Due to the total misunderstanding from users, I\'m publishing this manual.\n\n
 		The application is designed to transfer music from one device to another within the same Wi-Fi network.\n\n
 		The application is NOT INTENDED for broadcasting music on FM!\n\n
-		For the correct operation of the application:\n\n
+		For the correct work of the application:\n\n
 		1. Install the receiver application on the second device -
 		Menu items \"Receiver for Android\" or \"Receiver for JavaFX\".\n\n
 		2. Find out your Wi-Fi IP address in the \"Find My IP\" menu.\n\n
-		3. Enter the IP address in the destination application.\n\n
-		4. Click in the Receiver \"Start\" or \"Auto Connect\".\n\n
-		5. The Wi-Fi icon to the left of the player control buttons should change the color from gray to black - this means the application is ready for use.
+		3. Enter the IP address at the Receiver application.\n\n
+		4. Click \"Start\" or \"Auto Connect\" at the Receiver.\n\n
+		5. The Wi-Fi icon to the left of the player control buttons should change the color
+		from gray to black (or to white for dark theme) - this means the application is ready for use.
 	</string>
 
 	<string name="show_ip_title">Your IP</string>
