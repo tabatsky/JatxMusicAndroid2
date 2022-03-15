@@ -22,7 +22,7 @@
 	
 	<string name="dialog_track_title">Choose Action</string>
 	<string name="button_remove_this_track">Remove This Track</string>
-	<string name="button_open_tag_editor">Open Tag Editor</string>
+	<string name="button_open_tag_editor">Tag Editor</string>
 	<string name="button_cancel">Cancel</string>
 
 	<string name="button_save">Save</string>
