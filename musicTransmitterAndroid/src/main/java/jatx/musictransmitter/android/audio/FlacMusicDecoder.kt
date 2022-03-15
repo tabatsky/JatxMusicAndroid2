@@ -47,7 +47,7 @@ class FlacMusicDecoder: MusicDecoder() {
                 logError(e)
             }
 
-            decoder = FlacDecoder(value!!)
+            decoder = FlacDecoder(value)
             while (decoder?.readAndHandleMetadataBlock() != null) {}
             streamInfo = decoder?.streamInfo
             numSamples = streamInfo?.numSamples ?: 0L
@@ -91,7 +91,14 @@ class FlacMusicDecoder: MusicDecoder() {
                 65536
             )
         }
-        val blockSamples = decoder?.readAudioBlock(samples, 0) ?: 0
+        val blockSamples = decoder?.let {
+            try {
+                it.readAudioBlock(samples, 0)
+            } catch (e: Exception) {
+                logError(e)
+                0
+            }
+        } ?: 0
 
         when (channels) {
             2 -> {

@@ -59,7 +59,7 @@ class TransmitterPlayer(
 
             try {
                 MusicDecoder.setPath(path!!)
-                MusicDecoder.position = position
+                MusicDecoder.position = field
             } catch (e: MusicDecoderException) {
                 logError(e)
             }
