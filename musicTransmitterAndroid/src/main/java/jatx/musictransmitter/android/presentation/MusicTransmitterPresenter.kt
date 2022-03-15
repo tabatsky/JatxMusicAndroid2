@@ -108,7 +108,6 @@ class MusicTransmitterPresenter @Inject constructor(
             currentPosition = 0
             viewState.showTracks(tracks, realPosition)
             tpSetPosition(realPosition)
-            viewState.scrollToPosition(realPosition)
         }
 
         viewState.showPlayingState(true)
@@ -243,7 +242,6 @@ class MusicTransmitterPresenter @Inject constructor(
             position
         }
         viewState.showTracks(tracks, realPosition)
-        viewState.scrollToPosition(realPosition)
         onPlayClick()
         tpSetPosition(realPosition)
     }
@@ -282,9 +280,7 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onSavePlaylist(playlistName: String) = viewState.trySavePlaylist(playlistName)
 
     fun onSavePlaylistPermissionsAccepted(playlistName: String) {
-        val playlistContent = files
-            .map { it.absolutePath }
-            .joinToString("\n")
+        val playlistContent = files.joinToString("\n") { it.absolutePath }
         Log.e("playlist", playlistContent)
         try {
             val dir = Environment

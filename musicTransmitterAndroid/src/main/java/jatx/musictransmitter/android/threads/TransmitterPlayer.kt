@@ -46,12 +46,15 @@ class TransmitterPlayer(
 
             if (value < 0 || count <= 0) return
 
-            field = value
-            if (position >= count) position = 0
+            field = if (value >= count) {
+                0
+            } else {
+                value
+            }
 
-            println("(player) position: $position")
+            println("(player) position: $field")
 
-            path = files[position].absolutePath
+            path = files[field].absolutePath
             println("(player) path: $path")
 
             try {
@@ -149,12 +152,14 @@ class TransmitterPlayer(
             MusicDecoder.INSTANCE?.seek(progress)
         } catch (e: MusicDecoderException) {
             logError(e)
+        } catch (e: Exception) {
+            logError(e)
         }
         if (needToPlay) play()
     }
 
     private fun translateMusic() {
-        var data: ByteArray? = null
+        var data: ByteArray?
 
         t1 = System.currentTimeMillis()
         t2 = t1

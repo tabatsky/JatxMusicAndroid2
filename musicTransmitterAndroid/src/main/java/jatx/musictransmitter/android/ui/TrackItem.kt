@@ -3,7 +3,6 @@ package jatx.musictransmitter.android.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.util.TypedValue
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
@@ -70,7 +69,16 @@ class TrackItem(val track: Track, val position: Int, private val isCurrent: Bool
         return bitmap
     }
 
-    companion object {
-
+    override fun isSameAs(other: com.xwray.groupie.Item<*>?): Boolean {
+        return (other is TrackItem)
+                && (other.track == track)
+                && (other.isCurrent == isCurrent)
     }
+
+    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+        return (other is TrackItem)
+                && (other.track == track)
+                && (other.isCurrent == isCurrent)
+    }
+
 }
