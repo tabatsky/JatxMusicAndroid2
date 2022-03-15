@@ -583,13 +583,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
         }
 
-        TedPermission.with(this)
-            .setPermissionListener(permissionListener)
-            .setPermissions(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            .check()
+        checkMediaPermissions(permissionListener)
     }
 
     override fun tryLoadPlaylists() {
@@ -603,12 +597,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
         }
 
-        TedPermission.with(this)
-            .setPermissionListener(permissionListener)
-            .setPermissions(
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            .check()
+        checkMediaPermissions(permissionListener)
     }
 
     override fun showTagEditor(uri: Uri) {
