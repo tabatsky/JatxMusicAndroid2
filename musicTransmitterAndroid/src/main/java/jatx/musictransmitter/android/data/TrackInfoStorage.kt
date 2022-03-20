@@ -34,7 +34,7 @@ class TrackInfoStorage(
     private var pauseFlag = false
     private var lock = Object()
 
-    val tagWorker = object : Thread() {
+    private val tagWorker = object : Thread() {
         override fun run() {
             try {
                 var current = -1
@@ -68,7 +68,7 @@ class TrackInfoStorage(
                 Log.e("tag worker", "interrupted")
             }
         }
-    }.apply { this.start() }
+    }.also { it.start() }
 
     private fun getMicTrack(): Track {
         val track =

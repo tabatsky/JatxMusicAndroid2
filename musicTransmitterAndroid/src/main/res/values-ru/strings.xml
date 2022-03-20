@@ -2,11 +2,9 @@
 <resources>    
     
     <string name="app_name">JatxMusic Transmitter</string>
-	<string name="title_tag_editor">Редактор тегов</string>
 	
     <string name="item_add">Добавить</string>
-    <string name="item_add_track">Добавить трек</string>
-    <string name="item_add_folder">Добавить папку</string>
+    <string name="item_add_track">Добавить трек</string>\
 	<string name="item_add_album">Добавить альбом</string>
 	<string name="item_add_artist">Добавить исполнителя</string>
 	<string name="item_add_mic">Добавить микрофон</string>
@@ -16,11 +14,7 @@
 	<string name="item_playlist">Плейлист</string>
 	<string name="item_export_playlist">Сохранить</string>
 	<string name="item_import_playlist">Загрузить</string>
-	
-	<string name="question_remove_track">Удалить этот трек?</string>
-	<string name="question_remove_all">Удалить все треки?</string>
-	
-	<string name="dialog_track_title">Выберите действие</string>
+
 	<string name="button_remove_this_track">Удалить этот трек</string>
 	<string name="button_open_tag_editor">Редактор тегов</string>
 	<string name="button_cancel">Отмена</string>
@@ -34,8 +28,7 @@
 	
 	<string name="yes">Да</string>
 	<string name="no">Нет</string>
-	
-	<string name="toast_m3u8_ext">Файл должен иметь расширение m3u8</string>
+
 	<string name="toast_long_tap">Сделайте долгое нажатие на треке, чтобы удалить</string>
 	<string name="toast_no_mic_access">Нет доступа к микрофону</string>
 	<string name="toast_no_sdcard_write_access">Нет доступа на запись на карту памяти</string>
@@ -49,9 +42,8 @@
 	<string name="toast_loading_playlist_success">Плейлист загружен успешно</string>
 	<string name="toast_no_playlists">Плейлисты не найдены</string>
 	<string name="toast_empty_playlist_name">Название плейлиста не должно быть пустым</string>
-	<string name="toast_unsopported_files_format">Обнаружены файлы неподдерживаемого формата</string>
-	
-	<string name="editor_file">Файл:</string>
+	<string name="toast_unsupported_files_format">Обнаружены файлы неподдерживаемого формата</string>
+
 	<string name="editor_title">Название:</string>
 	<string name="editor_album">Альбом:</string>
 	<string name="editor_artist">Исполнитель:</string>
@@ -64,14 +56,12 @@
 	<string name="item_show_my_ip">Узнать мой IP</string>
 	<string name="item_other_apps">Еще приложения</string>
 	<string name="item_receiver_android">Приемник для Android</string>
-	<string name="item_javafx_version">Версия для JavaFX</string>
 	<string name="item_receiver_javafx">Приемник для JavaFX</string>
 	<string name="item_transmitter_javafx">Передатчик для JavaFX</string>
 	<string name="item_source_code">Исходный код</string>
 	<string name="item_dev_site">Сайт разработчика</string>
 
-	<string name="button_ok">Ok</string>
-	<string name="button_dont_shore_anymore">Больше не показывать</string>
+	<string name="button_ok">OK</string>
 
 	<string name="manual_title">Инструкция</string>
 	<string name="manual_message">
@@ -89,19 +79,14 @@
 	</string>
 
 	<string name="show_ip_title">Ваш IP-адрес</string>
-	<string name="not_detected_message">Не определено\nВозможно Wi-Fi отключен</string>
 
 	<string name="really_quit">Вы действительно хотите закрыть приложение?</string>
-
-	<string name="need_you_help">Нужна Ваша помощь</string>
-	<string name="do_you_like_this_app">
-        Вам нравится это приложение, и Вы хотите, чтобы оно развивалось и дальше?
-        \nВы можете помочь в его продвижении, поставив оценку или написав отзыв.
-    </string>
 
 	<string name="label_filename">Файл: %s</string>
 	<string name="label_volume">%d%%</string>
 
-	<string name="message_music_loaging">Загрузка музыки…</string>
+	<string name="message_music_loading">Загрузка музыки…</string>
+
+	<string name="button_cp_1251_to_utf_8">CP-1251 to UTF-8</string>
 </resources>
 

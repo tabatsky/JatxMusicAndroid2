@@ -10,11 +10,19 @@
         app:showAsAction="always|withText">
         <menu>
         	<group>
-	    		<item android:id="@+id/item_menu_add_track" android:title="@string/item_add_track"></item>
+				<item
+					android:id="@+id/item_menu_add_track"
+					android:title="@string/item_add_track" />
 <!--	    		<item android:id="@+id/item_menu_add_folder" android:title="@string/string_add_folder"></item>-->
-				<item android:id="@+id/item_menu_add_album" android:title="@string/item_add_album"></item>
-				<item android:id="@+id/item_menu_add_artist" android:title="@string/item_add_artist"></item>
-				<item android:id="@+id/item_menu_add_mic" android:title="@string/item_add_mic"></item>
+				<item
+					android:id="@+id/item_menu_add_album"
+					android:title="@string/item_add_album" />
+				<item
+					android:id="@+id/item_menu_add_artist"
+					android:title="@string/item_add_artist" />
+				<item
+					android:id="@+id/item_menu_add_mic"
+					android:title="@string/item_add_mic" />
 	    	</group>
 	    </menu>
 	</item>
@@ -26,8 +34,12 @@
         app:showAsAction="always|withText">
         <menu>
         	<group>
-        	    <item android:id="@+id/item_menu_remove_track" android:title="@string/item_remove_track"></item>
-	    		<item android:id="@+id/item_menu_remove_all" android:title="@string/item_remove_all"></item>
+				<item
+					android:id="@+id/item_menu_remove_track"
+					android:title="@string/item_remove_track" />
+				<item
+					android:id="@+id/item_menu_remove_all"
+					android:title="@string/item_remove_all" />
 	    	</group>
 	    </menu>
     </item>
@@ -39,8 +51,12 @@
 		app:showAsAction="always|withText">
 		<menu>
 			<group>
-				<item android:id="@+id/item_menu_export_playlist" android:title="@string/item_export_playlist"></item>
-				<item android:id="@+id/item_menu_import_playlist" android:title="@string/item_import_playlist"></item>
+				<item
+					android:id="@+id/item_menu_export_playlist"
+					android:title="@string/item_export_playlist" />
+				<item
+					android:id="@+id/item_menu_import_playlist"
+					android:title="@string/item_import_playlist" />
 			</group>
 		</menu>
 	</item>
@@ -54,18 +70,34 @@
         
         <menu>
         	<group>
-				<item android:id="@+id/item_show_manual" android:title="@string/item_show_manual"></item>
-				<item android:id="@+id/item_show_my_ip" android:title="@string/item_show_my_ip"></item>
+				<item
+					android:id="@+id/item_show_manual"
+					android:title="@string/item_show_manual" />
+				<item
+					android:id="@+id/item_show_my_ip"
+					android:title="@string/item_show_my_ip" />
 				<item android:id="@+id/item_other_apps" android:title="@string/item_other_apps">
 					<menu>
-						<item android:id="@+id/item_receiver_android" android:title="@string/item_receiver_android"></item>
+						<item
+							android:id="@+id/item_receiver_android"
+							android:title="@string/item_receiver_android" />
 					</menu>
 				</item>
-        	    <item android:id="@+id/item_receiver_javafx" android:title="@string/item_receiver_javafx"></item>
-        	    <item android:id="@+id/item_transmitter_javafx" android:title="@string/item_transmitter_javafx"></item>
-        	    <item android:id="@+id/item_source_code" android:title="@string/item_source_code"></item>
-        	    <item android:id="@+id/item_dev_site" android:title="@string/item_dev_site"></item>
-				<item android:id="@+id/item_review_app" android:title="@string/item_review_app"></item>
+				<item
+					android:id="@+id/item_receiver_javafx"
+					android:title="@string/item_receiver_javafx" />
+				<item
+					android:id="@+id/item_transmitter_javafx"
+					android:title="@string/item_transmitter_javafx" />
+				<item
+					android:id="@+id/item_source_code"
+					android:title="@string/item_source_code" />
+				<item
+					android:id="@+id/item_dev_site"
+					android:title="@string/item_dev_site" />
+				<item
+					android:id="@+id/item_review_app"
+					android:title="@string/item_review_app" />
 	    	</group>
 	    </menu>
         

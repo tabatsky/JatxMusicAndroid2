@@ -7,7 +7,6 @@
     <TextView
         android:id="@+id/text_title"
         android:textAppearance="@style/Theme.MusicTransmitter.NotificationText"
-        android:text="title"
         android:textStyle="bold"
         android:textSize="24sp"
         android:gravity="center_horizontal"
@@ -17,7 +16,6 @@
     <TextView
         android:id="@+id/text_artist"
         android:textAppearance="@style/Theme.MusicTransmitter.NotificationText"
-        android:text="artist"
         android:textStyle="italic"
         android:textSize="24sp"
         android:gravity="center_horizontal"
@@ -38,7 +36,7 @@
             android:src="@drawable/ic_rev"
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
-            android:layout_toLeftOf="@id/play"
+            android:layout_toStartOf="@id/play"
             style="@style/Theme.MusicTransmitter.NotificationButton"
             />
 
@@ -50,7 +48,7 @@
             android:src="@drawable/ic_play"
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
-            android:layout_toLeftOf="@id/pause"
+            android:layout_toStartOf="@id/pause"
             style="@style/Theme.MusicTransmitter.NotificationButton"
             />
 
@@ -63,7 +61,7 @@
             android:scaleType="fitXY"
             android:visibility="gone"
             android:background="@android:color/transparent"
-            android:layout_toLeftOf="@id/fwd"
+            android:layout_toStartOf="@id/fwd"
             style="@style/Theme.MusicTransmitter.NotificationButton"
             />
 
@@ -75,14 +73,9 @@
             android:src="@drawable/ic_fwd"
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             style="@style/Theme.MusicTransmitter.NotificationButton"
             />
-
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
     </RelativeLayout>
 </LinearLayout>

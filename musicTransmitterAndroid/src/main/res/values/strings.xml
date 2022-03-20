@@ -2,11 +2,9 @@
 <resources>
 
     <string name="app_name">JatxMusic Transmitter</string>
-	<string name="title_tag_editor">Tag Editor</string>
     
     <string name="item_add">Add</string>
     <string name="item_add_track">Add Track</string>
-    <string name="item_add_folder">Add Folder</string>
 	<string name="item_add_album">Add Album</string>
 	<string name="item_add_artist">Add Artist</string>
 	<string name="item_add_mic">Add Microphone</string>
@@ -16,11 +14,7 @@
 	<string name="item_playlist">Playlist</string>
 	<string name="item_export_playlist">Export</string>
 	<string name="item_import_playlist">Import</string>
-	
-	<string name="question_remove_track">Remove This Track?</string>
-	<string name="question_remove_all">Remove All Tracks?</string>
-	
-	<string name="dialog_track_title">Choose Action</string>
+
 	<string name="button_remove_this_track">Remove This Track</string>
 	<string name="button_open_tag_editor">Tag Editor</string>
 	<string name="button_cancel">Cancel</string>
@@ -35,7 +29,6 @@
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	
-	<string name="toast_m3u8_ext">Playlist file must have m3u8 extension</string>
 	<string name="toast_long_tap">Make long tap on track to remove</string>
 	<string name="toast_no_mic_access">No microphone access</string>
 	<string name="toast_no_sdcard_write_access">No sdcard write access</string>
@@ -49,9 +42,8 @@
 	<string name="toast_loading_playlist_success">Playlist loading success</string>
 	<string name="toast_no_playlists">No playlists found</string>
 	<string name="toast_empty_playlist_name">Playlist name must not be empty</string>
-	<string name="toast_unsopported_files_format">Found files with unsupported format</string>
+	<string name="toast_unsupported_files_format">Found files with unsupported format</string>
 
-	<string name="editor_file">File:</string>
 	<string name="editor_title">Title:</string>
 	<string name="editor_album">Album:</string>
 	<string name="editor_artist">Artist:</string>
@@ -64,14 +56,12 @@
 	<string name="item_show_my_ip">Find my IP</string>
 	<string name="item_other_apps">Other apps</string>
 	<string name="item_receiver_android">Receiver for Android</string>
-	<string name="item_javafx_version">Version for JavaFX</string>
 	<string name="item_receiver_javafx">Receiver for JavaFX</string>
 	<string name="item_transmitter_javafx">Transmitter for JavaFX</string>
 	<string name="item_source_code">Source Code</string>
 	<string name="item_dev_site">Developer Site</string>
 
-	<string name="button_ok">Ok</string>
-	<string name="button_dont_shore_anymore">Do not show any more</string>
+	<string name="button_ok">OK</string>
 
 	<string name="manual_title">Manual</string>
 	<string name="manual_message">
@@ -89,18 +79,13 @@
 	</string>
 
 	<string name="show_ip_title">Your IP</string>
-	<string name="not_detected_message">Not detected\nMay be Wi-Fi is down</string>
 
 	<string name="really_quit">Are you really want to quit app?</string>
-
-	<string name="need_you_help">Need Your Help</string>
-	<string name="do_you_like_this_app">
-		Do you like this application, and do you want it to continue developing?
-        \nYou can help in its promotion by putting an estimate or writing a review.
-	</string>
 
 	<string name="label_filename">File: %s</string>
 	<string name="label_volume">%d%%</string>
 
-	<string name="message_music_loaging">Loading music…</string>
+	<string name="message_music_loading">Loading music…</string>
+
+	<string name="button_cp_1251_to_utf_8">CP-1251 to UTF-8</string>
 </resources>

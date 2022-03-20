@@ -66,7 +66,7 @@ class FlacMusicDecoder: MusicDecoder() {
         }
 
     @Synchronized
-    override fun readFrame(): Frame? {
+    override fun readFrame(): Frame {
         val position = position
 
         if (streamInfo == null) {

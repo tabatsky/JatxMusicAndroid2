@@ -1,7 +1,6 @@
 package jatx.musictransmitter.android.threads
 
 import jatx.debug.logError
-import jatx.musictransmitter.android.data.Settings
 import java.io.IOException
 import java.io.OutputStream
 import java.net.ServerSocket
@@ -25,7 +24,7 @@ class TransmitterController(
     @Volatile
     var finishFlag = false
     @Volatile
-    var fifo: BlockingQueue<Byte> = ArrayBlockingQueue<Byte>(2048)
+    var fifo: BlockingQueue<Byte> = ArrayBlockingQueue(2048)
 
     @Volatile
     var forceDisconnectFlag = false
@@ -43,11 +42,6 @@ class TransmitterController(
     fun pause() {
         println("(controller) pause")
         fifo.offer(COMMAND_PAUSE)
-    }
-
-    fun sendStop() {
-        println("(controller) stop")
-        fifo.offer(COMMAND_STOP)
     }
 
     fun setVolume(vol: Int) {
@@ -97,7 +91,7 @@ class TransmitterController(
                 } finally {
                     forceDisconnectFlag = false
                     os?.close()
-                    println("(controller) outstream closed")
+                    println("(controller) output stream closed")
                     ss?.close()
                     println("(controller) server socket closed")
                 }
@@ -107,7 +101,7 @@ class TransmitterController(
         } catch (e: InterruptedException) {
             println("(controller) thread interrupted")
             os?.close()
-            println("(controller) outstream closed")
+            println("(controller) output stream closed")
             ss?.close()
             println("(controller) server socket closed")
         } finally {

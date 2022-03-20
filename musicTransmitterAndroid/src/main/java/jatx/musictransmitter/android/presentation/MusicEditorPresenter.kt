@@ -5,12 +5,10 @@ import jatx.debug.logError
 import jatx.musictransmitter.android.data.TrackInfoStorage
 import moxy.InjectViewState
 import moxy.MvpPresenter
-import org.jaudiotagger.audio.AudioFile
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.flac.FlacTagWriter
 import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
-import org.jaudiotagger.tag.Tag
 import org.jaudiotagger.tag.flac.FlacTag
 import java.io.File
 import java.io.RandomAccessFile

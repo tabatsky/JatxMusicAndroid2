@@ -185,10 +185,6 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showVolume(settings.volume)
     }
 
-    fun onAddFolderSelected() {
-        viewState.showOpenFolderDialog(settings.currentMusicDirPath)
-    }
-
     fun onAddTrackSelected() {
         viewState.tryShowTrackSelectDialog()
     }

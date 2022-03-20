@@ -271,7 +271,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 lifecycleScope.launch {
                     withContext(Dispatchers.Main) {
                         val pd = ProgressDialog(this@MusicTransmitterActivity)
-                        pd.setMessage(getString(R.string.message_music_loaging))
+                        pd.setMessage(getString(R.string.message_music_loading))
                         pd.setCancelable(false)
                         pd.show()
                         withContext(Dispatchers.IO) {
@@ -485,7 +485,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             .filter { it.name.endsWith(".mp3") || it.name.endsWith(".flac") }
 
         if (files.size != filteredFiles.size) {
-            showToast(R.string.toast_unsopported_files_format)
+            showToast(R.string.toast_unsupported_files_format)
         }
 
         return filteredFiles

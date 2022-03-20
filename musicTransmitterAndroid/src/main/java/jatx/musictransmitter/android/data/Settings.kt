@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.data
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Environment
 import java.io.File
@@ -11,6 +12,7 @@ const val KEY_FILE_LIST = "fileList"
 const val KEY_VOLUME = "volume"
 const val KEY_IS_SHUFFLE = "isShuffle"
 
+@SuppressLint("ApplySharedPref")
 class Settings(
     context: Context
 ) {

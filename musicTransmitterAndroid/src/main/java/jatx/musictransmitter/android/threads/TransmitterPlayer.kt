@@ -103,7 +103,7 @@ class TransmitterPlayer(
                     forceDisconnectFlag = false
                     MusicDecoder.disconnectResetTimeFlag = true
                     os?.close()
-                    println("(player) outstream closed")
+                    println("(player) output stream closed")
                     ss?.close()
                     println("(player) server socket closed")
                     uiController.setWifiStatus(false)
@@ -114,7 +114,7 @@ class TransmitterPlayer(
         } catch (e: InterruptedException) {
             println("(player) thread interrupted")
             os?.close()
-            println("(player) outstream closed")
+            println("(player) output stream closed")
             ss?.close()
             println("(player) server socket closed")
         } finally {

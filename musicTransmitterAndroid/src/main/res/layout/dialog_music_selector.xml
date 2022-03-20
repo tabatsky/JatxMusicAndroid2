@@ -9,7 +9,8 @@
         android:id="@+id/searchET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_search" />
+        android:hint="@string/hint_search"
+        android:inputType="text" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/musicSelectorRV"

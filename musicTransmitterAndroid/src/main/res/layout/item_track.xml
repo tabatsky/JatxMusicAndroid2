@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:textSize="@dimen/song_entry_title"
+                android:textSize="@dimen/song_entry_title_text_size"
                 android:textStyle="bold" />
 
             <TextView
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:textSize="@dimen/song_entry_artist"
+                android:textSize="@dimen/song_entry_artist_text_size"
                 android:textStyle="italic" />
         </LinearLayout>
     </LinearLayout>

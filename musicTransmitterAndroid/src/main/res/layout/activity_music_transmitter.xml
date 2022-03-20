@@ -142,9 +142,8 @@
             android:layout_width="@dimen/volume_label_width"
             android:layout_height="@dimen/button_size"
             android:padding="@dimen/button_padding"
-            android:textSize="@dimen/volume_label_text"
+            android:textSize="@dimen/volume_label_text_size"
             android:gravity="center"
-            android:text="100%"
             android:background="@color/gray7F"
             android:textColor="?attr/colorPrimary"
             />
