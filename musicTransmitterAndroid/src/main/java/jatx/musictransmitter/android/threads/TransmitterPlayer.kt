@@ -11,7 +11,6 @@ import java.io.IOException
 import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.SocketTimeoutException
-import java.util.*
 
 const val CONNECT_PORT_PLAYER = 7171
 
@@ -180,7 +179,7 @@ class TransmitterPlayer(
                     MusicDecoder.resetTimeFlag = false
                 }
                 if (MusicDecoder.disconnectResetTimeFlag) {
-                    t1 = Date().time
+                    t1 = System.currentTimeMillis()
                     t2 = t1
                     MusicDecoder.INSTANCE?.msRead = 0f
                     MusicDecoder.INSTANCE?.msTotal = 0f
@@ -222,7 +221,7 @@ class TransmitterPlayer(
                 sleep(10)
                 MusicDecoder.INSTANCE?.msRead = 0f
                 MusicDecoder.INSTANCE?.msTotal = 0f
-                t1 = Date().time
+                t1 = System.currentTimeMillis()
                 t2 = t1
                 dt = 0f
             }
