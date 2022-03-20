@@ -4,18 +4,18 @@
     <string name="app_name">JatxMusic Transmitter</string>
 	<string name="title_tag_editor">Tag Editor</string>
     
-    <string name="string_add">Add</string>
-    <string name="string_add_track">Add Track</string>
-    <string name="string_add_folder">Add Folder</string>
-	<string name="string_add_album">Add Album</string>
-	<string name="string_add_artist">Add Artist</string>
-	<string name="string_add_mic">Add Microphone</string>
-	<string name="string_remove">Remove</string>
-	<string name="string_remove_track">Remove Track</string>
-	<string name="string_remove_all">Remove All</string>
-	<string name="string_playlist">Playlist</string>
-	<string name="string_export_playlist">Export</string>
-	<string name="string_import_playlist">Import</string>
+    <string name="item_add">Add</string>
+    <string name="item_add_track">Add Track</string>
+    <string name="item_add_folder">Add Folder</string>
+	<string name="item_add_album">Add Album</string>
+	<string name="item_add_artist">Add Artist</string>
+	<string name="item_add_mic">Add Microphone</string>
+	<string name="item_remove">Remove</string>
+	<string name="item_remove_track">Remove Track</string>
+	<string name="item_remove_all">Remove All</string>
+	<string name="item_playlist">Playlist</string>
+	<string name="item_export_playlist">Export</string>
+	<string name="item_import_playlist">Import</string>
 	
 	<string name="question_remove_track">Remove This Track?</string>
 	<string name="question_remove_all">Remove All Tracks?</string>
@@ -101,4 +101,6 @@
 
 	<string name="label_filename">File: %s</string>
 	<string name="label_volume">%d%%</string>
+
+	<string name="message_music_loaging">Loading music…</string>
 </resources>

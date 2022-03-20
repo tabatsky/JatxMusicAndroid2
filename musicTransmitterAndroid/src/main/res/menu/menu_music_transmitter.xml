@@ -5,42 +5,42 @@
 >
 	<item 
         android:id="@+id/item_menu_add"
-        android:title="@string/string_add"
+        android:title="@string/item_add"
         android:visible="true" 
         app:showAsAction="always|withText">
         <menu>
         	<group>
-	    		<item android:id="@+id/item_menu_add_track" android:title="@string/string_add_track"></item>
+	    		<item android:id="@+id/item_menu_add_track" android:title="@string/item_add_track"></item>
 <!--	    		<item android:id="@+id/item_menu_add_folder" android:title="@string/string_add_folder"></item>-->
-				<item android:id="@+id/item_menu_add_album" android:title="@string/string_add_album"></item>
-				<item android:id="@+id/item_menu_add_artist" android:title="@string/string_add_artist"></item>
-				<item android:id="@+id/item_menu_add_mic" android:title="@string/string_add_mic"></item>
+				<item android:id="@+id/item_menu_add_album" android:title="@string/item_add_album"></item>
+				<item android:id="@+id/item_menu_add_artist" android:title="@string/item_add_artist"></item>
+				<item android:id="@+id/item_menu_add_mic" android:title="@string/item_add_mic"></item>
 	    	</group>
 	    </menu>
 	</item>
 	
     <item 
         android:id="@+id/item_menu_remove"
-        android:title="@string/string_remove" 
+        android:title="@string/item_remove"
         android:visible="true" 
         app:showAsAction="always|withText">
         <menu>
         	<group>
-        	    <item android:id="@+id/item_menu_remove_track" android:title="@string/string_remove_track"></item>
-	    		<item android:id="@+id/item_menu_remove_all" android:title="@string/string_remove_all"></item>
+        	    <item android:id="@+id/item_menu_remove_track" android:title="@string/item_remove_track"></item>
+	    		<item android:id="@+id/item_menu_remove_all" android:title="@string/item_remove_all"></item>
 	    	</group>
 	    </menu>
     </item>
 
 	<item
 		android:id="@+id/item_menu_playlist"
-		android:title="@string/string_playlist"
+		android:title="@string/item_playlist"
 		android:visible="true"
 		app:showAsAction="always|withText">
 		<menu>
 			<group>
-				<item android:id="@+id/item_menu_export_playlist" android:title="@string/string_export_playlist"></item>
-				<item android:id="@+id/item_menu_import_playlist" android:title="@string/string_import_playlist"></item>
+				<item android:id="@+id/item_menu_export_playlist" android:title="@string/item_export_playlist"></item>
+				<item android:id="@+id/item_menu_import_playlist" android:title="@string/item_import_playlist"></item>
 			</group>
 		</menu>
 	</item>

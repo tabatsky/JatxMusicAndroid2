@@ -271,6 +271,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 lifecycleScope.launch {
                     withContext(Dispatchers.Main) {
                         val pd = ProgressDialog(this@MusicTransmitterActivity)
+                        pd.setMessage(getString(R.string.message_music_loaging))
                         pd.setCancelable(false)
                         pd.show()
                         withContext(Dispatchers.IO) {
