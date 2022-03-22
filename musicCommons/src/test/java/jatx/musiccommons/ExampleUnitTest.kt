@@ -17,6 +17,14 @@ class ExampleUnitTest {
             137,
             data
         )
+        val frame2 = Frame(
+            2048,
+            44100,
+            2,
+            16,
+            137,
+            data
+        )
 
         val inputStream = PipedInputStream()
         val outputStream = PipedOutputStream(inputStream)
@@ -26,16 +34,27 @@ class ExampleUnitTest {
                 frameToByteArray(frame)?.let {
                     outputStream.write(it)
                     outputStream.flush()
+                    outputStream.write(it)
+                    outputStream.flush()
+                }
+                frameToByteArray(frame2)?.let {
+                    outputStream.write(it)
+                    outputStream.flush()
                 }
             }
         }.start()
-        val frame2 = frameFromInputStream(inputStream)
+        val frame3 = frameFromInputStream(inputStream)
+        val frame4 = frameFromInputStream(inputStream)
+        val frame5 = frameFromInputStream(inputStream)
         outputStream.close()
         inputStream.close()
 
-        assert(frame == frame2)
+        assert(frame == frame3)
+        assert(frame == frame4)
+        assert(frame != frame5)
+        assert(frame2 != frame5)
 
-        val frame3 = Frame(
+        val frame6 = Frame(
             4096,
             48000,
             8,
@@ -43,6 +62,6 @@ class ExampleUnitTest {
             1523,
             data
         )
-        assert(frame != frame3)
+        assert(frame != frame6)
     }
 }
