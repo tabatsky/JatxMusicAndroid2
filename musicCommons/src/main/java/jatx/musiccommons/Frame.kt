@@ -13,7 +13,26 @@ data class Frame(
     val depth: Int,
     val position: Int,
     val data: ByteArray
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        return (other is Frame) &&
+                (other.size == size) &&
+                (other.freq == freq) &&
+                (other.channels == channels) &&
+                (other.depth == depth) &&
+                (other.position == position) &&
+                (other.data.contentEquals(data))
+    }
+
+    override fun hashCode(): Int {
+        return size.hashCode() +
+                freq.hashCode() +
+                channels.hashCode() +
+                depth.hashCode() +
+                position.hashCode() +
+                data.contentHashCode()
+    }
+}
 
 fun frameToByteArray(frame: Frame?): ByteArray? {
     if (frame == null) return null
