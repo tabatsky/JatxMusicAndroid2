@@ -3,7 +3,6 @@ package jatx.musictransmitter.android.ui
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.database.Cursor
@@ -270,10 +269,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             override fun onPermissionGranted() {
                 lifecycleScope.launch {
                     withContext(Dispatchers.Main) {
-                        val pd = ProgressDialog(this@MusicTransmitterActivity)
-                        pd.setMessage(getString(R.string.message_music_loading))
-                        pd.setCancelable(false)
-                        pd.show()
+                        val pd = ProgressDialog()
+                        pd.msg = getString(R.string.message_music_loading)
+                        pd.isCancelable = false
+                        pd.show(supportFragmentManager, "longClickDialog")
                         withContext(Dispatchers.IO) {
                             val entries = requestEntries()
                             withContext(Dispatchers.Main) {

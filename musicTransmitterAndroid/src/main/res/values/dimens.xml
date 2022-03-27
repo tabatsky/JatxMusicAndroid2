@@ -10,6 +10,8 @@
     <dimen name="dialog_button_text_size">20sp</dimen>
 
     <dimen name="item_music_selector_text_size">12sp</dimen>
+
+    <dimen name="dialog_progress_msg_text_size">20sp</dimen>
     
     <dimen name="editor_text_size">18sp</dimen>
     
