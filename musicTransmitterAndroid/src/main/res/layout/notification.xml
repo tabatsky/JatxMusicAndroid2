@@ -37,7 +37,7 @@
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
             android:layout_toStartOf="@id/play"
-            style="@style/Widget.MusicTransmitter.Button.Notification"
+            style="@style/Widget.MusicTransmitter.NotificationButton"
             />
 
         <ImageButton
@@ -49,7 +49,7 @@
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
             android:layout_toStartOf="@id/pause"
-            style="@style/Widget.MusicTransmitter.Button.Notification"
+            style="@style/Widget.MusicTransmitter.NotificationButton"
             />
 
         <ImageButton
@@ -62,7 +62,7 @@
             android:visibility="gone"
             android:background="@android:color/transparent"
             android:layout_toStartOf="@id/fwd"
-            style="@style/Widget.MusicTransmitter.Button.Notification"
+            style="@style/Widget.MusicTransmitter.NotificationButton"
             />
 
         <ImageButton
@@ -74,7 +74,7 @@
             android:scaleType="fitXY"
             android:background="@android:color/transparent"
             android:layout_alignParentEnd="true"
-            style="@style/Widget.MusicTransmitter.Button.Notification"
+            style="@style/Widget.MusicTransmitter.NotificationButton"
             />
 
     </RelativeLayout>

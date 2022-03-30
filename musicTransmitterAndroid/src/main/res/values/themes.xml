@@ -45,12 +45,12 @@
         <item name="backgroundTint">?attr/colorPrimary</item>
     </style>
 
-    <style name="Widget.MusicTransmitter.Button.Notification">
-        <item name="android:tint">?android:attr/colorPrimary</item>
+    <style name="Widget.MusicTransmitter.NotificationButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:tint">@color/black</item>
     </style>
 
     <style name="TextAppearance.MusicTransmitter.Notification" parent="TextAppearance.MaterialComponents.Headline1">
-        <item name="android:textColor">?android:attr/colorPrimary</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>
