@@ -1,53 +1,56 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.MusicTransmitter" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.MusicTransmitter" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">@color/black</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorAccent">@color/gray5F</item>
-        <!-- Status bar color. -->
+    </style>
+
+    <style name="Theme.MusicTransmitter" parent="Base.Theme.MusicTransmitter">
+        <item name="actionBarTheme">@style/ThemeOverlay.MusicTransmitter.ActionBar</item>
+        <item name="materialButtonStyle">@style/Widget.MusicTransmitter.Button</item>
+        <item name="android:actionMenuTextColor">?attr/colorOnPrimary</item>
+        <item name="actionMenuTextColor">?attr/colorOnPrimary</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
-        <!-- Customize your theme here. -->
-        <item name="android:background">@color/white</item>
-
-        <item name="actionBarTheme">@style/Theme.MusicTransmitter.ActionBar</item>
-        <item name="materialButtonStyle">@style/Theme.MusicTransmitter.Button</item>
-        <item name="android:actionMenuTextColor">@color/white</item>
-        <item name="actionMenuTextColor">@color/white</item>
+        <item name="android:background">?attr/colorOnPrimary</item>
     </style>
 
-    <style name="Theme.MusicTransmitter.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
-        <item name="android:background">@color/black</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:titleTextStyle">@style/Theme.MusicTransmitter.TitleText</item>
+    <style name="Theme.MusicTransmitter.Editor" parent="Base.Theme.MusicTransmitter">
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+        <item name="android:background">?attr/colorOnPrimary</item>
+        <item name="materialButtonStyle">@style/Widget.MusicTransmitter.Button</item>
     </style>
 
-    <style name="Theme.MusicTransmitter.TitleText" parent="TextAppearance.Material3.ActionBar.Title">
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="Theme.MusicTransmitter.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/black</item>
-    </style>
-
-    <style name="Theme.MusicTransmitter.NotificationText">
-        <item name="android:textColor">@color/black</item>
-    </style>
-
-    <style name="Theme.MusicTransmitter.NotificationButton">
-        <item name="android:tint">@color/black</item>
-    </style>
-
-    <style name="Theme.MusicTransmitter.Editor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
+    <style name="Base.Theme.MusicTransmitter.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="colorPrimary">@color/black</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorAccent">@color/gray5F</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
-        <!-- Customize your theme here. -->
-        <item name="android:background">@color/white</item>
-
-        <item name="materialButtonStyle">@style/Theme.MusicTransmitter.Button</item>
     </style>
+
+    <style name="Theme.MusicTransmitter.Dialog" parent="Base.Theme.MusicTransmitter.Dialog">
+        <item name="android:background">?attr/colorOnPrimary</item>
+        <item name="materialButtonStyle">@style/Widget.MusicTransmitter.Button</item>
+    </style>
+
+    <style name="ThemeOverlay.MusicTransmitter.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:titleTextStyle">@style/TextAppearance.MusicTransmitter.Title</item>
+    </style>
+
+    <style name="TextAppearance.MusicTransmitter.Title" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="Widget.MusicTransmitter.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.MusicTransmitter.Button.Notification">
+        <item name="android:tint">?android:attr/colorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.MusicTransmitter.Notification" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">?android:attr/colorPrimary</item>
+    </style>
+
 </resources>

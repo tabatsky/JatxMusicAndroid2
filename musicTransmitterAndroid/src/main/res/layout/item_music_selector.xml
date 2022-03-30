@@ -8,7 +8,6 @@
         android:layout_height="76dp"
         android:orientation="horizontal"
         android:padding="4dp"
-        android:background="?attr/colorPrimary"
         android:gravity="center_vertical"
         >
         <ImageView
@@ -23,7 +22,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="@dimen/item_music_selector_text_size" />
+            android:textSize="@dimen/item_music_selector_text_size"
+            />
 
     </LinearLayout>
 </FrameLayout>

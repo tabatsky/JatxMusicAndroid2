@@ -16,7 +16,7 @@ class TrackLongClickDialog : DialogFragment() {
         super.onCreate(savedInstanceState)
 
         val style = STYLE_NORMAL
-        val theme = R.style.Theme_AppCompat_DayNight_Dialog
+        val theme = R.style.Theme_MusicTransmitter_Dialog
 
         setStyle(style, theme)
     }
