@@ -34,8 +34,8 @@ data class Frame(
     }
 }
 
-fun frameToByteArray(frame: Frame?): ByteArray? {
-    if (frame == null) return null
+fun frameToByteArray(frame: Frame): ByteArray {
+    require(frame.size == frame.data.size)
 
     val result = ByteArray(frame.size + FRAME_HEADER_SIZE)
 

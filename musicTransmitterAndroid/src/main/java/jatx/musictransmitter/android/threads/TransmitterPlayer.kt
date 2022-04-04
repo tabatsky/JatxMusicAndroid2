@@ -157,7 +157,7 @@ class TransmitterPlayer(
         if (needToPlay) play()
     }
 
-    private fun translateMusic() {
+    private fun translateMusic(): Nothing {
         var data: ByteArray?
 
         t1 = System.currentTimeMillis()
@@ -188,11 +188,15 @@ class TransmitterPlayer(
                 try {
                     data = if (path == MIC_PATH) {
                         if (microphoneOk)
-                            frameToByteArray(Microphone.readFrame(position))
+                            Microphone.readFrame(position)?.let {
+                                frameToByteArray(it)
+                            }
                         else
                             null
                     } else {
-                        frameToByteArray(MusicDecoder.INSTANCE?.readFrame())
+                        MusicDecoder.INSTANCE?.readFrame()?.let {
+                            frameToByteArray(it)
+                        }
                     }
                 } catch (e: MusicDecoderException) {
                     println("(player) decoder exception")

@@ -1,8 +1,10 @@
 package jatx.musiccommons
 
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
 class ExampleUnitTest {
@@ -31,28 +33,27 @@ class ExampleUnitTest {
 
         object : Thread() {
             override fun run() {
-                frameToByteArray(frame)?.let {
+                frameToByteArray(frame).let {
                     outputStream.write(it)
                     outputStream.flush()
                     outputStream.write(it)
                     outputStream.flush()
                 }
-                frameToByteArray(frame2)?.let {
-                    outputStream.write(it)
-                    outputStream.flush()
+                assertThrows(IllegalArgumentException::class.java) {
+                    frameToByteArray(frame2).let {
+                        outputStream.write(it)
+                        outputStream.flush()
+                    }
                 }
             }
         }.start()
         val frame3 = frameFromInputStream(inputStream)
         val frame4 = frameFromInputStream(inputStream)
-        val frame5 = frameFromInputStream(inputStream)
         outputStream.close()
         inputStream.close()
 
         assert(frame == frame3)
         assert(frame == frame4)
-        assert(frame != frame5)
-        assert(frame2 != frame5)
 
         val frame6 = Frame(
             4096,
