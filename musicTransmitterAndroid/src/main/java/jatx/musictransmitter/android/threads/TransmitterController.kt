@@ -17,8 +17,16 @@ const val COMMAND_PLAY = 125.toByte()
 const val SO_TIMEOUT = 1000
 
 class TransmitterController(
-    private val initialVolume: Int
+    initialVolume: Int
 ) : Thread() {
+    @Volatile
+    var volume: Int = initialVolume
+        set(value) {
+            println("(controller) set volume: " + Integer.valueOf(value).toString())
+            workers.values.forEach { it.volume = value }
+            field = value
+        }
+
     @Volatile
     var finishFlag = false
 
@@ -30,8 +38,6 @@ class TransmitterController(
     @Volatile
     private var workers = ConcurrentHashMap<String, TransmitterControllerWorker>()
 
-    fun getWorkerByHost(host: String) = workers[host]
-
     fun play() {
         println("(controller) play")
         workers.values.forEach { it.play() }
@@ -40,11 +46,6 @@ class TransmitterController(
     fun pause() {
         println("(controller) pause")
         workers.values.forEach { it.pause() }
-    }
-
-    fun setVolume(vol: Int) {
-        println("(controller) set volume: " + Integer.valueOf(vol).toString())
-        workers.values.forEach { it.setVolume(vol) }
     }
 
     override fun run() {
@@ -68,7 +69,8 @@ class TransmitterController(
                             workers.remove(it)
                         }
                     }
-                    setVolume(initialVolume)
+                    val vol = volume
+                    volume = vol
                 } catch (e: SocketTimeoutException) {
                     println("(controller) socket timeout")
                 } finally {

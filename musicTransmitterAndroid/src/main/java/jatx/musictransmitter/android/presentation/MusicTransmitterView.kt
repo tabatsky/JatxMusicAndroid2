@@ -11,6 +11,7 @@ interface MusicTransmitterView: MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class) fun showTracks(tracks: List<Track>, currentPosition: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun scrollToPosition(position: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showWifiStatus(isWifiOk: Boolean)
+    @StateStrategyType(OneExecutionStateStrategy::class) fun showWifiReceiverCount(count: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showPlayingState(isPlaying: Boolean)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showShuffleState(isShuffle: Boolean)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showOpenTrackDialog(initPath: String)

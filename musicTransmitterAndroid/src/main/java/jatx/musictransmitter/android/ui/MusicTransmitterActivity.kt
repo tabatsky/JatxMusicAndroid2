@@ -205,6 +205,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
+    override fun showWifiReceiverCount(count: Int) {
+        wifiReceiverCount.text = count.toString()
+    }
+
     override fun showPlayingState(isPlaying: Boolean) {
         if (isPlaying) {
             playBtn.visibility = View.GONE

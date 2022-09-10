@@ -40,6 +40,7 @@ const val TP_SET_FILE_LIST = "jatx.musictransmitter.android.TP_SET_FILE_LIST"
 const val TC_SET_VOLUME = "jatx.musictransmitter.android.TC_SET_VOLUME"
 
 const val EXTRA_WIFI_STATUS = "isWifiOk"
+const val EXTRA_WIFI_RECEIVER_COUNT = "wifiReceiverCount"
 
 const val KEY_POSITION = "position"
 const val KEY_PROGRESS = "progress"
@@ -77,6 +78,7 @@ class MusicTransmitterService: Service() {
             wifiStatus = count > 0
             val intent = Intent(SET_WIFI_STATUS)
             intent.putExtra(EXTRA_WIFI_STATUS, wifiStatus)
+            intent.putExtra(EXTRA_WIFI_RECEIVER_COUNT, count)
             sendBroadcast(intent)
             if (!wifiStatus) {
                 val intent2 = Intent(TP_AND_TC_PAUSE)
@@ -266,7 +268,7 @@ class MusicTransmitterService: Service() {
         tcSetVolumeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val volume = intent.getIntExtra("volume", 0)
-                tk.tc.setVolume(volume)
+                tk.tc.volume = volume
             }
         }
         registerReceiver(tcSetVolumeReceiver, IntentFilter(TC_SET_VOLUME))

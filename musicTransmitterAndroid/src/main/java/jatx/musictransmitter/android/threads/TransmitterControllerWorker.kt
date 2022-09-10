@@ -19,6 +19,16 @@ class TransmitterControllerWorker(
     @Volatile
     var fifo: BlockingQueue<Byte> = ArrayBlockingQueue(2048)
 
+    @Volatile
+    var volume: Int = 0
+        set(value) {
+            println("(controller $threadId) set volume: " + Integer.valueOf(value).toString())
+            if (value in 0..100) {
+                fifo.offer(value.toByte())
+            }
+            field = value
+        }
+
     var onWorkerStopped: () -> Unit = {}
 
     private var os: OutputStream? = null
@@ -31,13 +41,6 @@ class TransmitterControllerWorker(
     fun pause() {
         println("(controller $threadId) pause")
         fifo.offer(COMMAND_PAUSE)
-    }
-
-    fun setVolume(vol: Int) {
-        println("(controller $threadId) set volume: " + Integer.valueOf(vol).toString())
-        if (vol in 0..100) {
-            fifo.offer(vol.toByte())
-        }
     }
 
     override fun run() {

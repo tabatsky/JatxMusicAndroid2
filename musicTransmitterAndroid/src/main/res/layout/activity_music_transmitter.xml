@@ -42,31 +42,55 @@
         android:layout_height="@dimen/button_size"
         android:orientation="horizontal"
         >
-        
-        <ImageView
-            android:id="@+id/wifiOkIV"
-            android:layout_width="@dimen/button_size"
-        	android:layout_height="@dimen/button_size"
-        	android:padding="@dimen/button_padding"
-        	android:src="@drawable/ic_wifi_ok"
-        	android:scaleType="fitXY"
-        	android:background="@color/gray7F"
-        	android:visibility="gone"
-			app:tint="?attr/colorPrimary"
-            />
-        
-        <ImageView
-            android:id="@+id/wifiNoIV"
-            android:layout_width="@dimen/button_size"
-        	android:layout_height="@dimen/button_size"
-        	android:padding="@dimen/button_padding"
-        	android:src="@drawable/ic_wifi_ok"
-        	android:scaleType="fitXY"
-        	android:background="@color/gray7F"
-        	android:visibility="visible"
-			app:tint="?attr/colorAccent"
-            />
-        
+        <FrameLayout
+			android:layout_width="@dimen/button_size"
+			android:layout_height="@dimen/button_size"
+			>
+			<ImageView
+				android:id="@+id/wifiOkIV"
+				android:layout_width="@dimen/button_size"
+				android:layout_height="@dimen/button_size"
+				android:padding="@dimen/button_padding"
+				android:src="@drawable/ic_wifi_ok"
+				android:scaleType="fitXY"
+				android:background="@color/gray7F"
+				android:visibility="gone"
+				app:tint="?attr/colorPrimary"
+				/>
+
+			<ImageView
+				android:id="@+id/wifiNoIV"
+				android:layout_width="@dimen/button_size"
+				android:layout_height="@dimen/button_size"
+				android:padding="@dimen/button_padding"
+				android:src="@drawable/ic_wifi_ok"
+				android:scaleType="fitXY"
+				android:background="@color/gray7F"
+				android:visibility="visible"
+				app:tint="?attr/colorAccent"
+				/>
+
+			<FrameLayout
+				android:layout_width="@dimen/button_size"
+				android:layout_height="@dimen/button_size"
+				android:paddingStart="@dimen/wifi_receiver_count_padding"
+				android:paddingTop="@dimen/wifi_receiver_count_padding"
+				android:background="@android:color/transparent"
+				>
+				<TextView
+					android:id="@+id/wifiReceiverCount"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:background="@android:color/transparent"
+					android:textColor="?colorOnPrimary"
+					android:gravity="center"
+					android:textStyle="bold"
+					android:textSize="@dimen/wifi_receiver_count_text_size"
+					android:text="0"
+					/>
+			</FrameLayout>
+		</FrameLayout>
+
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"

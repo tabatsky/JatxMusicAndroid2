@@ -446,6 +446,8 @@ class MusicTransmitterPresenter @Inject constructor(
             override fun onReceive(context: Context, intent: Intent) {
                 val status = intent.getBooleanExtra(EXTRA_WIFI_STATUS, false)
                 viewState.showWifiStatus(status)
+                val count = intent.getIntExtra(EXTRA_WIFI_RECEIVER_COUNT, 0)
+                viewState.showWifiReceiverCount(count)
             }
         }
         context.registerReceiver(setWifiStatusReceiver, IntentFilter(SET_WIFI_STATUS))
