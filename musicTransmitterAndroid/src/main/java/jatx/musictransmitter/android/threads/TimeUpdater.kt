@@ -3,7 +3,7 @@ package jatx.musictransmitter.android.threads
 import jatx.musictransmitter.android.audio.MusicDecoder
 
 class TimeUpdater(
-    @Volatile private var uiController: UIController
+    @Volatile var uiController: UIController
 ): Thread() {
 
     override fun run() {

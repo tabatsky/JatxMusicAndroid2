@@ -18,10 +18,7 @@ import androidx.core.app.NotificationManagerCompat
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.data.Settings
 import jatx.extensions.showToast
-import jatx.musictransmitter.android.threads.TimeUpdater
-import jatx.musictransmitter.android.threads.TransmitterController
-import jatx.musictransmitter.android.threads.TransmitterPlayer
-import jatx.musictransmitter.android.threads.UIController
+import jatx.musictransmitter.android.threads.*
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import javax.inject.Inject
 
@@ -62,9 +59,7 @@ class MusicTransmitterService: Service() {
     private lateinit var tpSetFileListReceiver: BroadcastReceiver
     private lateinit var tcSetVolumeReceiver: BroadcastReceiver
 
-    private lateinit var tu: TimeUpdater
-    private lateinit var tc: TransmitterController
-    private lateinit var tp: TransmitterPlayer
+    private lateinit var tk: ThreadKeeper
 
     @Volatile
     private var wifiStatus = false
@@ -77,11 +72,16 @@ class MusicTransmitterService: Service() {
     private var wakeLock: PowerManager.WakeLock? = null
 
     private val uiController = object: UIController {
-        override fun setWifiStatus(status: Boolean) {
-            wifiStatus = status
+        override fun updateWifiStatus(count: Int) {
+            println("(UIController) update wifi status: $count")
+            wifiStatus = count > 0
             val intent = Intent(SET_WIFI_STATUS)
-            intent.putExtra(EXTRA_WIFI_STATUS, status)
+            intent.putExtra(EXTRA_WIFI_STATUS, wifiStatus)
             sendBroadcast(intent)
+            if (!wifiStatus) {
+                val intent2 = Intent(TP_AND_TC_PAUSE)
+                sendBroadcast(intent2)
+            }
         }
 
         override fun setCurrentTime(currentMs: Float, trackLengthMs: Float) {
@@ -126,9 +126,10 @@ class MusicTransmitterService: Service() {
         unlockWake()
         unlockWifi()
 
-        tu.interrupt()
-        tc.interrupt()
-        tp.interrupt()
+        tk.tu.interrupt()
+        tk.tc.interrupt()
+        tk.tp.interrupt()
+        tk.tpck.interrupt()
 
         unregisterReceivers()
 
@@ -196,17 +197,22 @@ class MusicTransmitterService: Service() {
     private fun prepareAndStart() {
         initBroadcastReceivers()
 
-        tu = TimeUpdater(uiController)
-        tc = TransmitterController(settings.volume)
-        tp = TransmitterPlayer(uiController)
+        val tu = TimeUpdater(uiController)
+        val tc = TransmitterController(settings.volume)
+        val tp = TransmitterPlayer(uiController)
+        val tpck = TransmitterPlayerConnectionKeeper(uiController)
 
-        tc.tp = tp
-        tp.tc = tc
+        tk = ThreadKeeper(tu, tc, tp, tpck)
+
+        tc.tk = tk
+        tp.tk = tk
+        tpck.tk = tk
 
         tp.files = settings.currentFileList
 
         tu.start()
         tc.start()
+        tpck.start()
         tp.start()
     }
 
@@ -221,23 +227,23 @@ class MusicTransmitterService: Service() {
         tpSetPositionReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val position = intent.getIntExtra(KEY_POSITION, 0)
-                tp.position = position
+                tk.tp.position = position
             }
         }
         registerReceiver(tpSetPositionReceiver, IntentFilter(TP_SET_POSITION))
 
         tpAndTcPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                tp.play()
-                tc.play()
+                tk.tp.play()
+                tk.tc.play()
             }
         }
         registerReceiver(tpAndTcPlayReceiver, IntentFilter(TP_AND_TC_PLAY))
 
         tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                tp.pause()
-                tc.pause()
+                tk.tp.pause()
+                tk.tc.pause()
             }
         }
         registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
@@ -245,14 +251,14 @@ class MusicTransmitterService: Service() {
         tpSeekReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val progress = intent.getDoubleExtra(KEY_PROGRESS, 0.0)
-                tp.seek(progress)
+                tk.tp.seek(progress)
             }
         }
         registerReceiver(tpSeekReceiver, IntentFilter(TP_SEEK))
 
         tpSetFileListReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                tp.files = settings.currentFileList
+                tk.tp.files = settings.currentFileList
             }
         }
         registerReceiver(tpSetFileListReceiver, IntentFilter(TP_SET_FILE_LIST))
@@ -260,7 +266,7 @@ class MusicTransmitterService: Service() {
         tcSetVolumeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val volume = intent.getIntExtra("volume", 0)
-                tc.setVolume(volume)
+                tk.tc.setVolume(volume)
             }
         }
         registerReceiver(tcSetVolumeReceiver, IntentFilter(TC_SET_VOLUME))

@@ -8,19 +8,12 @@ import jatx.musictransmitter.android.audio.*
 import jatx.musictransmitter.android.data.MIC_PATH
 import java.io.File
 import java.io.IOException
-import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.SocketTimeoutException
-
-const val CONNECT_PORT_PLAYER = 7171
 
 class TransmitterPlayer(
     @Volatile private var uiController: UIController
 ): Thread() {
-
-    @Volatile
-    var forceDisconnectFlag = false
-
     @Volatile var microphoneOk = false
 
     @Volatile
@@ -73,50 +66,15 @@ class TransmitterPlayer(
     @Volatile
     var dt = 0f
 
-    var tc: TransmitterController? = null
-
-    private var ss: ServerSocket? = null
-    private var os: OutputStream? = null
+    var tk: ThreadKeeper? = null
 
     override fun run() {
         try {
-            while (true) {
-                sleep(100)
-                ss = ServerSocket(CONNECT_PORT_PLAYER)
-                println("(player) new server socket")
-                try {
-                    ss?.soTimeout = SO_TIMEOUT
-                    val s = ss?.accept()
-                    os = s?.getOutputStream()
-                    println("(player) socket connect")
-                    uiController.setWifiStatus(true)
-                    translateMusic()
-                } catch (e: SocketTimeoutException) {
-                    println("(player) socket timeout")
-                } catch (e: ForceDisconnectException) {
-                    println("(player) socket force disconnect")
-                } catch (e: IOException) {
-                    println("(player) socket disconnect")
-                    tc?.forceDisconnectFlag = true
-                    sleep(250)
-                } finally {
-                    forceDisconnectFlag = false
-                    MusicDecoder.disconnectResetTimeFlag = true
-                    os?.close()
-                    println("(player) output stream closed")
-                    ss?.close()
-                    println("(player) server socket closed")
-                    uiController.setWifiStatus(false)
-                }
-            }
+            translateMusic()
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {
-            println("(player) thread interrupted")
-            os?.close()
-            println("(player) output stream closed")
-            ss?.close()
-            println("(player) server socket closed")
+            e.printStackTrace()
         } finally {
             println("(player) thread finished")
         }
@@ -218,8 +176,7 @@ class TransmitterPlayer(
                     sleep(200)
                 }
                 if (data != null) {
-                    os!!.write(data)
-                    os!!.flush()
+                    tk?.tpck?.writeData(data)
                 }
             } else {
                 sleep(10)
@@ -229,11 +186,7 @@ class TransmitterPlayer(
                 t2 = t1
                 dt = 0f
             }
-            if (forceDisconnectFlag) {
-                println("(player) disconnect flag: throwing DisconnectException")
-                throw ForceDisconnectException()
-            }
-            if (MusicDecoder.INSTANCE?.msRead ?: 0f > 300) {
+            if ((MusicDecoder.INSTANCE?.msRead ?: 0f) > 300) {
                 do {
                     t2 = System.currentTimeMillis()
                     dt = (MusicDecoder.INSTANCE?.msTotal ?: 0f) - (t2 - t1)

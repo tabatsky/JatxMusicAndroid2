@@ -3,8 +3,7 @@ package jatx.musictransmitter.android.ui
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
+import android.content.*
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -33,6 +32,7 @@ import jatx.extensions.showToast
 import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
+import jatx.musictransmitter.android.services.TP_AND_TC_PAUSE
 import kotlinx.android.synthetic.main.activity_music_transmitter.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,6 +75,13 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         seekBar.max = 1000
         seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
+
+        val tpAndTcPauseReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                presenter.onPauseClick(false)
+            }
+        }
+        registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {

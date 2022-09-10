@@ -117,9 +117,11 @@ class MusicTransmitterPresenter @Inject constructor(
         MusicTransmitterNotification.showNotification(context, track.artist, track.title, true)
     }
 
-    fun onPauseClick() {
+    fun onPauseClick(needSendBroadcast: Boolean = true) {
         viewState.showPlayingState(false)
-        tpAndTcPause()
+        if (needSendBroadcast) {
+            tpAndTcPause()
+        }
 
         if (currentPosition > -1) {
             val track = tracks[realPosition]
