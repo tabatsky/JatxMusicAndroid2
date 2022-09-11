@@ -63,7 +63,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         initTracksRV()
 
         playBtn.setOnClickListener { presenter.onPlayClick() }
-        pauseBtn.setOnClickListener { presenter.onPauseClick() }
+        pauseBtn.setOnClickListener { presenter.onPauseClick(
+            needSendBroadcast = true,
+            needShowNotification = true
+        ) }
 
         repeatBtn.setOnClickListener { presenter.onRepeatClick() }
         shuffleBtn.setOnClickListener { presenter.onShuffleClick() }
@@ -171,6 +174,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

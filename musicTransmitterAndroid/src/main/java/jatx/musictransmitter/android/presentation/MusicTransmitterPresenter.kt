@@ -117,13 +117,13 @@ class MusicTransmitterPresenter @Inject constructor(
         MusicTransmitterNotification.showNotification(context, track.artist, track.title, true)
     }
 
-    fun onPauseClick(needSendBroadcast: Boolean = true, wifiStatus: Boolean = false) {
+    fun onPauseClick(needSendBroadcast: Boolean, needShowNotification: Boolean) {
         viewState.showPlayingState(false)
         if (needSendBroadcast) {
             tpAndTcPause()
         }
 
-        if (currentPosition > -1 && wifiStatus) {
+        if (currentPosition > -1 && needShowNotification) {
             val track = tracks[realPosition]
             MusicTransmitterNotification.showNotification(context, track.artist, track.title, false)
         }
@@ -202,7 +202,7 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onTrackOpened(path: String) {
         val file = File(path)
         files.add(file)
-        settings.currentMusicDirPath = file.parentFile.absolutePath
+        settings.currentMusicDirPath = file.parentFile?.absolutePath ?: ""
         updateTpFiles()
         updateTrackInfoStorageFiles()
     }
@@ -352,8 +352,9 @@ class MusicTransmitterPresenter @Inject constructor(
     }
 
     fun onShowIPSelected() {
-        val wifiMgr = context.getSystemService(WIFI_SERVICE) as WifiManager
-        val wifiInfo = wifiMgr.connectionInfo
+        val wifiMgr = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+        @Suppress("DEPRECATION") val wifiInfo = wifiMgr.connectionInfo
+        @Suppress("DEPRECATION")
         viewState.showIPAddress(Formatter.formatIpAddress(wifiInfo.ipAddress))
     }
 
@@ -476,7 +477,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
         clickPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                onPauseClick()
+                onPauseClick(needSendBroadcast = true, needShowNotification = true)
             }
         }
         context.registerReceiver(clickPauseReceiver, IntentFilter(CLICK_PAUSE))
@@ -484,7 +485,7 @@ class MusicTransmitterPresenter @Inject constructor(
         incomingCallReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getStringExtra(TelephonyManager.EXTRA_STATE) == TelephonyManager.EXTRA_STATE_RINGING) {
-                    onPauseClick()
+                    onPauseClick(needSendBroadcast = true, needShowNotification = true)
                 }
             }
         }

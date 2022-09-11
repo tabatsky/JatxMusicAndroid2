@@ -129,13 +129,18 @@ class MusicTransmitterService: Service() {
         unlockWifi()
 
         tk.tu.interrupt()
-        tk.tc.interrupt()
+        tk.tc.finishFlag = true
         tk.tp.interrupt()
         tk.tpck.interrupt()
 
         unregisterReceivers()
 
-        stopForeground(true)
+        if (Build.VERSION.SDK_INT >= 24) {
+            stopForeground(STOP_FOREGROUND_DETACH)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         super.onDestroy()
     }
 
@@ -183,7 +188,7 @@ class MusicTransmitterService: Service() {
         val wifiManager =
             applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = wifiManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG).apply {
-            acquire()
+            acquire(1200 * 1000L)
         }
     }
 
