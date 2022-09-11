@@ -11,6 +11,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import jatx.musictransmitter.android.R
+import kotlin.random.Random
 
 const val CHANNEL_ID = "jatxMusicTransmitter"
 const val CHANNEL_NAME = "jatxMusicTransmitter"
@@ -21,6 +22,10 @@ const val CLICK_REV = "jatx.musictransmitter.android.CLICK_REV"
 const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 
 object MusicTransmitterNotification {
+    private val notificationId by lazy {
+        Random(1237).nextInt()
+    }
+
     fun showNotification(context: Context, artist: String, title: String, isPlaying: Boolean) {
         val notificationManager = NotificationManagerCompat.from(context)
 
@@ -75,11 +80,11 @@ object MusicTransmitterNotification {
             .setCustomBigContentView(contentView)
             .build()
 
-        notificationManager.notify(1, notification)
+        notificationManager.notify(notificationId, notification)
     }
 
     fun hideNotification(context: Context) {
         val notificationManager = NotificationManagerCompat.from(context)
-        notificationManager.cancel(1)
+        notificationManager.cancel(notificationId)
     }
 }

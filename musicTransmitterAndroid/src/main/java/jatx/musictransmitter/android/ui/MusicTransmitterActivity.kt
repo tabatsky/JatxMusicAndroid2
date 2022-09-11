@@ -32,6 +32,7 @@ import jatx.extensions.showToast
 import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
+import jatx.musictransmitter.android.services.EXTRA_WIFI_STATUS
 import jatx.musictransmitter.android.services.TP_AND_TC_PAUSE
 import kotlinx.android.synthetic.main.activity_music_transmitter.*
 import kotlinx.coroutines.Dispatchers
@@ -78,7 +79,8 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         val tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                presenter.onPauseClick(false)
+                val wifiStatus = intent.getBooleanExtra(EXTRA_WIFI_STATUS, false)
+                presenter.onPauseClick(false, wifiStatus)
             }
         }
         registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
