@@ -61,13 +61,14 @@ class TransmitterPlayerConnectionKeeper(
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {
+            println("(player) thread interrupted")
+        } finally {
             workers.values.forEach {
                 it.finishWorkerFlag = true
             }
-            println("(player) workers interrupted")
+            println("(player) workers finished")
             ss?.close()
             println("(player) server socket closed")
-        } finally {
             println("(player) thread finished")
         }
     }

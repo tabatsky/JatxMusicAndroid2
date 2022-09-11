@@ -82,13 +82,13 @@ class TransmitterController(
             logError(e)
         } catch (e: InterruptedException) {
             println("(controller) thread interrupted")
+        } finally {
             workers.values.forEach {
                 it.finishWorkerFlag = true
             }
-            println("(controller) workers")
+            println("(controller) workers finished")
             ss?.close()
             println("(controller) server socket closed")
-        } finally {
             println("(controller) thread finished")
         }
     }
