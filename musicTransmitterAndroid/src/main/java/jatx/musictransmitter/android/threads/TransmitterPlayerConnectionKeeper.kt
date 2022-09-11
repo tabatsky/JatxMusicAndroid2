@@ -37,7 +37,7 @@ class TransmitterPlayerConnectionKeeper(
                     val s = ss?.accept()
                     println("(player) server socket accept")
                     s?.inetAddress?.hostAddress?.let { host ->
-                        val worker = TransmitterPlayerWorker(s, host, tk)
+                        val worker = TransmitterPlayerWorker(s)
                         worker.start()
                         println("(player) worker $host started")
                         workers[host] = worker

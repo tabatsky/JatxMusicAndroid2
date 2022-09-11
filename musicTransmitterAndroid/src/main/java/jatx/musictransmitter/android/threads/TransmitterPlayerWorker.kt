@@ -5,9 +5,7 @@ import java.io.OutputStream
 import java.net.Socket
 
 class TransmitterPlayerWorker(
-    private val s: Socket?,
-    private val host: String,
-    private val tk: ThreadKeeper?
+    private val s: Socket?
 ): Thread() {
     @Volatile
     var threadId = 0L
@@ -46,7 +44,7 @@ class TransmitterPlayerWorker(
             //MusicDecoder.disconnectResetTimeFlag = true
             sleep(250)
             os?.close()
-            println("(player) $threadId output stream closed")
+            println("(player $threadId) output stream closed")
             onWorkerStopped()
             println("(player $threadId) finished")
         }
