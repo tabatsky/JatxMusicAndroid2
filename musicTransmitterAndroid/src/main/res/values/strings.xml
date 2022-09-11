@@ -75,7 +75,8 @@
 		3. Enter the IP address at the Receiver application.\n\n
 		4. Click \"Start\" or \"Auto Connect\" at the Receiver.\n\n
 		5. The Wi-Fi icon to the left of the player control buttons should change the color
-		from gray to black (or to white for dark theme) - this means the application is ready for use.
+		from gray to black (or to white for dark theme)
+		and active receiver count should increase - this means the application is ready for use.
 	</string>
 
 	<string name="show_ip_title">Your IP</string>

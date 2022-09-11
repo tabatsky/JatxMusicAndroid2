@@ -1,6 +1,5 @@
 package jatx.musictransmitter.android.threads
 
-import jatx.musictransmitter.android.audio.MusicDecoder
 import java.io.IOException
 import java.io.OutputStream
 import java.net.Socket
