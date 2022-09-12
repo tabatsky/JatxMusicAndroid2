@@ -106,10 +106,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 presenter.onAddTrackSelected()
                 true
             }
-//            R.id.item_menu_add_folder -> {
-//                presenter.onAddFolderSelected()
-//                true
-//            }
             R.id.item_menu_add_album -> {
                 presenter.onAddAlbumSelected()
                 true
