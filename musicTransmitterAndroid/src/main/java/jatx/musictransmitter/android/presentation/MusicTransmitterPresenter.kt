@@ -25,6 +25,8 @@ import moxy.InjectViewState
 import moxy.MvpPresenter
 import java.io.File
 import java.io.PrintWriter
+import java.net.Inet4Address
+import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
 
@@ -355,7 +357,30 @@ class MusicTransmitterPresenter @Inject constructor(
         val wifiMgr = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         @Suppress("DEPRECATION") val wifiInfo = wifiMgr.connectionInfo
         @Suppress("DEPRECATION")
-        viewState.showIPAddress(Formatter.formatIpAddress(wifiInfo.ipAddress))
+        val wifiAddress = Formatter.formatIpAddress(wifiInfo.ipAddress)
+
+        // detects non wifi IP address
+        // not used because ServerSocket non working for mobile networking not working
+        // do not delete, may be solution for mobile networking will be found in the future
+        val firstCorrectAddress = Collections.list(NetworkInterface.getNetworkInterfaces()).map { intf ->
+            Log.e("interface", intf.displayName)
+            val hostAddress = Collections.list(intf.inetAddresses).firstOrNull { addr ->
+                (!addr.isLoopbackAddress).and(
+                    addr is Inet4Address
+                ).and(
+                    (addr.hostAddress ?: "0.0.0.0") != "0.0.0.0"
+                )
+            }?.hostAddress
+            Log.e("host address", hostAddress ?: "0.0.0.0")
+            hostAddress
+        }.firstOrNull {
+            (it ?: "0.0.0.0") != "0.0.0.0"
+        } ?: "0.0.0.0"
+
+        //val correctAddress = if (wifiAddress != "0.0.0.0") wifiAddress else firstCorrectAddress
+        val correctAddress = if (wifiAddress != "0.0.0.0") wifiAddress else "Wifi not available"
+
+        viewState.showIPAddress(correctAddress)
     }
 
     fun onReturnFromTagEditor() = updateTrackInfoStorageFiles()
