@@ -359,25 +359,27 @@ class MusicTransmitterPresenter @Inject constructor(
         @Suppress("DEPRECATION")
         val wifiAddress = Formatter.formatIpAddress(wifiInfo.ipAddress)
 
-        // detects non wifi IP address
-        // not used because ServerSocket non working for mobile networking not working
-        // do not delete, may be solution for mobile networking will be found in the future
-        val firstCorrectAddress = Collections.list(NetworkInterface.getNetworkInterfaces()).map { intf ->
-            Log.e("interface", intf.displayName)
-            val hostAddress = Collections.list(intf.inetAddresses).firstOrNull { addr ->
-                (!addr.isLoopbackAddress).and(
-                    addr is Inet4Address
-                ).and(
-                    (addr.hostAddress ?: "0.0.0.0") != "0.0.0.0"
-                )
-            }?.hostAddress
-            Log.e("host address", hostAddress ?: "0.0.0.0")
-            hostAddress
-        }.firstOrNull {
-            (it ?: "0.0.0.0") != "0.0.0.0"
-        } ?: "0.0.0.0"
+//        detects non wifi IP address
+//        not used because ServerSocket for mobile networking not working
+//        do not delete, may be solution for mobile networking will be found in the future
 
-        //val correctAddress = if (wifiAddress != "0.0.0.0") wifiAddress else firstCorrectAddress
+//        val firstCorrectAddress = Collections.list(NetworkInterface.getNetworkInterfaces()).map { intf ->
+//            Log.e("interface", intf.displayName)
+//            val hostAddress = Collections.list(intf.inetAddresses).firstOrNull { addr ->
+//                (!addr.isLoopbackAddress).and(
+//                    addr is Inet4Address
+//                ).and(
+//                    (addr.hostAddress ?: "0.0.0.0") != "0.0.0.0"
+//                )
+//            }?.hostAddress
+//            Log.e("host address", hostAddress ?: "0.0.0.0")
+//            hostAddress
+//        }.firstOrNull {
+//            (it ?: "0.0.0.0") != "0.0.0.0"
+//        } ?: "0.0.0.0"
+
+//        val correctAddress = if (wifiAddress != "0.0.0.0") wifiAddress else firstCorrectAddress
+
         val correctAddress = if (wifiAddress != "0.0.0.0") wifiAddress else "Wifi not available"
 
         viewState.showIPAddress(correctAddress)
