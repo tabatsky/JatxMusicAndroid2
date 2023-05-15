@@ -1,15 +1,19 @@
 package jatx.musictransmitter.android.ui
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import jatx.musictransmitter.android.R
 
 const val CHANNEL_ID = "jatxMusicTransmitter"
@@ -77,7 +81,19 @@ object MusicTransmitterNotification {
             .setCustomBigContentView(contentView)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED) {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        } else {
+            Toast
+                .makeText(
+                    context,
+                    R.string.toast_please_enable_notifications,
+                    Toast.LENGTH_LONG
+                )
+                .show()
+        }
     }
 
     fun hideNotification(context: Context) {

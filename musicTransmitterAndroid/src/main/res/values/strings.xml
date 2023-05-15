@@ -43,6 +43,7 @@
 	<string name="toast_no_playlists">No playlists found</string>
 	<string name="toast_empty_playlist_name">Playlist name must not be empty</string>
 	<string name="toast_unsupported_files_format">Found files with unsupported format</string>
+	<string name="toast_please_enable_notifications">Please enable notifications at the app settings</string>
 
 	<string name="editor_title">Title:</string>
 	<string name="editor_album">Album:</string>

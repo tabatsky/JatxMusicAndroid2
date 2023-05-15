@@ -62,6 +62,8 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         initTracksRV()
 
+        checkNotificationPermissions()
+
         playBtn.setOnClickListener { presenter.onPlayClick() }
         pauseBtn.setOnClickListener { presenter.onPauseClick(
             needSendBroadcast = true,
@@ -311,7 +313,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     private fun checkMediaPermissions(permissionListener: PermissionListener) {
-        if (Build.VERSION.SDK_INT >= 30) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            TedPermission.with(this)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.READ_MEDIA_AUDIO
+                )
+                .check()
+        } else if (Build.VERSION.SDK_INT >= 30) {
             TedPermission.with(this)
                 .setPermissionListener(permissionListener)
                 .setPermissions(
@@ -324,6 +333,23 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 .setPermissions(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                .check()
+        }
+    }
+
+    private fun checkNotificationPermissions() {
+        val permissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {}
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            TedPermission.with(this)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.POST_NOTIFICATIONS
                 )
                 .check()
         }

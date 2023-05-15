@@ -41,6 +41,7 @@ android {
     androidExtensions {
         experimental = true
     }
+    namespace 'jatx.musictransmitter.android'
 }
 
 dependencies {

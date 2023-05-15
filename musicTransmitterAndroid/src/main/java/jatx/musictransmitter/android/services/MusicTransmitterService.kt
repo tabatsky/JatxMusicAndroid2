@@ -1,10 +1,12 @@
 package jatx.musictransmitter.android.services
 
+import android.Manifest
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiManager.WifiLock
@@ -12,12 +14,15 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.data.Settings
 import jatx.extensions.showToast
+import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.threads.*
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import javax.inject.Inject
@@ -169,6 +174,18 @@ class MusicTransmitterService: Service() {
             .setContentIntent(pendingIntent)
             .build()
         startForeground(2315, notification)
+
+        if (ContextCompat.checkSelfPermission(
+            this, Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED) {
+            Toast
+                .makeText(
+                    this,
+                    R.string.toast_please_enable_notifications,
+                    Toast.LENGTH_LONG
+                )
+                .show()
+        }
     }
 
     private fun lockWifi() {
