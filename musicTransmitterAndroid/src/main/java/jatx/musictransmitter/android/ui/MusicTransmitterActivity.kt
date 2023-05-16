@@ -625,10 +625,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         checkMediaPermissions(permissionListener)
     }
 
-    override fun tryLoadPlaylists() {
+    override fun tryLoadAllPlaylists() {
         val permissionListener = object: PermissionListener {
             override fun onPermissionGranted() {
-                presenter.onLoadPlaylistsPermissionsAccepted()
+                presenter.onLoadAllPlaylistsPermissionsAccepted()
             }
 
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {

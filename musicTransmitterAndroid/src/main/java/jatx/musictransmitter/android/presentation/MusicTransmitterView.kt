@@ -33,7 +33,7 @@ interface MusicTransmitterView: MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class) fun showIPAddress(ipAddress: String)
     @StateStrategyType(OneExecutionStateStrategy::class) fun tryAddMic()
     @StateStrategyType(OneExecutionStateStrategy::class) fun trySavePlaylist(playlistName: String)
-    @StateStrategyType(OneExecutionStateStrategy::class) fun tryLoadPlaylists()
+    @StateStrategyType(OneExecutionStateStrategy::class) fun tryLoadAllPlaylists()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showTagEditor(uri: Uri)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showManual()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showReviewAppActivity()

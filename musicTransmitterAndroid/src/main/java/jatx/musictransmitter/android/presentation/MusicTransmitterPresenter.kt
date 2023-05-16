@@ -25,8 +25,6 @@ import moxy.InjectViewState
 import moxy.MvpPresenter
 import java.io.File
 import java.io.PrintWriter
-import java.net.Inet4Address
-import java.net.NetworkInterface
 import java.util.*
 import javax.inject.Inject
 
@@ -233,7 +231,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onExportPlaylistSelected() = viewState.showSavePlaylistDialog()
 
-    fun onImportPlaylistSelected() = viewState.tryLoadPlaylists()
+    fun onImportPlaylistSelected() = viewState.tryLoadAllPlaylists()
 
     fun onTrackClick(position: Int) {
         currentPosition = if (isShuffle) {
@@ -322,7 +320,7 @@ class MusicTransmitterPresenter @Inject constructor(
         }
     }
 
-    fun onLoadPlaylistsPermissionsAccepted() {
+    fun onLoadAllPlaylistsPermissionsAccepted() {
         try {
             val dir = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
