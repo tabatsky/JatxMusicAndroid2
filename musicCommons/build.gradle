@@ -6,7 +6,6 @@ dependencies {
 }
 
 buildscript {
-    ext.kotlin_version = '1.6.21'
     repositories {
         mavenCentral()
     }
@@ -28,5 +27,5 @@ compileTestKotlin {
     }
 }
 dependencies {
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.2'
 }

@@ -49,8 +49,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.9.0' // do not upgrade
     implementation "com.google.dagger:dagger:2.43.2"
     kapt "com.google.dagger:dagger-compiler:2.43.2"
     implementation 'com.arello-mobile:moxy:1.4.5'
