@@ -1,9 +1,13 @@
 package jatx.musicreceiver.android.presentation
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import jatx.musicreceiver.android.R
 import jatx.musicreceiver.android.data.Settings
 import jatx.musicreceiver.android.services.MusicReceiverService
@@ -30,6 +34,7 @@ class MusicReceiverPresenter @Inject constructor(
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
+        checkNotificationPermissions()
         initBroadcastReceivers()
         viewState.showSelectHostDialog()
     }
@@ -132,5 +137,22 @@ class MusicReceiverPresenter @Inject constructor(
     private fun unregisterReceivers() {
         context.unregisterReceiver(uiStartJobReceiver)
         context.unregisterReceiver(uiStopJobReceiver)
+    }
+
+    private fun checkNotificationPermissions() {
+        val permissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {}
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            TedPermission.with(context)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+                .check()
+        }
     }
 }

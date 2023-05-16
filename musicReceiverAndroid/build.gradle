@@ -57,6 +57,7 @@ dependencies {
     implementation "com.github.moxy-community:moxy-androidx:2.0.2"
     implementation "com.github.moxy-community:moxy-ktx:2.0.2"
     kapt "com.github.moxy-community:moxy-compiler:2.0.2"
+    implementation 'gun0912.ted:tedpermission:2.2.3'
 
     implementation project(':commons')
     implementation project(':musicCommons')

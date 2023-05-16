@@ -14,7 +14,8 @@
     <string name="toast_disconnect">Disconnect Occured</string>
     <string name="toast_empty_host">Hostname cannot be empty</string>
     <string name="toast_bluetooth_error">Fail. Check that bluetooth is on and the headset is set up</string>
-    
+    <string name="toast_please_enable_notifications">Please enable notifications at the app settings</string>
+
     <string name="item_review_app">Review App</string>
     <string name="item_other_apps">Other apps</string>
 	<string name="item_transmitter_android">Transmitter for Android</string>

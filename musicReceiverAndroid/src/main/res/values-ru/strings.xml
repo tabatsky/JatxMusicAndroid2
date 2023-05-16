@@ -13,7 +13,8 @@
     <string name="toast_disconnect">Соединение разорвано</string>
     <string name="toast_empty_host">Адрес хоста не может быть пустой строкой</string>
     <string name="toast_bluetooth_error">Ошибка. Проверьте, что блютуз включен и гарнитура настроена</string>
-    
+    <string name="toast_please_enable_notifications">Пожалуйста, разрешите уведомления в настройках приложения</string>
+
     <string name="item_review_app">Оценить приложение</string>
     <string name="item_other_apps">Еще приложения</string>
 	<string name="item_transmitter_android">Передатчик для Android</string>

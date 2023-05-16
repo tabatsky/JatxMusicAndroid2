@@ -45,7 +45,6 @@
 	<string name="toast_unsupported_files_format">Обнаружены файлы неподдерживаемого формата</string>
 	<string name="toast_please_enable_notifications">Пожалуйста, разрешите уведомления в настройках приложения</string>
 
-
 	<string name="editor_title">Название:</string>
 	<string name="editor_album">Альбом:</string>
 	<string name="editor_artist">Исполнитель:</string>

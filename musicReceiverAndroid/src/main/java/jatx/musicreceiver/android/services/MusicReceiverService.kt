@@ -1,19 +1,24 @@
 package jatx.musicreceiver.android.services
 
+import android.Manifest
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import jatx.musicreceiver.android.App
+import jatx.musicreceiver.android.R
 import jatx.musicreceiver.android.audio.AndroidSoundOut
 import jatx.musicreceiver.android.data.Settings
 import jatx.musicreceiver.android.presentation.UI_START_JOB
@@ -114,6 +119,18 @@ class MusicReceiverService : Service() {
             .setContentIntent(pendingIntent)
             .build()
         startForeground(1523, notification)
+
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+            Toast
+                .makeText(
+                    this,
+                    R.string.toast_please_enable_notifications,
+                    Toast.LENGTH_LONG
+                )
+                .show()
+        }
     }
 
     private fun lockWifi() {

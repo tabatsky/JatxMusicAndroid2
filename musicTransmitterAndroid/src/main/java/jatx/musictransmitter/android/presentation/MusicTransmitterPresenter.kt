@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Environment
 import android.telephony.TelephonyManager
 import android.text.format.Formatter
@@ -87,6 +88,7 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showShuffleState(isShuffle)
 
         checkReadPhoneStatePermission()
+        checkNotificationPermissions()
         initBroadcastReceivers()
         startService()
     }
@@ -456,6 +458,23 @@ class MusicTransmitterPresenter @Inject constructor(
             .setPermissionListener(permissionListener)
             .setPermissions(Manifest.permission.READ_PHONE_STATE)
             .check()
+    }
+
+    private fun checkNotificationPermissions() {
+        val permissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {}
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            TedPermission.with(context)
+                .setPermissionListener(permissionListener)
+                .setPermissions(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+                .check()
+        }
     }
 
     private fun initBroadcastReceivers() {
