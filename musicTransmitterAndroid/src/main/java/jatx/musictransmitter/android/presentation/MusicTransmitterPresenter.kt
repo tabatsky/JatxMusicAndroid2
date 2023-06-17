@@ -265,6 +265,8 @@ class MusicTransmitterPresenter @Inject constructor(
         updateTrackInfoStorageFiles()
         if (isShuffle) {
             viewState.showTracks(tracks, realPosition)
+        } else {
+            viewState.showTracks(tracks, currentPosition)
         }
     }
 
