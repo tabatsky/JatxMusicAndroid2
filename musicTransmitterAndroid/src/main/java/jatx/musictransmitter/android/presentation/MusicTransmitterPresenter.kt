@@ -9,7 +9,6 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.Environment
 import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
@@ -231,9 +230,9 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onRemoveTrackSelected() = viewState.showRemoveTrackMessage()
 
-    fun onExportPlaylistSelected() = viewState.showSavePlaylistDialog()
+    fun onExportPlaylistSelected() = viewState.trySavePlaylist()
 
-    fun onImportPlaylistSelected() = viewState.tryLoadAllPlaylists()
+    fun onImportPlaylistSelected() = viewState.tryLoadPlaylist()
 
     fun onTrackClick(position: Int) {
         currentPosition = if (isShuffle) {
@@ -279,19 +278,15 @@ class MusicTransmitterPresenter @Inject constructor(
         }
     }
 
-    fun onSavePlaylist(playlistName: String) = viewState.trySavePlaylist(playlistName)
-
-    fun onSavePlaylistPermissionsAccepted(playlistName: String) {
+    fun onSavePlaylist(uri: Uri) {
         val playlistContent = files.joinToString("\n") { it.absolutePath }
         Log.e("playlist", playlistContent)
         try {
-            val dir = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            dir.mkdirs()
-            val outFile = File(dir, "$playlistName.m3u8")
-            PrintWriter(outFile).use { pw ->
-                pw.println(playlistContent)
-                pw.flush()
+            context.contentResolver.openOutputStream(uri)?.let {
+                PrintWriter(it).use { pw ->
+                    pw.println(playlistContent)
+                    pw.flush()
+                }
             }
             viewState.showSavePlaylistSuccess()
         } catch (e: Exception) {
@@ -300,13 +295,11 @@ class MusicTransmitterPresenter @Inject constructor(
         }
     }
 
-    fun onLoadPlaylist(playlistName: String) {
+    fun onLoadPlaylist(uri: Uri) {
         try {
-            val dir = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
             files.clear()
 
-            Scanner(File(dir, "$playlistName.m3u8")).use { sc ->
+            Scanner(context.contentResolver.openInputStream(uri)).use { sc ->
                 while (sc.hasNextLine()) {
                     val path = sc.nextLine()
                     files.add(File(path))
@@ -318,27 +311,6 @@ class MusicTransmitterPresenter @Inject constructor(
             currentPosition = -1
 
             viewState.showLoadPlaylistSuccess()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            viewState.showLoadPlaylistError()
-        }
-    }
-
-    fun onLoadAllPlaylistsPermissionsAccepted() {
-        try {
-            val dir = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val playlistNames = dir
-                .listFiles()
-                ?.filter { it.name.endsWith(".m3u8") }
-                ?.map { it.nameWithoutExtension }
-                ?.sorted() ?: listOf()
-            if (playlistNames.isEmpty()) {
-                viewState.showNoPlaylists()
-            } else {
-                Log.e("playlists", playlistNames.toString())
-                viewState.showLoadPlaylistDialog(playlistNames)
-            }
         } catch (e: Exception) {
             e.printStackTrace()
             viewState.showLoadPlaylistError()

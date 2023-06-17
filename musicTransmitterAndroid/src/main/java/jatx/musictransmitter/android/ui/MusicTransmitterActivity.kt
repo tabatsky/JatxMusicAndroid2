@@ -14,6 +14,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gun0912.tedpermission.PermissionListener
@@ -41,6 +43,9 @@ import kotlinx.coroutines.withContext
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 const val REQUEST_TAG_EDITOR = 2222
@@ -535,19 +540,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         dialog.show(supportFragmentManager, "longClickDialog")
     }
 
-    override fun showSavePlaylistDialog() {
-        val dialog = SavePlaylistDialog()
-        dialog.onSavePlaylist = { presenter.onSavePlaylist(it) }
-        dialog.show(supportFragmentManager, "savePlaylistDialog")
-    }
-
-    override fun showLoadPlaylistDialog(playlistNames: List<String>) {
-        val dialog = LoadPlaylistDialog()
-        dialog.playlistNames = playlistNames
-        dialog.onLoadPlaylist = { presenter.onLoadPlaylist(it) }
-        dialog.show(supportFragmentManager, "loadPlaylistDialog")
-    }
-
     override fun showSavePlaylistSuccess() {
         showToast(R.string.toast_saving_playlist_success)
     }
@@ -596,32 +588,26 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             .check()
     }
 
-    override fun trySavePlaylist(playlistName: String) {
-        val permissionListener = object: PermissionListener {
-            override fun onPermissionGranted() {
-                presenter.onSavePlaylistPermissionsAccepted(playlistName)
-            }
-
-            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                showToast(R.string.toast_no_sdcard_write_access)
-            }
-        }
-
-        checkMediaPermissions(permissionListener)
+    override fun trySavePlaylist() {
+        val sdf = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
+        val fileName = sdf.format(Date())
+        saveM3U8ResultLauncher.launch("$fileName.m3u8")
     }
 
-    override fun tryLoadAllPlaylists() {
-        val permissionListener = object: PermissionListener {
-            override fun onPermissionGranted() {
-                presenter.onLoadAllPlaylistsPermissionsAccepted()
-            }
+    private val saveM3U8ResultLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("*/*")
+    ) { uri ->
+        uri?.let { presenter.onSavePlaylist(it) }
+    }
 
-            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                showToast(R.string.toast_no_sdcard_read_access)
-            }
-        }
+    override fun tryLoadPlaylist() {
+        openM3U8ResultLauncher.launch(arrayOf("*/*"))
+    }
 
-        checkMediaPermissions(permissionListener)
+    private val openM3U8ResultLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { presenter.onLoadPlaylist(it) }
     }
 
     override fun showTagEditor(uri: Uri) {
