@@ -88,6 +88,12 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
         registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
 
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                presenter.onBackPressed()
+            }
+        })
+
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 getAlbumEntries()
@@ -178,8 +184,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             presenter.onReturnFromTagEditor()
         }
     }
-
-    override fun onBackPressed() = presenter.onBackPressed()
 
     override fun showTracks(tracks: List<Track>, currentPosition: Int) {
         val trackItems = tracks.mapIndexed { index, track ->

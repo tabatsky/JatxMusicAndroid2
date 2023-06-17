@@ -50,16 +50,18 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
                 title = titleET.text.toString()
             )
         }
-    }
 
-    override fun onBackPressed() {
-        presenter.onBackPressed(
-            artist = artistET.text.toString(),
-            album = albumET.text.toString(),
-            title = titleET.text.toString(),
-            year = yearET.text.toString(),
-            number = numberET.text.toString()
-        )
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                presenter.onBackPressed(
+                    artist = artistET.text.toString(),
+                    album = albumET.text.toString(),
+                    title = titleET.text.toString(),
+                    year = yearET.text.toString(),
+                    number = numberET.text.toString()
+                )
+            }
+        })
     }
 
     override fun showFileName(fileName: String) {
