@@ -8,13 +8,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.OnBackPressedCallback
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.Lazy
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.databinding.ActivityMusicEditorBinding
 import jatx.musictransmitter.android.presentation.MusicEditorPresenter
 import jatx.musictransmitter.android.presentation.MusicEditorView
-import kotlinx.android.synthetic.main.activity_music_editor.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import java.io.File
@@ -30,6 +31,8 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
 
     private var needQuit = false
 
+    private val binding: ActivityMusicEditorBinding by viewBinding()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         App.appComponent?.injectMusicEditorActivity(this)
         super.onCreate(savedInstanceState)
@@ -40,33 +43,35 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
             presenter.onPathParsed(this)
         }
 
-        saveBtn.setOnClickListener {
-            presenter.onSaveClick(false)
-        }
+        with(binding) {
+            saveBtn.setOnClickListener {
+                presenter.onSaveClick(false)
+            }
 
-        winToUtfBtn.setOnClickListener {
-            presenter.onWinToUtfClick(
-                artist = artistET.text.toString(),
-                album = albumET.text.toString(),
-                title = titleET.text.toString()
-            )
-        }
-
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                presenter.onBackPressed(
+            winToUtfBtn.setOnClickListener {
+                presenter.onWinToUtfClick(
                     artist = artistET.text.toString(),
                     album = albumET.text.toString(),
-                    title = titleET.text.toString(),
-                    year = yearET.text.toString(),
-                    number = numberET.text.toString()
+                    title = titleET.text.toString()
                 )
             }
-        })
+
+            onBackPressedDispatcher.addCallback(this@MusicEditorActivity, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    presenter.onBackPressed(
+                        artist = artistET.text.toString(),
+                        album = albumET.text.toString(),
+                        title = titleET.text.toString(),
+                        year = yearET.text.toString(),
+                        number = numberET.text.toString()
+                    )
+                }
+            })
+        }
     }
 
     override fun showFileName(fileName: String) {
-        fileNameTV.text = getString(R.string.label_filename, fileName)
+        binding.fileNameTV.text = getString(R.string.label_filename, fileName)
     }
 
     override fun showTags(
@@ -76,11 +81,13 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
         year: String,
         number: String
     ) {
-        artistET.setText(artist)
-        albumET.setText(album)
-        titleET.setText(title)
-        yearET.setText(year)
-        numberET.setText(number)
+        with(binding) {
+            artistET.setText(artist)
+            albumET.setText(album)
+            titleET.setText(title)
+            yearET.setText(year)
+            numberET.setText(number)
+        }
     }
 
     override fun saveTags(needQuit: Boolean) {
@@ -118,13 +125,15 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
     }
 
     private fun onSaveTagsPermissionGranted() {
-        presenter.onSaveTags(
-            artist = artistET.text.toString(),
-            album = albumET.text.toString(),
-            title = titleET.text.toString(),
-            year = yearET.text.toString(),
-            number = numberET.text.toString()
-        )
+        with(binding) {
+            presenter.onSaveTags(
+                artist = artistET.text.toString(),
+                album = albumET.text.toString(),
+                title = titleET.text.toString(),
+                year = yearET.text.toString(),
+                number = numberET.text.toString()
+            )
+        }
         MediaScannerConnection.scanFile(this, arrayOf(presenter.file.absolutePath), null, null)
         if (needQuit) {
             presenter.onNeedQuit()

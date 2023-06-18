@@ -7,15 +7,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.Lazy
 import jatx.constants.*
 import jatx.debug.AppDebug
 import jatx.extensions.showToast
 import jatx.musicreceiver.android.App
 import jatx.musicreceiver.android.R
+import jatx.musicreceiver.android.databinding.ActivityMusicReceiverBinding
 import jatx.musicreceiver.android.presentation.MusicReceiverPresenter
 import jatx.musicreceiver.android.presentation.MusicReceiverView
-import kotlinx.android.synthetic.main.activity_music_receiver.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import javax.inject.Inject
@@ -25,18 +26,22 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
     lateinit var presenterProvider: Lazy<MusicReceiverPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
 
+    private val binding: ActivityMusicReceiverBinding by viewBinding()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
         App.appComponent?.injectMusicReceiverActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_receiver)
 
-        toggleBtn.setOnClickListener {
-            presenter.onToggleClick()
-        }
+        with(binding) {
+            toggleBtn.setOnClickListener {
+                presenter.onToggleClick()
+            }
 
-        autoConnectCB.setOnClickListener {
-            presenter.onAutoConnectClick(autoConnectCB.isChecked)
+            autoConnectCB.setOnClickListener {
+                presenter.onAutoConnectClick(autoConnectCB.isChecked)
+            }
         }
     }
 
@@ -85,15 +90,15 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
     }
 
     override fun showToggleText(text: String) {
-        toggleBtn.text = text
+        binding.toggleBtn.text = text
     }
 
     override fun showHost(host: String) {
-        hostnameET.setText(host)
+        binding.hostnameET.setText(host)
     }
 
     override fun showAutoConnect(isAutoConnect: Boolean) {
-        autoConnectCB.isChecked = isAutoConnect
+        binding.autoConnectCB.isChecked = isAutoConnect
     }
 
     override fun showDisconnectOccured() {

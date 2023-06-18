@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: "kotlin-kapt"
+apply plugin: 'kotlin-kapt'
 
 def keystorePropertiesFile = file("keystore.properties")
 def keystoreProperties = new Properties()
@@ -38,8 +37,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    androidExtensions {
-        experimental = true
+    buildFeatures {
+        viewBinding true
     }
     namespace 'jatx.musictransmitter.android'
 }
@@ -61,11 +60,12 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
-    implementation 'com.xwray:groupie:2.7.1'
-    implementation 'com.xwray:groupie-kotlin-android-extensions:2.7.1'
+    implementation "com.github.lisawray.groupie:groupie:2.10.1"
+    implementation "com.github.lisawray.groupie:groupie-viewbinding:2.10.1"
     implementation 'javazoom:jlayer:1.0.1'
     implementation 'gun0912.ted:tedpermission:2.2.3'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1' // do not upgrade
+    implementation 'com.github.kirich1409:viewbindingpropertydelegate-full:1.5.9'
 
     implementation project(':commons')
     implementation project(':musicCommons')

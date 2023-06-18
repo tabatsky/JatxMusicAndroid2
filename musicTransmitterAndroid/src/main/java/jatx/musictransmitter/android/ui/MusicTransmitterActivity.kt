@@ -18,6 +18,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
@@ -27,16 +28,16 @@ import dagger.Lazy
 import jatx.constants.*
 import jatx.debug.AppDebug
 import jatx.extensions.onSeek
+import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.databinding.ActivityMusicTransmitterBinding
 import jatx.musictransmitter.android.db.entity.Track
-import jatx.extensions.showToast
 import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import jatx.musictransmitter.android.services.EXTRA_WIFI_STATUS
 import jatx.musictransmitter.android.services.TP_AND_TC_PAUSE
-import kotlinx.android.synthetic.main.activity_music_transmitter.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +58,8 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     private val tracksAdapter = GroupAdapter<GroupieViewHolder>()
 
+    private val binding: ActivityMusicTransmitterBinding by viewBinding()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
         App.appComponent?.injectMusicTransmitterActivity(this)
@@ -67,23 +70,27 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         initTracksRV()
 
-        playBtn.setOnClickListener { presenter.onPlayClick() }
-        pauseBtn.setOnClickListener { presenter.onPauseClick(
-            needSendBroadcast = true,
-            needShowNotification = true
-        ) }
+        with(binding) {
+            playBtn.setOnClickListener { presenter.onPlayClick() }
+            pauseBtn.setOnClickListener {
+                presenter.onPauseClick(
+                    needSendBroadcast = true,
+                    needShowNotification = true
+                )
+            }
 
-        repeatBtn.setOnClickListener { presenter.onRepeatClick() }
-        shuffleBtn.setOnClickListener { presenter.onShuffleClick() }
+            repeatBtn.setOnClickListener { presenter.onRepeatClick() }
+            shuffleBtn.setOnClickListener { presenter.onShuffleClick() }
 
-        revBtn.setOnClickListener { presenter.onRevClick() }
-        fwdBtn.setOnClickListener { presenter.onFwdClick() }
+            revBtn.setOnClickListener { presenter.onRevClick() }
+            fwdBtn.setOnClickListener { presenter.onFwdClick() }
 
-        volumeDownBtn.setOnClickListener { presenter.onVolumeDownClick() }
-        volumeUpBtn.setOnClickListener { presenter.onVolumeUpClick() }
+            volumeDownBtn.setOnClickListener { presenter.onVolumeDownClick() }
+            volumeUpBtn.setOnClickListener { presenter.onVolumeUpClick() }
 
-        seekBar.max = 1000
-        seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
+            seekBar.max = 1000
+            seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
+        }
 
         val tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -200,43 +207,49 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun scrollToPosition(position: Int) {
-        val layoutManager = tracksRV.layoutManager
+        val layoutManager = binding.tracksRV.layoutManager
         if (layoutManager is LinearLayoutManager) {
             layoutManager.scrollToPositionWithOffset(position, 0)
         }
     }
 
     override fun showWifiStatus(isWifiOk: Boolean) {
-        if (isWifiOk) {
-            wifiNoIV.visibility = View.GONE
-            wifiOkIV.visibility = View.VISIBLE
-        } else {
-            wifiNoIV.visibility = View.VISIBLE
-            wifiOkIV.visibility = View.GONE
+        with(binding) {
+            if (isWifiOk) {
+                wifiNoIV.visibility = View.GONE
+                wifiOkIV.visibility = View.VISIBLE
+            } else {
+                wifiNoIV.visibility = View.VISIBLE
+                wifiOkIV.visibility = View.GONE
+            }
         }
     }
 
     override fun showWifiReceiverCount(count: Int) {
-        wifiReceiverCount.text = count.toString()
+        binding.wifiReceiverCount.text = count.toString()
     }
 
     override fun showPlayingState(isPlaying: Boolean) {
-        if (isPlaying) {
-            playBtn.visibility = View.GONE
-            pauseBtn.visibility = View.VISIBLE
-        } else {
-            playBtn.visibility = View.VISIBLE
-            pauseBtn.visibility = View.GONE
+        with(binding) {
+            if (isPlaying) {
+                playBtn.visibility = View.GONE
+                pauseBtn.visibility = View.VISIBLE
+            } else {
+                playBtn.visibility = View.VISIBLE
+                pauseBtn.visibility = View.GONE
+            }
         }
     }
 
     override fun showShuffleState(isShuffle: Boolean) {
-        if (isShuffle) {
-            repeatBtn.visibility = View.GONE
-            shuffleBtn.visibility = View.VISIBLE
-        } else {
-            repeatBtn.visibility = View.VISIBLE
-            shuffleBtn.visibility = View.GONE
+        with(binding) {
+            if (isShuffle) {
+                repeatBtn.visibility = View.GONE
+                shuffleBtn.visibility = View.VISIBLE
+            } else {
+                repeatBtn.visibility = View.VISIBLE
+                shuffleBtn.visibility = View.GONE
+            }
         }
     }
 
@@ -522,11 +535,11 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     override fun showCurrentTime(currentMs: Float, trackLengthMs: Float) {
         if (trackLengthMs <= 0) return
         val progress = (currentMs * 1000 / trackLengthMs).toInt()
-        seekBar.progress = progress
+        binding.seekBar.progress = progress
     }
 
     override fun showVolume(volume: Int) {
-        volumeValueTV.text = getString(R.string.label_volume, volume)
+        binding.volumeValueTV.text = getString(R.string.label_volume, volume)
     }
 
     override fun showRemoveTrackMessage() {
@@ -717,7 +730,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     private fun initTracksRV() {
-        tracksRV.adapter = tracksAdapter
+        binding.tracksRV.adapter = tracksAdapter
         tracksAdapter.setOnItemClickListener { item, _ ->
             if (item is TrackItem) {
                 presenter.onTrackClick(item.position)

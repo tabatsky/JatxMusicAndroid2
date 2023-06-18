@@ -1,35 +1,40 @@
 package jatx.musictransmitter.android.ui
 
 import android.view.View
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import jatx.musictransmitter.android.R
-import jatx.musictransmitter.android.media.*
-import kotlinx.android.synthetic.main.item_music_selector.*
+import jatx.musictransmitter.android.databinding.ItemMusicSelectorBinding
+import jatx.musictransmitter.android.media.AlbumArtKeeper
+import jatx.musictransmitter.android.media.AlbumEntry
+import jatx.musictransmitter.android.media.ArtistEntry
+import jatx.musictransmitter.android.media.MusicEntry
+import jatx.musictransmitter.android.media.TrackEntry
 
 class MusicSelectorItem(
     val entry: MusicEntry,
     val onClick: () -> Unit
-): Item() {
+): BindableItem<ItemMusicSelectorBinding>() {
     override fun getLayout() = R.layout.item_music_selector
+    override fun initializeViewBinding(view: View) =
+        ItemMusicSelectorBinding.bind(view)
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+    override fun bind(binding: ItemMusicSelectorBinding, position: Int) {
         when (entry) {
             is ArtistEntry -> {
-                viewHolder.musicSelectorAlbumArtIV.visibility = View.GONE
+                binding.musicSelectorAlbumArtIV.visibility = View.GONE
             }
             is AlbumEntry -> {
-                viewHolder.musicSelectorAlbumArtIV.visibility = View.VISIBLE
-                viewHolder.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry])
+                binding.musicSelectorAlbumArtIV.visibility = View.VISIBLE
+                binding.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry])
             }
             is TrackEntry -> {
-                viewHolder.musicSelectorAlbumArtIV.visibility = View.VISIBLE
-                viewHolder.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry.albumEntry])
+                binding.musicSelectorAlbumArtIV.visibility = View.VISIBLE
+                binding.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry.albumEntry])
             }
         }
 
-        viewHolder.musicSelectorItemBtn.text = entry.asString
-        viewHolder.musicSelectorItemBtn.setOnClickListener {
+        binding.musicSelectorItemBtn.text = entry.asString
+        binding.musicSelectorItemBtn.setOnClickListener {
             onClick()
         }
     }

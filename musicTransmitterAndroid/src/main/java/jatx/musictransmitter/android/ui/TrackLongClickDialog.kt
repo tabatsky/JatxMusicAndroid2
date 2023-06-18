@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.fragment.app.DialogFragment
+import by.kirich1409.viewbindingdelegate.CreateMethod
+import by.kirich1409.viewbindingdelegate.viewBinding
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.databinding.DialogTrackLongClickBinding
 
 class TrackLongClickDialog : DialogFragment() {
     var onRemoveThisTrack: () -> Unit = {}
     var onOpenTagEditor: () -> Unit = {}
+
+    private val binding: DialogTrackLongClickBinding by viewBinding(createMethod = CreateMethod.INFLATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,23 +29,19 @@ class TrackLongClickDialog : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val v = inflater.inflate(R.layout.dialog_track_edit_delete, container, false)
+    ): View {
+        with(binding) {
+            cancelBtn.setOnClickListener { dismiss() }
+            removeThisTrackBtn.setOnClickListener {
+                onRemoveThisTrack()
+                dismiss()
+            }
+            openTagEditorBtn.setOnClickListener {
+                onOpenTagEditor()
+                dismiss()
+            }
 
-        val cancelBtn = v.findViewById<Button>(R.id.cancelBtn)
-        val removeThisTrackBtn = v.findViewById<Button>(R.id.removeThisTrackBtn)
-        val openTagEditorBtn = v.findViewById<Button>(R.id.openTagEditorBtn)
-
-        cancelBtn.setOnClickListener { dismiss() }
-        removeThisTrackBtn.setOnClickListener {
-            onRemoveThisTrack()
-            dismiss()
+            return root
         }
-        openTagEditorBtn.setOnClickListener {
-            onOpenTagEditor()
-            dismiss()
-        }
-
-        return v
     }
 }

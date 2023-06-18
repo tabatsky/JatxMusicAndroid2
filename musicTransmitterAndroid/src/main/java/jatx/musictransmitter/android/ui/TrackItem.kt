@@ -4,31 +4,34 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.TypedValue
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
+import android.view.View
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.data.MIC_PATH
+import jatx.musictransmitter.android.databinding.ItemTrackBinding
 import jatx.musictransmitter.android.db.entity.Track
 import jatx.musictransmitter.android.media.AlbumArtKeeper
 import jatx.musictransmitter.android.media.AlbumEntry
-import kotlinx.android.synthetic.main.item_track.*
 
-
-class TrackItem(val track: Track, val position: Int, private val isCurrent: Boolean): Item() {
+class TrackItem(val track: Track, val position: Int, private val isCurrent: Boolean):
+    BindableItem<ItemTrackBinding>() {
     override fun getLayout() = R.layout.item_track
+    override fun initializeViewBinding(view: View) =
+        ItemTrackBinding.bind(view)
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.albumCoverIV.setImageBitmap(getAlbumCover(viewHolder.albumCoverIV.context))
+    override fun bind(binding: ItemTrackBinding, position: Int) {
+        binding.albumCoverIV.setImageBitmap(getAlbumCover(binding.albumCoverIV.context))
 
-        viewHolder.titleTV.text = track.title
+        binding.titleTV.text = track.title
         var meta = track.artist
         if (meta.isNotEmpty()) {
             meta += " | ${track.length}"
         } else {
             meta = track.length
         }
-        viewHolder.metaTV.text = meta
-        val context = viewHolder.containerView.context
+        binding.metaTV.text = meta
+        val context = binding.root.context
         val theme = context.theme
         val typedValuePrimary = TypedValue()
         theme.resolveAttribute(R.attr.colorPrimary, typedValuePrimary, true)
@@ -37,21 +40,31 @@ class TrackItem(val track: Track, val position: Int, private val isCurrent: Bool
         theme.resolveAttribute(R.attr.colorOnPrimary, typedValueOnPrimary, true)
         val colorOnPrimary = typedValueOnPrimary.data
         if (isCurrent) {
-            viewHolder.wholeLayout.setBackgroundColor(colorPrimary)
-            viewHolder.innerLayout.setBackgroundColor(colorPrimary)
-            viewHolder.titleTV.setBackgroundColor(colorPrimary)
-            viewHolder.metaTV.setBackgroundColor(colorPrimary)
-            viewHolder.titleTV.setTextColor(colorOnPrimary)
-            viewHolder.metaTV.setTextColor(colorOnPrimary)
+            binding.wholeLayout.setBackgroundColor(colorPrimary)
+            binding.innerLayout.setBackgroundColor(colorPrimary)
+            binding.titleTV.setBackgroundColor(colorPrimary)
+            binding.metaTV.setBackgroundColor(colorPrimary)
+            binding.titleTV.setTextColor(colorOnPrimary)
+            binding.metaTV.setTextColor(colorOnPrimary)
         } else {
-            viewHolder.wholeLayout.setBackgroundColor(colorOnPrimary)
-            viewHolder.innerLayout.setBackgroundColor(colorOnPrimary)
-            viewHolder.titleTV.setBackgroundColor(colorOnPrimary)
-            viewHolder.metaTV.setBackgroundColor(colorOnPrimary)
-            viewHolder.titleTV.setTextColor(colorPrimary)
-            viewHolder.metaTV.setTextColor(colorPrimary)
+            binding.wholeLayout.setBackgroundColor(colorOnPrimary)
+            binding.innerLayout.setBackgroundColor(colorOnPrimary)
+            binding.titleTV.setBackgroundColor(colorOnPrimary)
+            binding.metaTV.setBackgroundColor(colorOnPrimary)
+            binding.titleTV.setTextColor(colorPrimary)
+            binding.metaTV.setTextColor(colorPrimary)
         }
     }
+
+    override fun isSameAs(other: Item<*>) =
+        (other is TrackItem) &&
+                (other.track == track) &&
+                (other.isCurrent == isCurrent)
+
+    override fun hasSameContentAs(other: Item<*>) =
+        (other is TrackItem) &&
+                (other.track == track) &&
+                (other.isCurrent == isCurrent)
 
     private fun getAlbumCover(context: Context): Bitmap {
         AlbumArtKeeper.albumArts[AlbumEntry(track.artist, track.album)]?.let {
@@ -68,17 +81,4 @@ class TrackItem(val track: Track, val position: Int, private val isCurrent: Bool
 
         return bitmap
     }
-
-    override fun isSameAs(other: com.xwray.groupie.Item<*>?): Boolean {
-        return (other is TrackItem)
-                && (other.track == track)
-                && (other.isCurrent == isCurrent)
-    }
-
-    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
-        return (other is TrackItem)
-                && (other.track == track)
-                && (other.isCurrent == isCurrent)
-    }
-
 }

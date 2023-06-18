@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: "kotlin-kapt"
+apply plugin: 'kotlin-kapt'
 
 def keystorePropertiesFile = file("keystore.properties")
 def keystoreProperties = new Properties()
@@ -43,6 +42,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        viewBinding true
+    }
     namespace 'jatx.musicreceiver.android'
 }
 
@@ -58,6 +60,7 @@ dependencies {
     implementation "com.github.moxy-community:moxy-ktx:2.0.2"
     kapt "com.github.moxy-community:moxy-compiler:2.0.2"
     implementation 'gun0912.ted:tedpermission:2.2.3'
+    implementation 'com.github.kirich1409:viewbindingpropertydelegate-full:1.5.9'
 
     implementation project(':commons')
     implementation project(':musicCommons')

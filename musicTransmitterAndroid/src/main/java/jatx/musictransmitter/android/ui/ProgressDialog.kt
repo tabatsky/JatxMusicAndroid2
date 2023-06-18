@@ -4,12 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import by.kirich1409.viewbindingdelegate.CreateMethod
+import by.kirich1409.viewbindingdelegate.viewBinding
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.databinding.DialogProgressBinding
 
 class ProgressDialog  : DialogFragment() {
     var msg: String = ""
+
+    private val binding: DialogProgressBinding by viewBinding(createMethod = CreateMethod.INFLATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,12 +28,9 @@ class ProgressDialog  : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val v = inflater.inflate(R.layout.dialog_progress, container, false)
+    ): View {
+        binding.msgTV.text = msg
 
-        val msgTV = v.findViewById<TextView>(R.id.msgTV)
-        msgTV.text = msg
-
-        return v
+        return binding.root
     }
 }
