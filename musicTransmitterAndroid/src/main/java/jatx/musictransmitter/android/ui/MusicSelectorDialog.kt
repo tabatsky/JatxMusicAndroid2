@@ -11,31 +11,23 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.GroupieViewHolder
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.databinding.DialogMusicSelectorBinding
 import jatx.musictransmitter.android.media.MusicEntry
+import jatx.musictransmitter.android.ui.adapters.MusicSelectorAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MusicSelectorDialog: DialogFragment() {
 
-    private var items: List<MusicSelectorItem> = listOf()
-    private lateinit var adapter: GroupAdapter<GroupieViewHolder>
+    private lateinit var adapter: MusicSelectorAdapter
 
     private val binding: DialogMusicSelectorBinding by viewBinding(createMethod = CreateMethod.INFLATE)
 
     var entries: List<MusicEntry> = listOf()
         set(value) {
             field = value
-            items = value.map { entry ->
-                MusicSelectorItem(entry) {
-                    dismiss()
-                    onEntrySelected(entry)
-                }
-            }
         }
     var onEntrySelected: (MusicEntry) -> Unit = {}
 
@@ -55,9 +47,13 @@ class MusicSelectorDialog: DialogFragment() {
     ): View {
         with(binding) {
             musicSelectorRV.layoutManager = LinearLayoutManager(root.context)
-            adapter = GroupAdapter<GroupieViewHolder>().also {
+            adapter = MusicSelectorAdapter().also {
                 musicSelectorRV.adapter = it
-                it.update(items)
+                it.onItemClickListener = { position ->
+                    onEntrySelected.invoke(entries[position])
+                    dismiss()
+                }
+                it.submitList(entries)
             }
 
             searchET.addTextChangedListener(object : TextWatcher {
@@ -75,12 +71,18 @@ class MusicSelectorDialog: DialogFragment() {
     private fun filterItems(searchString: String) {
         lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                val filteredItems = items
+                val filteredEntries = entries
                     .filter {
-                        it.entry.searchString
+                        it.searchString
                             .contains(searchString.lowercase().trim())
                     }
-                adapter.updateAsync(filteredItems, true, null)
+                withContext(Dispatchers.Main) {
+                    adapter.onItemClickListener = { position ->
+                        onEntrySelected.invoke(filteredEntries[position])
+                        dismiss()
+                    }
+                    adapter.submitList(filteredEntries)
+                }
             }
         }
     }
