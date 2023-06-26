@@ -70,17 +70,15 @@ class TrackInfoStorage(
         }
     }.also { it.start() }
 
-    private fun getMicTrack(): Track {
-        val track =
-            Track(MIC_PATH)
-        track.artist = "Microphone"
-        track.title = "Microphone"
-        track.album = "Microphone"
-        track.year = "1970"
-        track.number = "0"
-        track.length = "00:00"
-        return track
-    }
+    private fun getMicTrack() = Track(
+        path = MIC_PATH,
+        artist = "Microphone",
+        title = "Microphone",
+        album = "Microphone",
+        year = "1970",
+        number = "0",
+        length = "00:00"
+    )
 
     fun getTrackFromFile(file: File): Track {
         if (file.absolutePath == MIC_PATH)
@@ -95,12 +93,13 @@ class TrackInfoStorage(
             counter++
         }
 
-        return if (lastModified > trackFromDB?.lastModified ?: 0) {
-            Track(path).apply {
-                this.lastModified = lastModified
-                this.tryToFill(file)
-                trackDao.putTrack(this)
+        return if (lastModified > (trackFromDB?.lastModified ?: 0)) {
+            Track(path).let {
+                var _track = it.copy(lastModified = lastModified)
+                _track = _track.tryToFill(file)
+                trackDao.putTrack(_track)
                 counter++
+                _track
             }
         } else {
             trackFromDB!!

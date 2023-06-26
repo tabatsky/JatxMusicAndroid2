@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -22,8 +21,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.GroupieViewHolder
 import dagger.Lazy
 import jatx.constants.*
 import jatx.debug.AppDebug
@@ -38,6 +35,8 @@ import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import jatx.musictransmitter.android.services.EXTRA_WIFI_STATUS
 import jatx.musictransmitter.android.services.TP_AND_TC_PAUSE
+import jatx.musictransmitter.android.ui.adapters.TrackAdapter
+import jatx.musictransmitter.android.ui.adapters.TrackElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,7 +55,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     lateinit var presenterProvider: Lazy<MusicTransmitterPresenter>
     private val presenter by moxyPresenter { presenterProvider.get() }
 
-    private val tracksAdapter = GroupAdapter<GroupieViewHolder>()
+    private val tracksAdapter = TrackAdapter()
 
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 
@@ -198,11 +197,11 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun showTracks(tracks: List<Track>, currentPosition: Int) {
-        val trackItems = tracks.mapIndexed { index, track ->
-            TrackItem(track, index, index == currentPosition)
+        val trackElements = tracks.mapIndexed { index, track ->
+            TrackElement(track, index == currentPosition)
         }
         runOnUiThread {
-            tracksAdapter.update(trackItems)
+            tracksAdapter.submitList(trackElements)
         }
     }
 
@@ -425,7 +424,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 entries.add(albumEntry)
 
                 val path = it.getString(2)
-                Log.e("path", path)
 
                 if (!AlbumArtKeeper.albumArts.containsKey(albumEntry)) {
                     AlbumArtKeeper.albumArts[albumEntry] = AlbumArtKeeper.retrieveAlbumArt(this, path)
@@ -635,7 +633,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         builder
             .setTitle(R.string.manual_title)
             .setMessage(R.string.manual_message)
-            .setNegativeButton(R.string.button_ok) { dialog, which -> dialog.dismiss() }
+            .setNegativeButton(R.string.button_ok) { dialog, _ -> dialog.dismiss() }
         val dialog = builder.create()
         dialog.show()
     }
@@ -731,18 +729,11 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     private fun initTracksRV() {
         binding.tracksRV.adapter = tracksAdapter
-        tracksAdapter.setOnItemClickListener { item, _ ->
-            if (item is TrackItem) {
-                presenter.onTrackClick(item.position)
-            }
+        tracksAdapter.onItemClickListener = { position ->
+            presenter.onTrackClick(position)
         }
-        tracksAdapter.setOnItemLongClickListener { item, _ ->
-            if (item is TrackItem) {
-                presenter.onTrackLongClick(item.position)
-                true
-            } else {
-                false
-            }
+        tracksAdapter.onItemLongClickListener = { position ->
+            presenter.onTrackLongClick(position)
         }
     }
 

@@ -77,7 +77,11 @@ class MusicTransmitterPresenter @Inject constructor(
 
         trackInfoStorage.setOnUpdateTrackListListener { tracks ->
             this.tracks = tracks
-            viewState.showTracks(tracks, realPosition)
+            if (isShuffle) {
+                viewState.showTracks(tracks, realPosition)
+            } else {
+                viewState.showTracks(tracks, currentPosition)
+            }
         }
 
         files.addAll(settings.currentFileList)
@@ -262,11 +266,6 @@ class MusicTransmitterPresenter @Inject constructor(
         }
         updateTpFiles()
         updateTrackInfoStorageFiles()
-        if (isShuffle) {
-            viewState.showTracks(tracks, realPosition)
-        } else {
-            viewState.showTracks(tracks, currentPosition)
-        }
     }
 
     fun onOpenTagEditor(position: Int) {
