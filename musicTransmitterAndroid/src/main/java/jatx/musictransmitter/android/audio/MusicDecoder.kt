@@ -27,8 +27,8 @@ abstract class MusicDecoder {
         var INSTANCE: MusicDecoder? = null
     }
 
-    var msRead = 0f
-    var msTotal = 0f
+    var msReadFromFile = 0f
+    var msSentToReceiver = 0f
 
     var currentMs = 0f
     var trackLengthSec = 0

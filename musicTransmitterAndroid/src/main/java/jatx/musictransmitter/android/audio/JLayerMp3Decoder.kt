@@ -13,7 +13,7 @@ import java.io.*
 class JLayerMp3Decoder : MusicDecoder() {
     private var decoder: Decoder? = null
     private var bitstream: Bitstream? = null
-    private var msFrame = 0f
+    private var msPerFrame = 0f
 
     override var file: File? = null
         set(value) {
@@ -71,10 +71,10 @@ class JLayerMp3Decoder : MusicDecoder() {
                 throw MusicDecoderException("bitstream: null")
             })
                 ?: throw TrackFinishException()
-            msFrame = frameHeader.ms_per_frame()
-            msRead += msFrame
-            msTotal += msFrame
-            currentMs += msFrame
+            msPerFrame = frameHeader.ms_per_frame()
+            msReadFromFile += msPerFrame
+            msSentToReceiver += msPerFrame
+            currentMs += msPerFrame
             val output = try {
                 decoder!!.decodeFrame(frameHeader, bitstream)
             } catch (e: ArrayIndexOutOfBoundsException) {
@@ -106,9 +106,9 @@ class JLayerMp3Decoder : MusicDecoder() {
                     throw MusicDecoderException("bitstream: null")
                 }
                 if (frameHeader != null) {
-                    msFrame = frameHeader.ms_per_frame()
-                    msRead += msFrame
-                    currentMs += msFrame
+                    msPerFrame = frameHeader.ms_per_frame()
+                    msReadFromFile += msPerFrame
+                    currentMs += msPerFrame
                     bitstream!!.closeFrame()
                 } else {
                     println("frame header is null $currentMs")

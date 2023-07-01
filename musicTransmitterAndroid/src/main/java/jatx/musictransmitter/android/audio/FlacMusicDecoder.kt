@@ -16,7 +16,7 @@ import java.io.*
 class FlacMusicDecoder: MusicDecoder() {
     private var decoder: FlacDecoder? = null
     private var streamInfo: StreamInfo? = null
-    private var msFrame = 0f
+    private var msPerFrame = 0f
 
     private var freq = 0
     private var channels = 0
@@ -141,12 +141,12 @@ class FlacMusicDecoder: MusicDecoder() {
             }
         }
 
-        msFrame = blockSamples * 1e3.toFloat() / freq
-        msRead += msFrame
-        msTotal += msFrame
-        currentMs += msFrame
+        msPerFrame = blockSamples * 1e3.toFloat() / freq
+        msReadFromFile += msPerFrame
+        msSentToReceiver += msPerFrame
+        currentMs += msPerFrame
 
-        if (msFrame == 0f) {
+        if (msPerFrame == 0f) {
             throw TrackFinishException()
         }
 
@@ -163,7 +163,7 @@ class FlacMusicDecoder: MusicDecoder() {
         }
         val seekPosition = (numSamples * progress).toLong()
         decoder?.seekAndReadAudioBlock(seekPosition, samples, 0)
-        msRead = msFrame * (trackLengthSec * 1000f * progress / msFrame).toInt()
-        currentMs = msFrame * (trackLengthSec * 1000f * progress / msFrame).toInt()
+        msReadFromFile = msPerFrame * (trackLengthSec * 1000f * progress / msPerFrame).toInt()
+        currentMs = msPerFrame * (trackLengthSec * 1000f * progress / msPerFrame).toInt()
     }
 }

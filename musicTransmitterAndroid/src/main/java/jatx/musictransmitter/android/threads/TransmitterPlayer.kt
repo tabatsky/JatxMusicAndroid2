@@ -8,8 +8,6 @@ import jatx.musictransmitter.android.audio.*
 import jatx.musictransmitter.android.data.MIC_PATH
 import java.io.File
 import java.io.IOException
-import java.net.ServerSocket
-import java.net.SocketTimeoutException
 
 class TransmitterPlayer(
     @Volatile private var uiController: UIController
@@ -127,11 +125,11 @@ class TransmitterPlayer(
                 if (MusicDecoder.resetTimeFlag) {
                     do {
                         t2 = System.currentTimeMillis()
-                        dt = (MusicDecoder.INSTANCE?.msTotal ?: 0f) - (t2 - t1)
+                        dt = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (t2 - t1)
                         sleep(10)
                     } while (dt > 0)
-                    MusicDecoder.INSTANCE?.msRead = 0f
-                    MusicDecoder.INSTANCE?.msTotal = 0f
+                    MusicDecoder.INSTANCE?.msReadFromFile = 0f
+                    MusicDecoder.INSTANCE?.msSentToReceiver = 0f
                     t1 = System.currentTimeMillis()
                     t2 = t1
                     MusicDecoder.resetTimeFlag = false
@@ -139,8 +137,8 @@ class TransmitterPlayer(
                 if (MusicDecoder.disconnectResetTimeFlag) {
                     t1 = System.currentTimeMillis()
                     t2 = t1
-                    MusicDecoder.INSTANCE?.msRead = 0f
-                    MusicDecoder.INSTANCE?.msTotal = 0f
+                    MusicDecoder.INSTANCE?.msReadFromFile = 0f
+                    MusicDecoder.INSTANCE?.msSentToReceiver = 0f
                     MusicDecoder.disconnectResetTimeFlag = false
                 }
                 try {
@@ -180,19 +178,19 @@ class TransmitterPlayer(
                 }
             } else {
                 sleep(10)
-                MusicDecoder.INSTANCE?.msRead = 0f
-                MusicDecoder.INSTANCE?.msTotal = 0f
+                MusicDecoder.INSTANCE?.msReadFromFile = 0f
+                MusicDecoder.INSTANCE?.msSentToReceiver = 0f
                 t1 = System.currentTimeMillis()
                 t2 = t1
                 dt = 0f
             }
-            if ((MusicDecoder.INSTANCE?.msRead ?: 0f) > 300) {
+            if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 300) {
                 do {
                     t2 = System.currentTimeMillis()
-                    dt = (MusicDecoder.INSTANCE?.msTotal ?: 0f) - (t2 - t1)
+                    dt = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (t2 - t1)
                     sleep(10)
                 } while (dt > 200)
-                MusicDecoder.INSTANCE?.msRead = 0f
+                MusicDecoder.INSTANCE?.msReadFromFile = 0f
             }
         }
     }
