@@ -165,5 +165,7 @@ class FlacMusicDecoder: MusicDecoder() {
         decoder?.seekAndReadAudioBlock(seekPosition, samples, 0)
         msReadFromFile = msPerFrame * (trackLengthSec * 1000f * progress / msPerFrame).toInt()
         currentMs = msPerFrame * (trackLengthSec * 1000f * progress / msPerFrame).toInt()
+
+        resetTimeFlag = true
     }
 }
