@@ -58,11 +58,11 @@ class TransmitterPlayer(
         }
 
     @Volatile
-    var t1: Long = 0
+    var startTime: Long = 0
     @Volatile
-    var t2: Long = 0
+    var currentTime: Long = 0
     @Volatile
-    var dt = 0f
+    var deltaTimeExtraSentToReceiver = 0f
 
     var tk: ThreadKeeper? = null
 
@@ -116,43 +116,23 @@ class TransmitterPlayer(
     private fun translateMusic(): Nothing {
         var data: ByteArray?
 
-        t1 = System.currentTimeMillis()
-        t2 = t1
-        dt = 0f
+        startTime = System.currentTimeMillis()
+        currentTime = startTime
+        deltaTimeExtraSentToReceiver = 0f
 
         while (true) {
             if (isPlaying) {
                 if (MusicDecoder.resetTimeFlag) {
-                    do {
-                        t2 = System.currentTimeMillis()
-                        dt = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (t2 - t1)
-                        sleep(10)
-                    } while (dt > 0)
-                    MusicDecoder.INSTANCE?.msReadFromFile = 0f
-                    MusicDecoder.INSTANCE?.msSentToReceiver = 0f
-                    t1 = System.currentTimeMillis()
-                    t2 = t1
-                    MusicDecoder.resetTimeFlag = false
+                    resetTimeWithSynchronizing()
                 }
                 if (MusicDecoder.disconnectResetTimeFlag) {
-                    t1 = System.currentTimeMillis()
-                    t2 = t1
-                    MusicDecoder.INSTANCE?.msReadFromFile = 0f
-                    MusicDecoder.INSTANCE?.msSentToReceiver = 0f
-                    MusicDecoder.disconnectResetTimeFlag = false
+                    resetTimeOnDisconnect()
                 }
                 try {
                     data = if (path == MIC_PATH) {
-                        if (microphoneOk)
-                            Microphone.readFrame(position)?.let {
-                                frameToByteArray(it)
-                            }
-                        else
-                            null
+                        tryReadFrameFromMicrophone()
                     } else {
-                        MusicDecoder.INSTANCE?.readFrame()?.let {
-                            frameToByteArray(it)
-                        }
+                        tryReadFrameFromDecoder()
                     }
                 } catch (e: MusicDecoderException) {
                     println("(player) decoder exception")
@@ -178,22 +158,62 @@ class TransmitterPlayer(
                 }
             } else {
                 sleep(10)
-                MusicDecoder.INSTANCE?.msReadFromFile = 0f
-                MusicDecoder.INSTANCE?.msSentToReceiver = 0f
-                t1 = System.currentTimeMillis()
-                t2 = t1
-                dt = 0f
+                resetTimeIfNotPlaying()
             }
-            if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 300) {
-                do {
-                    t2 = System.currentTimeMillis()
-                    dt = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (t2 - t1)
-                    sleep(10)
-                } while (dt > 200)
-                MusicDecoder.INSTANCE?.msReadFromFile = 0f
-            }
+            syncReadingFromFileWithSendingToReceiver()
         }
     }
+
+    private fun resetTimeWithSynchronizing() {
+        do {
+            currentTime = System.currentTimeMillis()
+            deltaTimeExtraSentToReceiver = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (currentTime - startTime)
+            sleep(10)
+        } while (deltaTimeExtraSentToReceiver > 0)
+        MusicDecoder.INSTANCE?.msReadFromFile = 0f
+        MusicDecoder.INSTANCE?.msSentToReceiver = 0f
+        startTime = System.currentTimeMillis()
+        currentTime = startTime
+        MusicDecoder.resetTimeFlag = false
+    }
+
+    private fun resetTimeOnDisconnect() {
+        startTime = System.currentTimeMillis()
+        currentTime = startTime
+        MusicDecoder.INSTANCE?.msReadFromFile = 0f
+        MusicDecoder.INSTANCE?.msSentToReceiver = 0f
+        MusicDecoder.disconnectResetTimeFlag = false
+    }
+
+    private fun resetTimeIfNotPlaying() {
+        MusicDecoder.INSTANCE?.msReadFromFile = 0f
+        MusicDecoder.INSTANCE?.msSentToReceiver = 0f
+        startTime = System.currentTimeMillis()
+        currentTime = startTime
+        deltaTimeExtraSentToReceiver = 0f
+    }
+
+    private fun syncReadingFromFileWithSendingToReceiver() {
+        if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 300) {
+            do {
+                currentTime = System.currentTimeMillis()
+                deltaTimeExtraSentToReceiver = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (currentTime - startTime)
+                sleep(10)
+            } while (deltaTimeExtraSentToReceiver > 200)
+            MusicDecoder.INSTANCE?.msReadFromFile = 0f
+        }
+    }
+
+    private fun tryReadFrameFromMicrophone() = microphoneOk.takeIf { it }?.let {
+        Microphone.readFrame(position)?.let {
+            frameToByteArray(it)
+        }
+    }
+
+    private fun tryReadFrameFromDecoder() = MusicDecoder.INSTANCE?.readFrame()?.let {
+        frameToByteArray(it)
+    }
+
 
     private fun nextTrack() {
         uiController.nextTrack()
