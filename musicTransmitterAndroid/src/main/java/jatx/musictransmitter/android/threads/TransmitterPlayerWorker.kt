@@ -41,7 +41,6 @@ class TransmitterPlayerWorker(
         } catch (e: IOException) {
             println("(player) $threadId socket disconnect")
         } finally {
-            //MusicDecoder.disconnectResetTimeFlag = true
             sleep(250)
             os?.close()
             println("(player $threadId) output stream closed")

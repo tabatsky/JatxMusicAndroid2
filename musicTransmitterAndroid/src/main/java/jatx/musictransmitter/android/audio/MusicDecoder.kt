@@ -7,7 +7,6 @@ import java.lang.Exception
 abstract class MusicDecoder {
     companion object {
         var resetTimeFlag = true
-        var disconnectResetTimeFlag = true
 
         var position = 0
 

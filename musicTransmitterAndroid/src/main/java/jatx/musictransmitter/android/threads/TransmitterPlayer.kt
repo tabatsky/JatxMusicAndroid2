@@ -114,8 +114,6 @@ class TransmitterPlayer(
     }
 
     private fun translateMusic(): Nothing {
-        var data: ByteArray?
-
         startTime = System.currentTimeMillis()
         currentTime = startTime
         deltaTimeExtraSentToReceiver = 0f
@@ -125,33 +123,30 @@ class TransmitterPlayer(
                 if (MusicDecoder.resetTimeFlag) {
                     resetTimeWithSynchronizing()
                 }
-                if (MusicDecoder.disconnectResetTimeFlag) {
-                    resetTimeOnDisconnect()
-                }
-                try {
-                    data = if (path == MIC_PATH) {
+                val data = try {
+                    if (path == MIC_PATH) {
                         tryReadFrameFromMicrophone()
                     } else {
                         tryReadFrameFromDecoder()
                     }
                 } catch (e: MusicDecoderException) {
                     println("(player) decoder exception")
-                    data = null
                     sleep(200)
+                    null
                 } catch (e: MicrophoneReadException) {
                     println("(player) microphone read exception")
-                    data = null
                     sleep(200)
+                    null
                 } catch (e: TrackFinishException) {
                     println("(player) track finish")
                     nextTrack()
-                    data = null
                     sleep(200)
+                    null
                 } catch (e: WrongFrameException) {
                     println("(player) wrong frame")
                     nextTrack()
-                    data = null
                     sleep(200)
+                    null
                 }
                 if (data != null) {
                     tk?.tpck?.writeData(data)
@@ -175,14 +170,6 @@ class TransmitterPlayer(
         startTime = System.currentTimeMillis()
         currentTime = startTime
         MusicDecoder.resetTimeFlag = false
-    }
-
-    private fun resetTimeOnDisconnect() {
-        startTime = System.currentTimeMillis()
-        currentTime = startTime
-        MusicDecoder.INSTANCE?.msReadFromFile = 0f
-        MusicDecoder.INSTANCE?.msSentToReceiver = 0f
-        MusicDecoder.disconnectResetTimeFlag = false
     }
 
     private fun resetTimeIfNotPlaying() {
