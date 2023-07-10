@@ -124,8 +124,6 @@ class JLayerMp3Decoder : MusicDecoder() {
 }
 
 private fun frameFromSampleBuffer(sampleBuffer: SampleBuffer, position: Int): Frame {
-    val position = position
-
     val outStream = ByteArrayOutputStream(10240)
 
     val freq = sampleBuffer.sampleFrequency
