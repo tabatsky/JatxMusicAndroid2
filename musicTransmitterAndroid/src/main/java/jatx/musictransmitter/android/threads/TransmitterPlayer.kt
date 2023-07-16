@@ -121,7 +121,7 @@ class TransmitterPlayer(
         while (true) {
             if (isPlaying) {
                 if (MusicDecoder.resetTimeFlag) {
-                    resetTimeWithSynchronizing()
+                    resetTimeWithFlushingSentToReceiver()
                 }
                 val data = try {
                     if (path == MIC_PATH) {
@@ -155,11 +155,11 @@ class TransmitterPlayer(
                 sleep(10)
                 resetTimeIfNotPlaying()
             }
-            syncReadingFromFileWithSendingToReceiver()
+            flushSentToReceiverEvery300msOfReadFromFile()
         }
     }
 
-    private fun resetTimeWithSynchronizing() {
+    private fun resetTimeWithFlushingSentToReceiver() {
         do {
             currentTime = System.currentTimeMillis()
             deltaTimeExtraSentToReceiver = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (currentTime - startTime)
@@ -180,7 +180,7 @@ class TransmitterPlayer(
         deltaTimeExtraSentToReceiver = 0f
     }
 
-    private fun syncReadingFromFileWithSendingToReceiver() {
+    private fun flushSentToReceiverEvery300msOfReadFromFile() {
         if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 300) {
             do {
                 currentTime = System.currentTimeMillis()
