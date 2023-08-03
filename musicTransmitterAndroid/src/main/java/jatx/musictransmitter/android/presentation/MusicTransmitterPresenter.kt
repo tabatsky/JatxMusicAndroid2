@@ -116,7 +116,7 @@ class MusicTransmitterPresenter @Inject constructor(
         }
 
         viewState.showPlayingState(true)
-        tpAndTcPlay()
+        tcSetVolumeAndtpAndTcPlay()
 
         val track = tracks[realPosition]
         MusicTransmitterNotification.showNotification(context, track.artist, track.title, true)
@@ -397,6 +397,11 @@ class MusicTransmitterPresenter @Inject constructor(
         val intent = Intent(TP_SET_POSITION)
         intent.putExtra(KEY_POSITION, position)
         context.sendBroadcast(intent)
+    }
+
+    private fun tcSetVolumeAndtpAndTcPlay() {
+        tcSetVolume(settings.volume)
+        tpAndTcPlay()
     }
 
     private fun tpAndTcPlay() {
