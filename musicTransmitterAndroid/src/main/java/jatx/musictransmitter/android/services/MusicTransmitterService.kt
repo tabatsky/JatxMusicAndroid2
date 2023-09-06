@@ -173,7 +173,15 @@ class MusicTransmitterService: Service() {
             .setContentText("Foreground service is running")
             .setContentIntent(pendingIntent)
             .build()
-        startForeground(2315, notification)
+        val canStartForeground = (Build.VERSION.SDK_INT < 34) ||
+                (ContextCompat
+                    .checkSelfPermission(
+                        this,
+                        Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK) ==
+                PackageManager.PERMISSION_GRANTED)
+        if (canStartForeground) {
+            startForeground(2315, notification)
+        }
 
         if (ContextCompat.checkSelfPermission(
             this, Manifest.permission.POST_NOTIFICATIONS
@@ -246,7 +254,12 @@ class MusicTransmitterService: Service() {
                 stopSelf()
             }
         }
-        registerReceiver(stopSelfReceiver, IntentFilter(STOP_SERVICE))
+        ContextCompat.registerReceiver(
+            this,
+            stopSelfReceiver,
+            IntentFilter(STOP_SERVICE),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tpSetPositionReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -254,7 +267,12 @@ class MusicTransmitterService: Service() {
                 tk.tp.position = position
             }
         }
-        registerReceiver(tpSetPositionReceiver, IntentFilter(TP_SET_POSITION))
+        ContextCompat.registerReceiver(
+            this,
+            tpSetPositionReceiver,
+            IntentFilter(TP_SET_POSITION),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tpAndTcPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -262,7 +280,12 @@ class MusicTransmitterService: Service() {
                 tk.tc.play()
             }
         }
-        registerReceiver(tpAndTcPlayReceiver, IntentFilter(TP_AND_TC_PLAY))
+        ContextCompat.registerReceiver(
+            this,
+            tpAndTcPlayReceiver,
+            IntentFilter(TP_AND_TC_PLAY),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -270,7 +293,12 @@ class MusicTransmitterService: Service() {
                 tk.tc.pause()
             }
         }
-        registerReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
+        ContextCompat.registerReceiver(
+            this,
+            tpAndTcPauseReceiver,
+            IntentFilter(TP_AND_TC_PAUSE),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tpSeekReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -278,14 +306,24 @@ class MusicTransmitterService: Service() {
                 tk.tp.seek(progress)
             }
         }
-        registerReceiver(tpSeekReceiver, IntentFilter(TP_SEEK))
+        ContextCompat.registerReceiver(
+            this,
+            tpSeekReceiver,
+            IntentFilter(TP_SEEK),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tpSetFileListReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 tk.tp.files = settings.currentFileList
             }
         }
-        registerReceiver(tpSetFileListReceiver, IntentFilter(TP_SET_FILE_LIST))
+        ContextCompat.registerReceiver(
+            this,
+            tpSetFileListReceiver,
+            IntentFilter(TP_SET_FILE_LIST),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         tcSetVolumeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -293,7 +331,12 @@ class MusicTransmitterService: Service() {
                 tk.tc.volume = volume
             }
         }
-        registerReceiver(tcSetVolumeReceiver, IntentFilter(TC_SET_VOLUME))
+        ContextCompat.registerReceiver(
+            this,
+            tcSetVolumeReceiver,
+            IntentFilter(TC_SET_VOLUME),
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
 
     private fun unregisterReceivers() {

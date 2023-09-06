@@ -15,11 +15,11 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    compileSdk 33
+    compileSdk 34
     defaultConfig {
         applicationId "jatx.musictransmitter.android"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 34
         versionName "2.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

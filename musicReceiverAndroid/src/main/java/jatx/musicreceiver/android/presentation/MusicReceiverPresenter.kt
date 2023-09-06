@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.core.content.ContextCompat
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import jatx.musicreceiver.android.R
@@ -124,14 +125,24 @@ class MusicReceiverPresenter @Inject constructor(
                 uiStartJob()
             }
         }
-        context.registerReceiver(uiStartJobReceiver, IntentFilter(UI_START_JOB))
+        ContextCompat.registerReceiver(
+            context,
+            uiStartJobReceiver,
+            IntentFilter(UI_START_JOB),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         uiStopJobReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 uiStopJob()
             }
         }
-        context.registerReceiver(uiStopJobReceiver, IntentFilter(UI_STOP_JOB))
+        ContextCompat.registerReceiver(
+            context,
+            uiStopJobReceiver,
+            IntentFilter(UI_STOP_JOB),
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
 
     private fun unregisterReceivers() {

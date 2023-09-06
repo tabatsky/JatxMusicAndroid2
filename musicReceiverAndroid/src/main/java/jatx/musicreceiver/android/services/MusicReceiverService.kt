@@ -118,7 +118,15 @@ class MusicReceiverService : Service() {
             .setContentText("Foreground service is running")
             .setContentIntent(pendingIntent)
             .build()
-        startForeground(1523, notification)
+        val canStartForeground = (Build.VERSION.SDK_INT < 34) ||
+                (ContextCompat
+                    .checkSelfPermission(
+                        this,
+                        Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK) ==
+                        PackageManager.PERMISSION_GRANTED)
+        if (canStartForeground) {
+            startForeground(1523, notification)
+        }
 
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.POST_NOTIFICATIONS
@@ -176,21 +184,36 @@ class MusicReceiverService : Service() {
                 stopSelf()
             }
         }
-        registerReceiver(stopSelfReceiver, IntentFilter(STOP_SERVICE))
+        ContextCompat.registerReceiver(
+            this,
+            stopSelfReceiver,
+            IntentFilter(STOP_SERVICE),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         serviceStartJobReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 startJob()
             }
         }
-        registerReceiver(serviceStartJobReceiver, IntentFilter(SERVICE_START_JOB))
+        ContextCompat.registerReceiver(
+            this,
+            serviceStartJobReceiver,
+            IntentFilter(SERVICE_START_JOB),
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         serviceStopJobReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 stopJob()
             }
         }
-        registerReceiver(serviceStopJobReceiver, IntentFilter(SERVICE_STOP_JOB))
+        ContextCompat.registerReceiver(
+            this,
+            serviceStopJobReceiver,
+            IntentFilter(SERVICE_STOP_JOB),
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
 
     private fun unregisterReceivers() {
