@@ -1,9 +1,12 @@
 package jatx.extensions
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.IntentFilter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import jatx.debug.R
 
 
@@ -22,4 +25,8 @@ fun Context.showToast(text: String) {
 
 fun Context.showToast(@StringRes resId: Int) {
     showToast(getString(resId))
+}
+
+fun Context.registerExportedReceiver(receiver: BroadcastReceiver, filter: IntentFilter) {
+    ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
 }

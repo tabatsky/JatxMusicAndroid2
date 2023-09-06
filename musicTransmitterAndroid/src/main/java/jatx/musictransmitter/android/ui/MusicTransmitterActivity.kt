@@ -15,7 +15,6 @@ import android.view.View
 import android.webkit.MimeTypeMap
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -26,6 +25,7 @@ import dagger.Lazy
 import jatx.constants.*
 import jatx.debug.AppDebug
 import jatx.extensions.onSeek
+import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
@@ -98,12 +98,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 presenter.onPauseClick(false, wifiStatus)
             }
         }
-        ContextCompat.registerReceiver(
-            this,
-            tpAndTcPauseReceiver,
-            IntentFilter(TP_AND_TC_PAUSE),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        registerExportedReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
 
         onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

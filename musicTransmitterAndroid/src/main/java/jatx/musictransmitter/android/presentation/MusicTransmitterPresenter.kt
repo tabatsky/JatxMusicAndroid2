@@ -12,9 +12,9 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
+import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.data.Settings
 import jatx.musictransmitter.android.data.TrackInfoStorage
@@ -459,12 +459,7 @@ class MusicTransmitterPresenter @Inject constructor(
                 viewState.showCurrentTime(currentMs, trackLengthMs)
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            setCurrentTimeReceiver,
-            IntentFilter(SET_CURRENT_TIME),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(setCurrentTimeReceiver, IntentFilter(SET_CURRENT_TIME))
 
         setWifiStatusReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -474,66 +469,36 @@ class MusicTransmitterPresenter @Inject constructor(
                 viewState.showWifiReceiverCount(count)
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            setWifiStatusReceiver,
-            IntentFilter(SET_WIFI_STATUS),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(setWifiStatusReceiver, IntentFilter(SET_WIFI_STATUS))
 
         nextTrackReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onFwdClick()
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            nextTrackReceiver,
-            IntentFilter(NEXT_TRACK),
-            ContextCompat.RECEIVER_EXPORTED
-        )
-        ContextCompat.registerReceiver(
-            context,
-            nextTrackReceiver,
-            IntentFilter(CLICK_FWD),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(nextTrackReceiver, IntentFilter(NEXT_TRACK))
+        context.registerExportedReceiver(nextTrackReceiver, IntentFilter(CLICK_FWD))
 
         prevTrackReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onRevClick()
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            prevTrackReceiver,
-            IntentFilter(CLICK_REV),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(prevTrackReceiver, IntentFilter(CLICK_REV))
 
         clickPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onPlayClick()
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            clickPlayReceiver,
-            IntentFilter(CLICK_PLAY),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(clickPlayReceiver, IntentFilter(CLICK_PLAY))
 
         clickPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 onPauseClick(needSendBroadcast = true, needShowNotification = true)
             }
         }
-        ContextCompat.registerReceiver(
-            context,
-            clickPauseReceiver,
-            IntentFilter(CLICK_PAUSE),
-            ContextCompat.RECEIVER_EXPORTED
-        )
+        context.registerExportedReceiver(clickPauseReceiver, IntentFilter(CLICK_PAUSE))
 
         incomingCallReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
