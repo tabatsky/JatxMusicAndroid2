@@ -1,12 +1,11 @@
 package jatx.musictransmitter.android.ui
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
@@ -27,19 +26,16 @@ const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 const val NOTIFICATION_ID = 1237
 
 object MusicTransmitterNotification {
-    fun showNotification(context: Context, artist: String, title: String, isPlaying: Boolean) {
+    fun showNotification(context: Context, artist: String, title: String, albumArt: Bitmap, isPlaying: Boolean) {
         val notificationManager = NotificationManagerCompat.from(context)
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(CHANNEL_ID , CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN)
-            notificationManager.createNotificationChannel(channel)
-        }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         val contentView = RemoteViews(context.packageName, R.layout.notification)
 
         contentView.setTextViewText(R.id.text_title, title)
         contentView.setTextViewText(R.id.text_artist, artist)
+
+        contentView.setBitmap(R.id.img_album_art, "setImageBitmap", albumArt)
 
         contentView.setViewVisibility(R.id.pause, if (isPlaying) View.VISIBLE else View.GONE)
         contentView.setViewVisibility(R.id.play, if (isPlaying) View.GONE else View.VISIBLE)
@@ -71,14 +67,22 @@ object MusicTransmitterNotification {
             PendingIntent.getActivity(context, 0, mainActivityIntent, flags)
 
         val notification = builder
+            .setChannelId(CHANNEL_ID)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setOngoing(true)
             .setTicker("JatxMusicTransmitter")
             .setWhen(System.currentTimeMillis())
             .setContentTitle(title)
             .setContentText(artist)
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
+            .setFullScreenIntent(contentIntent, true)
             .setOngoing(true)
             .setCustomBigContentView(contentView)
+            .setContent(contentView)
+            .setContentTitle("JatxMusicTransmitter")
             .build()
 
         if (ContextCompat.checkSelfPermission(

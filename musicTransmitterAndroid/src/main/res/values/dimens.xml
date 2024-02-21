@@ -1,8 +1,11 @@
 <resources>
 
     <dimen name="button_size">42dp</dimen>
-    <dimen name="button_size_big">60dp</dimen>
+    <dimen name="button_size_notification">32dp</dimen>
+    <dimen name="spacer_width_notification">16dp</dimen>
+    <dimen name="album_art_size_notification">72dp</dimen>
     <dimen name="button_padding">3dp</dimen>
+    <dimen name="album_art_padding">6dp</dimen>
     <dimen name="volume_label_width">70dp</dimen>
     <dimen name="wifi_receiver_count_padding">20dp</dimen>
     <dimen name="wifi_receiver_count_text_size">16sp</dimen>

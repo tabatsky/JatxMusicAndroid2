@@ -19,6 +19,7 @@ import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.data.Settings
 import jatx.musictransmitter.android.data.TrackInfoStorage
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.media.AlbumArtKeeper
 import jatx.musictransmitter.android.services.*
 import jatx.musictransmitter.android.ui.*
 import jatx.musictransmitter.android.util.findFiles
@@ -120,7 +121,8 @@ class MusicTransmitterPresenter @Inject constructor(
         tpAndTcPlay()
 
         val track = tracks[realPosition]
-        MusicTransmitterNotification.showNotification(context, track.artist, track.title, true)
+        val albumArt = AlbumArtKeeper.retrieveAlbumArt(context, track.path)
+        MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
     }
 
     fun onPauseClick(needSendBroadcast: Boolean, needShowNotification: Boolean) {
@@ -131,7 +133,8 @@ class MusicTransmitterPresenter @Inject constructor(
 
         if (currentPosition > -1 && needShowNotification) {
             val track = tracks[realPosition]
-            MusicTransmitterNotification.showNotification(context, track.artist, track.title, false)
+            val albumArt = AlbumArtKeeper.retrieveAlbumArt(context, track.path)
+            MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,false)
         }
     }
     
