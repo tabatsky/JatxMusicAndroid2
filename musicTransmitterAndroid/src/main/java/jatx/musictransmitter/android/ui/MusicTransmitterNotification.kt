@@ -71,6 +71,7 @@ object MusicTransmitterNotification {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setSilent(true)
             .setOngoing(true)
             .setTicker("JatxMusicTransmitter")
             .setWhen(System.currentTimeMillis())
