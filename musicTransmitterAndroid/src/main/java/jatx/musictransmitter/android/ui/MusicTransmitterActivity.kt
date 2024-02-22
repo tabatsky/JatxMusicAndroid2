@@ -106,11 +106,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
         })
 
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                getAlbumEntries()
-            }
-        }
+        tryGetAlbumEntries()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -297,6 +293,24 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         tryShowMusicSelectDialog {
             getTrackEntries()
         }
+    }
+
+    private fun tryGetAlbumEntries() {
+        val permissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        getAlbumEntries()
+                    }
+                }
+            }
+
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                showToast(R.string.toast_no_sdcard_read_access)
+            }
+        }
+
+        checkMediaPermissions(permissionListener)
     }
 
     private fun tryShowMusicSelectDialog(requestEntries: () -> List<MusicEntry>) {
