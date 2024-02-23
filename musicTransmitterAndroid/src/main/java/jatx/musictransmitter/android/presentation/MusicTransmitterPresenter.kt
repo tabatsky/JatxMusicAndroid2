@@ -263,6 +263,7 @@ class MusicTransmitterPresenter @Inject constructor(
     fun onSetLocalMode(isLocalMode: Boolean) {
         settings.isLocalMode = isLocalMode
         viewState.showLocalMode(isLocalMode)
+        switchNetworkingOrLocalMode()
     }
 
     fun onDeleteTrack(position: Int) {
@@ -432,6 +433,11 @@ class MusicTransmitterPresenter @Inject constructor(
     private fun tcSetVolume(volume: Int) {
         val intent = Intent(TC_SET_VOLUME)
         intent.putExtra(KEY_VOLUME, volume)
+        context.sendBroadcast(intent)
+    }
+
+    private fun switchNetworkingOrLocalMode() {
+        val intent = Intent(SWITCH_NETWORKING_OR_LOCAL_MODE)
         context.sendBroadcast(intent)
     }
 

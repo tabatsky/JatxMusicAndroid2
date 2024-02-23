@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.threads
 
+import android.util.Log
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.SocketTimeoutException
@@ -15,9 +16,6 @@ class TransmitterPlayerConnectionKeeper(
     @Volatile
     private var workers = ConcurrentHashMap<String, TransmitterPlayerWorker>()
 
-    @Volatile
-    var tk: ThreadKeeper? = null
-
     fun getWorkerByHost(host: String) = workers[host]
 
     override fun writeData(data: ByteArray) {
@@ -27,6 +25,7 @@ class TransmitterPlayerConnectionKeeper(
     }
 
     override fun run() {
+        Log.e("starting","transmitter player connection keeper")
         try {
             while (true) {
                 sleep(100)

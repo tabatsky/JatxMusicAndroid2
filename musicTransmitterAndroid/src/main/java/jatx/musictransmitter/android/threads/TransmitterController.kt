@@ -16,7 +16,8 @@ const val COMMAND_PLAY = 125.toByte()
 const val SO_TIMEOUT = 1000
 
 class TransmitterController(
-    initialVolume: Int
+    initialVolume: Int,
+    private val isNetworkingMode: Boolean
 ) : Thread() {
     @Volatile
     var volume: Int = initialVolume
@@ -52,29 +53,31 @@ class TransmitterController(
         try {
             while (!finishFlag) {
                 sleep(100)
-                ss = ServerSocket(CONNECT_PORT_CONTROLLER)
-                println("(controller) new server socket")
-                try {
-                    ss?.soTimeout = SO_TIMEOUT
-                    val s = ss?.accept()
-                    println("(controller) server socket accept")
-                    s?.inetAddress?.hostAddress?.let {
-                        val worker = TransmitterControllerWorker(s, it, tk)
-                        worker.start()
-                        println("(controller) worker $it started")
-                        workers[it] = worker
-                        worker.onWorkerStopped = {
-                            println("(controller) worker $it stopped")
-                            workers.remove(it)
+                if (isNetworkingMode) {
+                    ss = ServerSocket(CONNECT_PORT_CONTROLLER)
+                    println("(controller) new server socket")
+                    try {
+                        ss?.soTimeout = SO_TIMEOUT
+                        val s = ss?.accept()
+                        println("(controller) server socket accept")
+                        s?.inetAddress?.hostAddress?.let {
+                            val worker = TransmitterControllerWorker(s, it, tk)
+                            worker.start()
+                            println("(controller) worker $it started")
+                            workers[it] = worker
+                            worker.onWorkerStopped = {
+                                println("(controller) worker $it stopped")
+                                workers.remove(it)
+                            }
                         }
+                        val vol = volume
+                        volume = vol
+                    } catch (e: SocketTimeoutException) {
+                        println("(controller) socket timeout")
+                    } finally {
+                        ss?.close()
+                        println("(controller) server socket closed")
                     }
-                    val vol = volume
-                    volume = vol
-                } catch (e: SocketTimeoutException) {
-                    println("(controller) socket timeout")
-                } finally {
-                    ss?.close()
-                    println("(controller) server socket closed")
                 }
             }
         } catch (e: IOException) {

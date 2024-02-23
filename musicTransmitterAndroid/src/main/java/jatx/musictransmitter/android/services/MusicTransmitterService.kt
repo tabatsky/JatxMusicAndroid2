@@ -44,6 +44,7 @@ const val TP_SET_POSITION = "jatx.musictransmitter.android.TP_SET_POSITION"
 const val TP_SEEK = "jatx.musictransmitter.android.TP_SEEK"
 const val TP_SET_FILE_LIST = "jatx.musictransmitter.android.TP_SET_FILE_LIST"
 const val TC_SET_VOLUME = "jatx.musictransmitter.android.TC_SET_VOLUME"
+const val SWITCH_NETWORKING_OR_LOCAL_MODE = "jatx.musictransmitter.android.SWITCH_NETWORKING_OR_LOCAL_MODE"
 
 const val EXTRA_WIFI_STATUS = "isWifiOk"
 const val EXTRA_WIFI_RECEIVER_COUNT = "wifiReceiverCount"
@@ -65,6 +66,7 @@ class MusicTransmitterService: Service() {
     private lateinit var tpSeekReceiver: BroadcastReceiver
     private lateinit var tpSetFileListReceiver: BroadcastReceiver
     private lateinit var tcSetVolumeReceiver: BroadcastReceiver
+    private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
 
     private lateinit var tk: ThreadKeeper
 
@@ -229,21 +231,25 @@ class MusicTransmitterService: Service() {
         initBroadcastReceivers()
 
         val tu = TimeUpdater(uiController)
-        val tc = TransmitterController(settings.volume)
+        val tc = TransmitterController(settings.volume, !settings.isLocalMode)
         val tp = TransmitterPlayer(uiController)
-        val tpck = TransmitterPlayerConnectionKeeper(uiController)
+        val tpca = if (settings.isLocalMode) {
+            LocalPlayer()
+        } else {
+            TransmitterPlayerConnectionKeeper(uiController)
+        }
 
-        tk = ThreadKeeper(tu, tc, tp, tpck)
+        tk = ThreadKeeper(tu, tc, tp, tpca)
 
         tc.tk = tk
         tp.tk = tk
-        tpck.tk = tk
+        tpca.tk = tk
 
         tp.files = settings.currentFileList
 
         tu.start()
         tc.start()
-        tpck.start()
+        tpca.start()
         tp.start()
     }
 
@@ -301,6 +307,28 @@ class MusicTransmitterService: Service() {
             }
         }
         registerExportedReceiver(tcSetVolumeReceiver, IntentFilter(TC_SET_VOLUME))
+
+        tcSwitchNetworkingOrLocalModeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                tk.tpda.interrupt()
+                tk.tc.interrupt()
+                val tpca = if (settings.isLocalMode) {
+                    LocalPlayer()
+                } else {
+                    TransmitterPlayerConnectionKeeper(uiController)
+                }
+                val tc = TransmitterController(settings.volume, !settings.isLocalMode)
+                tk = ThreadKeeper(tk.tu, tc, tk.tp, tpca)
+                tc.tk = tk
+                tk.tp.tk = tk
+                tpca.tk = tk
+                tc.start()
+                tpca.start()
+            }
+        }
+        registerExportedReceiver(tcSwitchNetworkingOrLocalModeReceiver,
+            IntentFilter(SWITCH_NETWORKING_OR_LOCAL_MODE)
+        )
     }
 
     private fun unregisterReceivers() {
@@ -311,6 +339,7 @@ class MusicTransmitterService: Service() {
         unregisterReceiver(tpSeekReceiver)
         unregisterReceiver(tpSetFileListReceiver)
         unregisterReceiver(tcSetVolumeReceiver)
+        unregisterReceiver(tcSwitchNetworkingOrLocalModeReceiver)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
