@@ -149,7 +149,7 @@ class TransmitterPlayer(
                     null
                 }
                 if (data != null) {
-                    tk?.tpck?.writeData(data)
+                    tk?.tpda?.writeData(data)
                 }
             } else {
                 sleep(10)

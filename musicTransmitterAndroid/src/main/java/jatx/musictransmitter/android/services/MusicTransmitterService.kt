@@ -137,7 +137,7 @@ class MusicTransmitterService: Service() {
         tk.tu.interrupt()
         tk.tc.finishFlag = true
         tk.tp.interrupt()
-        tk.tpck.interrupt()
+        tk.tpda.interrupt()
 
         unregisterReceivers()
 
@@ -193,7 +193,12 @@ class MusicTransmitterService: Service() {
     private fun lockWifi() {
         val wifiManager =
             applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, WIFI_LOCK_TAG)
+        val wifiMode = if (Build.VERSION.SDK_INT >= 29) {
+            WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+        } else {
+            WifiManager.WIFI_MODE_FULL_HIGH_PERF
+        }
+        wifiLock = wifiManager.createWifiLock(wifiMode, WIFI_LOCK_TAG)
         wifiLock?.setReferenceCounted(false)
         wifiLock?.acquire()
     }

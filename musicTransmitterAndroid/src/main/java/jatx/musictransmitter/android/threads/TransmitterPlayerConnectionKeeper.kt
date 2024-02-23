@@ -9,7 +9,7 @@ const val CONNECT_PORT_PLAYER = 7171
 
 class TransmitterPlayerConnectionKeeper(
     @Volatile private var uiController: UIController
-): Thread() {
+): TransmitterPlayerDataAcceptor() {
     private var ss: ServerSocket? = null
 
     @Volatile
@@ -20,7 +20,7 @@ class TransmitterPlayerConnectionKeeper(
 
     fun getWorkerByHost(host: String) = workers[host]
 
-    fun writeData(data: ByteArray) {
+    override fun writeData(data: ByteArray) {
         workers.values.forEach {
             it.writeData(data)
         }

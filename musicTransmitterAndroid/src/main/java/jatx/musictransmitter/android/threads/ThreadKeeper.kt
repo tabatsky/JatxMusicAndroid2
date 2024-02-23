@@ -4,5 +4,5 @@ class ThreadKeeper(
     val tu: TimeUpdater,
     val tc: TransmitterController,
     val tp: TransmitterPlayer,
-    val tpck: TransmitterPlayerConnectionKeeper
+    val tpda: TransmitterPlayerDataAcceptor
 )
