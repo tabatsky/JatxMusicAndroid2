@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.threads
 
+import android.util.Log
 import java.io.IOException
 import java.io.OutputStream
 import java.net.Socket
@@ -28,6 +29,7 @@ class TransmitterPlayerWorker(
 
     override fun run() {
         threadId = currentThread().id
+        Log.e("starting","transmitter player worker $threadId")
         try {
             os = s?.getOutputStream()
             println("(player $threadId) socket connect")

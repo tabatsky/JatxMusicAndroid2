@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.threads
 
+import android.util.Log
 import jatx.debug.logError
 import java.io.IOException
 import java.net.ServerSocket
@@ -23,7 +24,11 @@ class TransmitterController(
     var volume: Int = initialVolume
         set(value) {
             println("(controller) set volume: " + Integer.valueOf(value).toString())
-            workers.values.forEach { it.volume = value }
+            if (isNetworkingMode) {
+                workers.values.forEach { it.volume = value }
+            } else {
+                localPlayer?.setVolume(value)
+            }
             field = value
         }
 
@@ -38,18 +43,31 @@ class TransmitterController(
     @Volatile
     private var workers = ConcurrentHashMap<String, TransmitterControllerWorker>()
 
+    private val localPlayer: LocalPlayer?
+        get() = tk?.tpda as? LocalPlayer
+
     fun play() {
         println("(controller) play")
-        workers.values.forEach { it.play() }
+        if (isNetworkingMode) {
+            workers.values.forEach { it.play() }
+        } else {
+            localPlayer?.play()
+        }
     }
 
     fun pause() {
         println("(controller) pause")
-        workers.values.forEach { it.pause() }
+        if (isNetworkingMode) {
+            workers.values.forEach { it.pause() }
+        } else {
+            localPlayer?.pause()
+        }
     }
 
     override fun run() {
-        println("(controller) thread started")
+        Log.e("starting","transmitter controller")
+        val vol = volume
+        volume = vol
         try {
             while (!finishFlag) {
                 sleep(100)

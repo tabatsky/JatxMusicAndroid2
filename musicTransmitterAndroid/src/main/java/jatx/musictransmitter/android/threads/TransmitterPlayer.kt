@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.threads
 
+import android.util.Log
 import jatx.debug.logError
 import jatx.musiccommons.frame.WrongFrameException
 import jatx.musiccommons.frame.frameToByteArray
@@ -69,6 +70,7 @@ class TransmitterPlayer(
     var tk: ThreadKeeper? = null
 
     override fun run() {
+        Log.e("starting","transmitter player")
         try {
             translateMusic()
         } catch (e: IOException) {

@@ -17,6 +17,19 @@ class LocalPlayer: TransmitterPlayerDataAcceptor() {
         queue.put(data)
     }
 
+    fun play() {
+        soundOut.play()
+    }
+
+    fun pause() {
+        soundOut.pause()
+    }
+
+    fun setVolume(volume: Int) {
+        this.volume = volume
+        soundOut.setVolume(volume)
+    }
+
     override fun run() {
         Log.e("starting","local player")
         var frameRate = 44100
@@ -41,6 +54,7 @@ class LocalPlayer: TransmitterPlayerDataAcceptor() {
                 }
             }
         } catch (e: InterruptedException) {
+            println("(local player) thread interrupted")
             soundOut.destroy()
         }
     }

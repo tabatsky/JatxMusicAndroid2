@@ -3,6 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?colorPrimary"
     android:padding="@dimen/dialog_networking_or_local_mode_padding">
 
     <CheckBox
@@ -16,6 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/dialog_label_text_size"
+        android:background="?colorPrimary"
+        android:textColor="?colorOnPrimary"
         android:paddingEnd="@dimen/dialog_networking_or_local_mode_padding"
         android:text="@string/local_mode"
         />
