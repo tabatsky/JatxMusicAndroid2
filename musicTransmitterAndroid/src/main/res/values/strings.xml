@@ -66,16 +66,18 @@
 
 	<string name="manual_title">Manual</string>
 	<string name="manual_message">
-		Due to the total misunderstanding from users, I\'m publishing this manual.\n\n
-		The application is designed to transfer music from one device to another within the same Wi-Fi network.\n\n
-		The application is NOT INTENDED for broadcasting music on FM!\n\n
-		For the correct work of the application:\n\n
-		1. Install the receiver application on the second device -
-		Menu items \"Receiver for Android\" or \"Receiver for JavaFX\".\n\n
-		2. Find out your Wi-Fi IP address in the \"Find My IP\" menu.\n\n
-		3. Enter the IP address at the Receiver application.\n\n
-		4. Click \"Start\" or \"Auto Connect\" at the Receiver.\n\n
-		5. The Wi-Fi icon to the left of the player control buttons should change the color
+		Due to the total misunderstanding from users, I\'m publishing this manual.
+		\n\nThe application is designed to transfer music from one device to another within the same Wi-Fi network.
+		\n\nThe application is NOT INTENDED for broadcasting music on FM!
+		\n\nFor switching between local and networking modes
+		tap the Wi-Fi icon or the sound icon at the bottom left.
+		\n\nFor the correct work of the application at the networking mode:
+		\n\n1. Install the receiver application on the second device -
+		Menu items \"Receiver for Android\" or \"Receiver for JavaFX\".
+		\n\n2. Find out your Wi-Fi IP address in the \"Find My IP\" menu.
+		\n\n3. Enter the IP address at the Receiver application.
+		\n\n4. Click \"Start\" or \"Auto Connect\" at the Receiver.
+		\n\n5. The Wi-Fi icon to the left of the player control buttons should change the color
 		from gray to black (or to white for dark theme)
 		and active receiver count should increase - this means the application is ready for use.
 	</string>
