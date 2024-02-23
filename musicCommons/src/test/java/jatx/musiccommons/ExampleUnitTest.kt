@@ -1,5 +1,8 @@
 package jatx.musiccommons
 
+import jatx.musiccommons.frame.Frame
+import jatx.musiccommons.frame.frameFromInputStream
+import jatx.musiccommons.frame.frameToByteArray
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.PipedInputStream

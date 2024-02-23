@@ -1,8 +1,8 @@
 package jatx.musicreceiver.android.threads
 
 import jatx.debug.exceptionToString
-import jatx.musiccommons.frameFromInputStream
-import jatx.musicreceiver.android.audio.SoundOut
+import jatx.musiccommons.frame.frameFromInputStream
+import jatx.musiccommons.audio.SoundOut
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetAddress

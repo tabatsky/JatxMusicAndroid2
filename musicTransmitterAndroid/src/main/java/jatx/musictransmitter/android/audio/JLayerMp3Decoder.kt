@@ -1,9 +1,9 @@
 package jatx.musictransmitter.android.audio
 
 import jatx.debug.logError
-import jatx.musiccommons.FRAME_RATES
-import jatx.musiccommons.Frame
-import jatx.musiccommons.WrongFrameException
+import jatx.musiccommons.frame.FRAME_RATES
+import jatx.musiccommons.frame.Frame
+import jatx.musiccommons.frame.WrongFrameException
 import jatx.musictransmitter.android.data.FileDoesNotExistException
 import jatx.musictransmitter.android.data.MIC_PATH
 import javazoom.jl.decoder.*

@@ -1,6 +1,6 @@
 package jatx.musictransmitter.android.audio
 
-import jatx.musiccommons.Frame
+import jatx.musiccommons.frame.Frame
 import java.io.File
 import java.lang.Exception
 

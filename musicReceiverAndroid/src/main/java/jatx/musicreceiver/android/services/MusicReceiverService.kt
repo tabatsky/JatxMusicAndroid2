@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat
 import jatx.extensions.registerExportedReceiver
 import jatx.musicreceiver.android.App
 import jatx.musicreceiver.android.R
-import jatx.musicreceiver.android.audio.AndroidSoundOut
+import jatx.musiccommons.audio.AndroidSoundOut
 import jatx.musicreceiver.android.data.Settings
 import jatx.musicreceiver.android.presentation.UI_START_JOB
 import jatx.musicreceiver.android.presentation.UI_STOP_JOB
@@ -91,7 +91,12 @@ class MusicReceiverService : Service() {
 
         unregisterReceivers()
 
-        stopForeground(true)
+        if (Build.VERSION.SDK_INT >= 24) {
+            stopForeground(STOP_FOREGROUND_DETACH)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         super.onDestroy()
     }
 
@@ -107,7 +112,7 @@ class MusicReceiverService : Service() {
             PendingIntent.getActivity(this, 0, actIntent, flags)
 
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE)
+            createNotificationChannel()
         } else {
             ""
         }
@@ -138,7 +143,13 @@ class MusicReceiverService : Service() {
     private fun lockWifi() {
         val wifiManager =
             applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, WIFI_LOCK_TAG)
+        val wifiMode = if (Build.VERSION.SDK_INT >= 29) {
+            WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+        } else {
+            @Suppress("DEPRECATION")
+            WifiManager.WIFI_MODE_FULL_HIGH_PERF
+        }
+        wifiLock = wifiManager.createWifiLock(wifiMode, WIFI_LOCK_TAG)
         wifiLock?.setReferenceCounted(false)
         wifiLock?.acquire()
     }
@@ -223,13 +234,13 @@ class MusicReceiverService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(channelId: String, channelName: String): String {
-        val chan = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN)
+    private fun createNotificationChannel(): String {
+        val chan = NotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE, NotificationManager.IMPORTANCE_MIN)
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         val service =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         service.createNotificationChannel(chan)
-        return channelId
+        return CHANNEL_ID_SERVICE
     }
 }

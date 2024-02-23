@@ -1,4 +1,4 @@
-package jatx.musicreceiver.android.audio
+package jatx.musiccommons.audio
 
 interface SoundOut {
     fun renew(frameRate: Int, channels: Int, depth: Int = 16)

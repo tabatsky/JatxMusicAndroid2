@@ -1,4 +1,4 @@
-package jatx.musicreceiver.android.audio
+package jatx.musiccommons.audio
 
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -39,7 +39,7 @@ class AndroidSoundOut : SoundOut {
     }
 
     override fun setVolume(volume: Int) {
-        audioTrack?.setStereoVolume(volume*0.01f, volume*0.01f);
+        audioTrack?.setVolume(volume*0.01f)
     }
 
     override fun write(data: ByteArray, offset: Int, size: Int) {

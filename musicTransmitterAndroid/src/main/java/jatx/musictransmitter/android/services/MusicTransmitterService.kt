@@ -164,7 +164,7 @@ class MusicTransmitterService: Service() {
             PendingIntent.getActivity(this, 0, actIntent, flags)
 
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE)
+            createNotificationChannel()
         } else {
             ""
         }
@@ -198,6 +198,7 @@ class MusicTransmitterService: Service() {
         val wifiMode = if (Build.VERSION.SDK_INT >= 29) {
             WifiManager.WIFI_MODE_FULL_LOW_LATENCY
         } else {
+            @Suppress("DEPRECATION")
             WifiManager.WIFI_MODE_FULL_HIGH_PERF
         }
         wifiLock = wifiManager.createWifiLock(wifiMode, WIFI_LOCK_TAG)
@@ -245,6 +246,7 @@ class MusicTransmitterService: Service() {
         tp.tk = tk
         tpca.tk = tk
 
+        tp.isNetworkingMode = !settings.isLocalMode
         tp.files = settings.currentFileList
 
         tu.start()
@@ -310,20 +312,7 @@ class MusicTransmitterService: Service() {
 
         tcSwitchNetworkingOrLocalModeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                tk.tpda.interrupt()
-                tk.tc.interrupt()
-                val tpca = if (settings.isLocalMode) {
-                    LocalPlayer()
-                } else {
-                    TransmitterPlayerConnectionKeeper(uiController)
-                }
-                val tc = TransmitterController(settings.volume, !settings.isLocalMode)
-                tk = ThreadKeeper(tk.tu, tc, tk.tp, tpca)
-                tc.tk = tk
-                tk.tp.tk = tk
-                tpca.tk = tk
-                tc.start()
-                tpca.start()
+                switchNetworkingOrLocalMode()
             }
         }
         registerExportedReceiver(tcSwitchNetworkingOrLocalModeReceiver,
@@ -342,14 +331,32 @@ class MusicTransmitterService: Service() {
         unregisterReceiver(tcSwitchNetworkingOrLocalModeReceiver)
     }
 
+    private fun switchNetworkingOrLocalMode() {
+        tk.tpda.interrupt()
+        tk.tc.interrupt()
+        val tpca = if (settings.isLocalMode) {
+            LocalPlayer()
+        } else {
+            TransmitterPlayerConnectionKeeper(uiController)
+        }
+        val tc = TransmitterController(settings.volume, !settings.isLocalMode)
+        tk = ThreadKeeper(tk.tu, tc, tk.tp, tpca)
+        tc.tk = tk
+        tk.tp.tk = tk
+        tk.tp.isNetworkingMode = !settings.isLocalMode
+        tpca.tk = tk
+        tc.start()
+        tpca.start()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(channelId: String, channelName: String): String {
-        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN)
+    private fun createNotificationChannel(): String {
+        val channel = NotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE, NotificationManager.IMPORTANCE_MIN)
         channel.lightColor = Color.BLUE
         channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         val service = NotificationManagerCompat.from(this)
         service.createNotificationChannel(channel)
-        return channelId
+        return CHANNEL_ID_SERVICE
     }
 
 }

@@ -52,9 +52,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation "com.google.dagger:dagger:2.47"
-    kapt "com.google.dagger:dagger-compiler:2.47"
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation "com.google.dagger:dagger:2.50"
+    kapt "com.google.dagger:dagger-compiler:2.50"
     implementation 'com.arello-mobile:moxy:1.4.5'
     implementation "com.github.moxy-community:moxy-androidx:2.0.2"
     implementation "com.github.moxy-community:moxy-ktx:2.0.2"

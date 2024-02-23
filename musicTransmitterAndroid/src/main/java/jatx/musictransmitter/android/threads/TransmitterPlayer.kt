@@ -1,8 +1,8 @@
 package jatx.musictransmitter.android.threads
 
 import jatx.debug.logError
-import jatx.musiccommons.WrongFrameException
-import jatx.musiccommons.frameToByteArray
+import jatx.musiccommons.frame.WrongFrameException
+import jatx.musiccommons.frame.frameToByteArray
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.audio.*
 import jatx.musictransmitter.android.data.MIC_PATH
@@ -13,6 +13,8 @@ class TransmitterPlayer(
     @Volatile private var uiController: UIController
 ): Thread() {
     @Volatile var microphoneOk = false
+
+    @Volatile var isNetworkingMode = false
 
     @Volatile
     var count = 0
@@ -181,12 +183,17 @@ class TransmitterPlayer(
     }
 
     private fun flushSentToReceiverEvery300msOfReadFromFile() {
-        if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 300) {
+        val multiplier = if (isNetworkingMode) {
+            10
+        } else {
+            1
+        }
+        if ((MusicDecoder.INSTANCE?.msReadFromFile ?: 0f) > 30 * multiplier) {
             do {
                 currentTime = System.currentTimeMillis()
                 deltaTimeExtraSentToReceiver = (MusicDecoder.INSTANCE?.msSentToReceiver ?: 0f) - (currentTime - startTime)
                 sleep(10)
-            } while (deltaTimeExtraSentToReceiver > 200)
+            } while (deltaTimeExtraSentToReceiver > 20 * multiplier)
             MusicDecoder.INSTANCE?.msReadFromFile = 0f
         }
     }

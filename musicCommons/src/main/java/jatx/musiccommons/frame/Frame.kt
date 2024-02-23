@@ -1,4 +1,4 @@
-package jatx.musiccommons
+package jatx.musiccommons.frame
 
 import java.io.IOException
 import java.io.InputStream
@@ -112,34 +112,49 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
         if (inputStream.available() > 0) {
             val justRead = inputStream.read(header, 0, 1)
             if (justRead > 0) {
-                if (bytesRead == 0) {
-                    size1 = header[0].toInt() and 0xff
-                } else if (bytesRead == 1) {
-                    size2 = header[0].toInt() and 0xff
-                } else if (bytesRead == 2) {
-                    size3 = header[0].toInt() and 0xff
-                } else if (bytesRead == 3) {
-                    size4 = header[0].toInt() and 0xff
-                } else if (bytesRead == 4) {
-                    freq1 = header[0].toInt() and 0xff
-                } else if (bytesRead == 5) {
-                    freq2 = header[0].toInt() and 0xff
-                } else if (bytesRead == 6) {
-                    freq3 = header[0].toInt() and 0xff
-                } else if (bytesRead == 7) {
-                    freq4 = header[0].toInt() and 0xff
-                } else if (bytesRead == 8) {
-                    channels = header[0].toInt() and 0xff
-                } else if (bytesRead == 9) {
-                    depth = header[0].toInt() and 0xff
-                } else if (bytesRead == 12) {
-                    pos1 = header[0].toInt() and 0xff
-                } else if (bytesRead == 13) {
-                    pos2 = header[0].toInt() and 0xff
-                } else if (bytesRead == 14) {
-                    pos3 = header[0].toInt() and 0xff
-                } else if (bytesRead == 15) {
-                    pos4 = header[0].toInt() and 0xff
+                when (bytesRead) {
+                    0 -> {
+                        size1 = header[0].toInt() and 0xff
+                    }
+                    1 -> {
+                        size2 = header[0].toInt() and 0xff
+                    }
+                    2 -> {
+                        size3 = header[0].toInt() and 0xff
+                    }
+                    3 -> {
+                        size4 = header[0].toInt() and 0xff
+                    }
+                    4 -> {
+                        freq1 = header[0].toInt() and 0xff
+                    }
+                    5 -> {
+                        freq2 = header[0].toInt() and 0xff
+                    }
+                    6 -> {
+                        freq3 = header[0].toInt() and 0xff
+                    }
+                    7 -> {
+                        freq4 = header[0].toInt() and 0xff
+                    }
+                    8 -> {
+                        channels = header[0].toInt() and 0xff
+                    }
+                    9 -> {
+                        depth = header[0].toInt() and 0xff
+                    }
+                    12 -> {
+                        pos1 = header[0].toInt() and 0xff
+                    }
+                    13 -> {
+                        pos2 = header[0].toInt() and 0xff
+                    }
+                    14 -> {
+                        pos3 = header[0].toInt() and 0xff
+                    }
+                    15 -> {
+                        pos4 = header[0].toInt() and 0xff
+                    }
                 }
                 bytesRead += justRead
             }
@@ -167,5 +182,8 @@ fun frameFromInputStream(inputStream: InputStream): Frame {
 
     return Frame(size, freq, channels, depth, pos, data)
 }
+
+@Throws(IOException::class, InterruptedException::class)
+fun frameFromRawData(rawData: ByteArray) = frameFromInputStream(rawData.inputStream())
 
 class WrongFrameException(msg: String): Exception(msg)

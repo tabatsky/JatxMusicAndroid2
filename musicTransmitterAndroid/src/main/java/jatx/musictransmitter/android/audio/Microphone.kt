@@ -3,7 +3,7 @@ package jatx.musictransmitter.android.audio
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import jatx.musiccommons.Frame
+import jatx.musiccommons.frame.Frame
 
 object Microphone {
     private var sampleRate = 0

@@ -4,9 +4,9 @@ import android.util.Log
 import io.nayuki.flac.common.StreamInfo
 import io.nayuki.flac.decode.FlacDecoder
 import jatx.debug.logError
-import jatx.musiccommons.FRAME_RATES
-import jatx.musiccommons.Frame
-import jatx.musiccommons.WrongFrameException
+import jatx.musiccommons.frame.FRAME_RATES
+import jatx.musiccommons.frame.Frame
+import jatx.musiccommons.frame.WrongFrameException
 import jatx.musictransmitter.android.data.FileDoesNotExistException
 import jatx.musictransmitter.android.data.MIC_PATH
 import org.jaudiotagger.audio.AudioFileIO
