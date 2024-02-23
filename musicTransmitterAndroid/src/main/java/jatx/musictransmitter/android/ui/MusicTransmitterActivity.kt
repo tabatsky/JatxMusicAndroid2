@@ -88,6 +88,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             volumeDownBtn.setOnClickListener { presenter.onVolumeDownClick() }
             volumeUpBtn.setOnClickListener { presenter.onVolumeUpClick() }
 
+            networkingOrLocalModeGroup.setOnClickListener {
+                presenter.onNetworkingOrLocalModeGroupClick()
+            }
+
             seekBar.max = 1000
             seekBar.onSeek { i -> presenter.onProgressChanged(if (i < 1000) (i / 1000.0) else 0.999) }
         }
@@ -564,6 +568,25 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         dialog.onRemoveThisTrack = { presenter.onDeleteTrack(position) }
         dialog.onOpenTagEditor = { presenter.onOpenTagEditor(position) }
         dialog.show(supportFragmentManager, "longClickDialog")
+    }
+
+    override fun showNetworkingOrLocalModeDialog(isLocalMode: Boolean) {
+        val dialog = NetworkingOrLocalModeDialog()
+        dialog.isLocalMode = isLocalMode
+        dialog.onSetLocalMode = {
+            presenter.onSetLocalMode(it)
+        }
+        dialog.show(supportFragmentManager, "networkingOrLocalModeDialog")
+    }
+
+    override fun showLocalMode(isLocalMode: Boolean) {
+        if (isLocalMode) {
+            binding.networkingModeGroup.visibility = View.GONE
+            binding.localModeIV.visibility = View.VISIBLE
+        } else {
+            binding.localModeIV.visibility = View.GONE
+            binding.networkingModeGroup.visibility = View.VISIBLE
+        }
     }
 
     override fun showSavePlaylistSuccess() {

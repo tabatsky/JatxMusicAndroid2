@@ -23,6 +23,8 @@ interface MusicTransmitterView: MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class) fun showVolume(volume: Int)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showRemoveTrackMessage()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showTrackLongClickDialog(position: Int)
+    @StateStrategyType(OneExecutionStateStrategy::class) fun showNetworkingOrLocalModeDialog(isLocalMode: Boolean)
+    @StateStrategyType(OneExecutionStateStrategy::class) fun showLocalMode(isLocalMode: Boolean)
     @StateStrategyType(OneExecutionStateStrategy::class) fun showSavePlaylistSuccess()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showSavePlaylistError()
     @StateStrategyType(OneExecutionStateStrategy::class) fun showLoadPlaylistSuccess()

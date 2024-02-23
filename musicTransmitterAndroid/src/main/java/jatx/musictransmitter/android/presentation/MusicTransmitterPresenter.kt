@@ -92,6 +92,8 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showVolume(settings.volume)
         viewState.showShuffleState(isShuffle)
 
+        viewState.showLocalMode(settings.isLocalMode)
+
         checkReadPhoneStatePermission()
         checkNotificationPermissions()
         initBroadcastReceivers()
@@ -254,6 +256,14 @@ class MusicTransmitterPresenter @Inject constructor(
     }
 
     fun onTrackLongClick(position: Int) = viewState.showTrackLongClickDialog(position)
+
+    fun onNetworkingOrLocalModeGroupClick() = viewState
+        .showNetworkingOrLocalModeDialog(settings.isLocalMode)
+
+    fun onSetLocalMode(isLocalMode: Boolean) {
+        settings.isLocalMode = isLocalMode
+        viewState.showLocalMode(isLocalMode)
+    }
 
     fun onDeleteTrack(position: Int) {
         files.removeAt(position)

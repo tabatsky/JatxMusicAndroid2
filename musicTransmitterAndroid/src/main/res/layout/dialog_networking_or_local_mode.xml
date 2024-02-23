@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/dialog_networking_or_local_mode_padding">
+
+    <CheckBox
+        android:id="@+id/networkingOrLocalModeCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:labelFor="@+id/networkingOrLocalModeCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/dialog_label_text_size"
+        android:paddingEnd="@dimen/dialog_networking_or_local_mode_padding"
+        android:text="@string/local_mode"
+        />
+</LinearLayout>

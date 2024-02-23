@@ -27,4 +27,7 @@
     <dimen name="progress_margin_horizontal">-20dp</dimen>
     <dimen name="thumb_width">1dp</dimen>
 
+    <dimen name="dialog_networking_or_local_mode_padding">16dp</dimen>
+    <dimen name="dialog_label_text_size">20sp</dimen>
+
 </resources>

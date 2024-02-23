@@ -11,6 +11,7 @@ const val KEY_MUSIC_DIR = "musicDirPath"
 const val KEY_FILE_LIST = "fileList"
 const val KEY_VOLUME = "volume"
 const val KEY_IS_SHUFFLE = "isShuffle"
+const val KEY_IS_LOCAL_MODE = "isLocalMode"
 
 @SuppressLint("ApplySharedPref")
 class Settings(
@@ -55,6 +56,14 @@ class Settings(
         set(value) {
             val editor = sp.edit()
             editor.putBoolean(KEY_IS_SHUFFLE, value)
+            editor.commit()
+        }
+
+    var isLocalMode: Boolean
+        get() = sp.getBoolean(KEY_IS_LOCAL_MODE, false)
+        set(value) {
+            val editor = sp.edit()
+            editor.putBoolean(KEY_IS_LOCAL_MODE, value)
             editor.commit()
         }
 }
