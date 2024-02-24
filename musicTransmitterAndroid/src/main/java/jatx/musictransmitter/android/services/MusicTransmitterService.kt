@@ -234,24 +234,24 @@ class MusicTransmitterService: Service() {
         val tu = TimeUpdater(uiController)
         val tc = TransmitterController(settings.volume, !settings.isLocalMode)
         val tp = TransmitterPlayer(uiController)
-        val tpca = if (settings.isLocalMode) {
+        val tpda = if (settings.isLocalMode) {
             LocalPlayer()
         } else {
             TransmitterPlayerConnectionKeeper(uiController)
         }
 
-        tk = ThreadKeeper(tu, tc, tp, tpca)
+        tk = ThreadKeeper(tu, tc, tp, tpda)
 
         tc.tk = tk
         tp.tk = tk
-        tpca.tk = tk
+        tpda.tk = tk
 
         tp.isNetworkingMode = !settings.isLocalMode
         tp.files = settings.currentFileList
 
         tu.start()
         tc.start()
-        tpca.start()
+        tpda.start()
         tp.start()
     }
 
@@ -334,19 +334,19 @@ class MusicTransmitterService: Service() {
     private fun switchNetworkingOrLocalMode() {
         tk.tpda.interrupt()
         tk.tc.interrupt()
-        val tpca = if (settings.isLocalMode) {
+        val tpda = if (settings.isLocalMode) {
             LocalPlayer()
         } else {
             TransmitterPlayerConnectionKeeper(uiController)
         }
         val tc = TransmitterController(settings.volume, !settings.isLocalMode)
-        tk = ThreadKeeper(tk.tu, tc, tk.tp, tpca)
+        tk = ThreadKeeper(tk.tu, tc, tk.tp, tpda)
         tc.tk = tk
         tk.tp.tk = tk
         tk.tp.isNetworkingMode = !settings.isLocalMode
-        tpca.tk = tk
+        tpda.tk = tk
         tc.start()
-        tpca.start()
+        tpda.start()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
