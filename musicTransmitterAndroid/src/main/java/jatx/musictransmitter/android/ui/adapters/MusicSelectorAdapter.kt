@@ -52,7 +52,7 @@ class MusicSelectorAdapter:
 
             binding.musicSelectorItemBtn.text = entry.asString
             binding.musicSelectorItemBtn.setOnClickListener {
-                onClickListener?.invoke(absoluteAdapterPosition)
+                onClickListener?.invoke(layoutPosition)
             }
         }
     }
