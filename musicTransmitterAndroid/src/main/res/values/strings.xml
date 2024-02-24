@@ -67,8 +67,11 @@
 	<string name="manual_title">Manual</string>
 	<string name="manual_message">
 		Due to the total misunderstanding from users, I\'m publishing this manual.
-		\n\nThe application is designed to transfer music from one device to another within the same Wi-Fi network.
+		\n\nThe application is designed to transfer music from one device
+		to another within the same Wi-Fi network.
 		\n\nThe application is NOT INTENDED for broadcasting music on FM!
+		\n\nA local mode has been added to the application -
+		music playback on the device itself without using a network.
 		\n\nFor switching between local and networking modes
 		tap the Wi-Fi icon or the sound icon at the bottom left.
 		\n\nFor the correct work of the application at the networking mode:
