@@ -97,4 +97,6 @@
 	<string name="button_cp_1251_to_utf_8">CP-1251 to UTF-8</string>
 
 	<string name="local_mode">Local mode</string>
+
+	<string name="chooser_text">Please choose the app</string>
 </resources>

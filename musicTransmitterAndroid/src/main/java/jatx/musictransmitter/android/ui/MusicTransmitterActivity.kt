@@ -1,9 +1,11 @@
 package jatx.musictransmitter.android.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -713,21 +715,11 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun showReceiverFXActivity() {
-        startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(FX_RECEIVER_URL)
-            )
-        )
+        showChooser(FX_RECEIVER_URL)
     }
 
     override fun showTransmitterFXActivity() {
-        startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(FX_TRANSMITTER_URL)
-            )
-        )
+        showChooser(FX_TRANSMITTER_URL)
     }
 
     override fun showSourceCodeActivity() {
@@ -746,6 +738,36 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
                 Uri.parse(DEV_SITE_URL)
             )
         )
+    }
+
+    private fun showChooser(uri: String) {
+        val intentList = makeIntentList(uri) // + makeIntentList(uriApp)
+
+        val chooserIntent = Intent
+            .createChooser(
+                intentList.last(),
+                getString(R.string.chooser_text)
+            )
+        chooserIntent.putExtra(
+            Intent.EXTRA_INITIAL_INTENTS,
+            intentList.dropLast(1).toTypedArray()
+        )
+        startActivity(chooserIntent)
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun makeIntentList(uri: String): List<Intent> {
+        val origIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+        val infoList = if (Build.VERSION.SDK_INT >= 23){
+            packageManager.queryIntentActivities(origIntent, PackageManager.MATCH_ALL)
+        } else{
+            packageManager.queryIntentActivities(origIntent, 0)
+        }
+        return infoList.map {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+            intent.setPackage(it.activityInfo.packageName)
+            intent
+        }
     }
 
     override fun showQuitDialog() {

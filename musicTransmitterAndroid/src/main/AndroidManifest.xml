@@ -27,6 +27,15 @@
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
         android:minSdkVersion="34" />
 
+    <queries>
+        <package android:name="com.android.chrome" />
+        <package android:name="com.yandex.browser" />
+        <package android:name="com.opera.browser" />
+        <package android:name="org.mozilla.firefox" />
+        <package android:name="ru.yandex.disk" />
+    </queries>
+
+
     <application
         android:name=".App"
         android:allowBackup="true"
