@@ -5,10 +5,12 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import jatx.musictransmitter.android.data.ContentStorageImpl
 import jatx.musictransmitter.android.data.SettingsImpl
 import jatx.musictransmitter.android.data.TrackInfoStorageImpl
 import jatx.musictransmitter.android.db.AppDatabase
 import jatx.musictransmitter.android.db.dao.TrackDao
+import jatx.musictransmitter.android.domain.ContentStorage
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.services.MusicTransmitterService
@@ -43,6 +45,10 @@ class AppModule {
     @Provides
     @Singleton
     fun provideSettings(context: Context): Settings = SettingsImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideContentStorage(context: Context): ContentStorage = ContentStorageImpl(context)
 
     @Provides
     @Singleton

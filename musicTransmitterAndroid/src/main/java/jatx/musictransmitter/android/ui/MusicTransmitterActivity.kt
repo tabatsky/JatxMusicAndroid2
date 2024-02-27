@@ -6,15 +6,12 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.MimeTypeMap
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +30,7 @@ import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.databinding.ActivityMusicTransmitterBinding
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.domain.ContentStorage
 import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
@@ -45,7 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -56,6 +53,9 @@ const val REQUEST_TAG_EDITOR = 2222
 class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     @Inject
     lateinit var presenterProvider: Lazy<MusicTransmitterPresenter>
+    @Inject
+    lateinit var contentStorage: ContentStorage
+
     private val presenter by moxyPresenter { presenterProvider.get() }
 
     private val tracksAdapter = TrackAdapter()
@@ -378,178 +378,13 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
-    private fun getMusicExternalContentUri() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        MediaStore.Audio.Media.getContentUri(
-            MediaStore.VOLUME_EXTERNAL_PRIMARY
-        )
-    } else {
-        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-    }
+    private fun getArtistEntries() = contentStorage.getArtistEntries()
 
-    private fun allMusicQuery(projection: Array<String>, sortOrder: String): Cursor? {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND (" +
-                MediaStore.Files.FileColumns.MIME_TYPE + " = ? OR " +
-                MediaStore.Files.FileColumns.MIME_TYPE + " = ?)"
-        val mimeTypeMP3 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3")
-        val mimeTypeFLAC = MimeTypeMap.getSingleton().getMimeTypeFromExtension("flac")
+    private fun getAlbumEntries() = contentStorage.getAlbumEntries()
 
-        return contentResolver.query(
-            getMusicExternalContentUri(),
-            projection,
-            selection,
-            arrayOf(mimeTypeMP3, mimeTypeFLAC),
-            sortOrder
-        )
-    }
+    private fun getTrackEntries() = contentStorage.getTrackEntries()
 
-    private fun getArtistEntries(): List<MusicEntry> {
-        val sortOrder = MediaStore.Audio.Media.ARTIST + " ASC"
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.ARTIST
-        )
-
-        val cursor = allMusicQuery(projection, sortOrder)
-
-        val entries = arrayListOf<MusicEntry>()
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val artist = it.getString(0)
-                entries.add(ArtistEntry(artist))
-            }
-        }
-
-        return entries.distinct()
-    }
-
-    private fun getAlbumEntries(): List<MusicEntry> {
-        val sortOrder = MediaStore.Audio.Media.ALBUM + " || " +
-            MediaStore.Audio.Media.ARTIST + " ASC"
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA
-        )
-
-        val cursor = allMusicQuery(projection, sortOrder)
-
-        val entries = arrayListOf<MusicEntry>()
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val artist = it.getString(0)
-                val album = it.getString(1)
-                val albumEntry = AlbumEntry(artist, album)
-                entries.add(albumEntry)
-
-                val path = it.getString(2)
-
-                if (!AlbumArtKeeper.albumArts.containsKey(albumEntry)) {
-                    AlbumArtKeeper.albumArts[albumEntry] = AlbumArtKeeper.retrieveAlbumArt(this, path)
-                }
-            }
-        }
-
-        return entries.distinct()
-    }
-
-    private fun getTrackEntries(): List<MusicEntry> {
-        val sortOrder =
-                MediaStore.Audio.Media.TITLE + " || " +
-                MediaStore.Audio.Media.ALBUM + " || " +
-                MediaStore.Audio.Media.ARTIST + " ASC"
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.DATA
-        )
-
-        val cursor = allMusicQuery(projection, sortOrder)
-
-        val entries = arrayListOf<MusicEntry>()
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val artist = it.getString(0)
-                val album = it.getString(1)
-                val title = it.getString(2)
-
-                val trackEntry = TrackEntry(artist, album, title)
-
-                entries.add(trackEntry)
-
-                val path = it.getString(3)
-
-                if (!AlbumArtKeeper.albumArts.containsKey(trackEntry.albumEntry)) {
-                    AlbumArtKeeper.albumArts[trackEntry.albumEntry] = AlbumArtKeeper.retrieveAlbumArt(this, path)
-                }
-            }
-        }
-
-        return entries.distinct()
-    }
-
-    private fun getFilesByEntry(entry: MusicEntry): List<File> {
-        val selection = when (entry) {
-            is ArtistEntry ->
-                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
-                        MediaStore.Audio.Media.ARTIST + " = ?"
-            is AlbumEntry ->
-                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
-                        MediaStore.Audio.Media.ARTIST + " = ? AND " +
-                        MediaStore.Audio.Media.ALBUM + " = ?"
-            is TrackEntry ->
-                MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " +
-                        MediaStore.Audio.Media.ARTIST + " = ? AND " +
-                        MediaStore.Audio.Media.ALBUM + " = ? AND " +
-                        MediaStore.Audio.Media.TITLE + " = ?"
-        }
-
-        val sortOrder = MediaStore.Audio.Media.ARTIST + " || " +
-                MediaStore.Audio.Media.ALBUM + " || " +
-                " (10000 + " + MediaStore.Audio.Media.TRACK + ") || " +
-                MediaStore.Audio.Media.TITLE + " ASC"
-
-
-        val selectionArgs = when (entry) {
-            is ArtistEntry -> arrayOf(entry.artist)
-            is AlbumEntry -> arrayOf(entry.artist, entry.album)
-            is TrackEntry -> arrayOf(entry.artist, entry.album, entry.title)
-        }
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.DATA
-        )
-
-        val cursor = contentResolver.query(
-            getMusicExternalContentUri(),
-            projection,
-            selection,
-            selectionArgs,
-            sortOrder
-        )
-
-        val files = arrayListOf<File>()
-        cursor?.use {
-            while (it.moveToNext()) {
-                val path = it.getString(0)
-                files.add(File(path))
-            }
-        }
-
-        val filteredFiles = files
-            .filter { it.name.endsWith(".mp3") || it.name.endsWith(".flac") }
-
-        if (files.size != filteredFiles.size) {
-            showToast(R.string.toast_unsupported_files_format)
-        }
-
-        return filteredFiles
-    }
+    private fun getFilesByEntry(entry: MusicEntry) = contentStorage.getFilesByEntry(entry)
 
     override fun showCurrentTime(currentMs: Float, trackLengthMs: Float) {
         if (trackLengthMs <= 0) return
