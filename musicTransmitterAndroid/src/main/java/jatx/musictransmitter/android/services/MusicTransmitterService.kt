@@ -21,9 +21,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.App
-import jatx.musictransmitter.android.data.Settings
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.threads.*
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import javax.inject.Inject

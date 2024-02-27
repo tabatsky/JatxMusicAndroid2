@@ -16,9 +16,9 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.data.MIC_PATH
-import jatx.musictransmitter.android.data.Settings
-import jatx.musictransmitter.android.data.TrackInfoStorage
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.domain.Settings
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.media.AlbumArtKeeper
 import jatx.musictransmitter.android.services.*
 import jatx.musictransmitter.android.ui.*

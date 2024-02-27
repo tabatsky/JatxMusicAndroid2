@@ -5,10 +5,12 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import jatx.musictransmitter.android.data.Settings
-import jatx.musictransmitter.android.data.TrackInfoStorage
+import jatx.musictransmitter.android.data.SettingsImpl
+import jatx.musictransmitter.android.data.TrackInfoStorageImpl
 import jatx.musictransmitter.android.db.AppDatabase
 import jatx.musictransmitter.android.db.dao.TrackDao
+import jatx.musictransmitter.android.domain.Settings
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.services.MusicTransmitterService
 import jatx.musictransmitter.android.ui.MusicEditorActivity
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
@@ -40,7 +42,7 @@ interface AppComponent: AppDeps {
 class AppModule {
     @Provides
     @Singleton
-    fun provideSettings(context: Context) = Settings(context)
+    fun provideSettings(context: Context): Settings = SettingsImpl(context)
 
     @Provides
     @Singleton
@@ -48,7 +50,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideTrackInfoStorage(trackDao: TrackDao) = TrackInfoStorage(trackDao)
+    fun provideTrackInfoStorage(trackDao: TrackDao): TrackInfoStorage = TrackInfoStorageImpl(trackDao)
 }
 
 interface AppDeps {

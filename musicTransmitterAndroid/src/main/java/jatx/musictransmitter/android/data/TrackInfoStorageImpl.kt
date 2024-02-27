@@ -3,17 +3,19 @@ package jatx.musictransmitter.android.data
 import android.util.Log
 import jatx.musictransmitter.android.db.dao.TrackDao
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.domain.FileDoesNotExistException
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import java.io.File
 
 const val MIC_PATH = "/:mic:"
 
-class TrackInfoStorage(
+class TrackInfoStorageImpl(
     private val trackDao: TrackDao
-) {
+): TrackInfoStorage {
     private var onUpdateTrackListListener: OnUpdateTrackListListener? = null
 
     @Volatile
-    var files = listOf<File>()
+    override var files = listOf<File>()
         set(value) {
             pauseFlag = true
             synchronized(lock) {
@@ -80,7 +82,7 @@ class TrackInfoStorage(
         length = "00:00"
     )
 
-    fun getTrackFromFile(file: File): Track {
+    override fun getTrackFromFile(file: File): Track {
         if (file.absolutePath == MIC_PATH)
             return getMicTrack()
 
@@ -106,7 +108,7 @@ class TrackInfoStorage(
         }
     }
 
-    fun setOnUpdateTrackListListener(onUpdate: (tracks: List<Track>) -> Unit) {
+    override fun setOnUpdateTrackListListener(onUpdate: (tracks: List<Track>) -> Unit) {
         onUpdateTrackListListener = object : OnUpdateTrackListListener {
             override fun onUpdateTrackList(tracks: List<Track>) {
                 onUpdate(tracks)
@@ -115,8 +117,7 @@ class TrackInfoStorage(
     }
 }
 
-interface OnUpdateTrackListListener {
+private interface OnUpdateTrackListListener {
     fun onUpdateTrackList(tracks: List<Track>)
 }
 
-class FileDoesNotExistException: Exception()

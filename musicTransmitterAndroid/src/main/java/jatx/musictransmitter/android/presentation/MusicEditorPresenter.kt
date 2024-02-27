@@ -2,7 +2,7 @@ package jatx.musictransmitter.android.presentation
 
 import android.util.Log
 import jatx.debug.logError
-import jatx.musictransmitter.android.data.TrackInfoStorage
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.jaudiotagger.audio.AudioFileIO

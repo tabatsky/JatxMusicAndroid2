@@ -4,8 +4,8 @@ import jatx.debug.logError
 import jatx.musiccommons.frame.FRAME_RATES
 import jatx.musiccommons.frame.Frame
 import jatx.musiccommons.frame.WrongFrameException
-import jatx.musictransmitter.android.data.FileDoesNotExistException
 import jatx.musictransmitter.android.data.MIC_PATH
+import jatx.musictransmitter.android.domain.FileDoesNotExistException
 import javazoom.jl.decoder.*
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.*
