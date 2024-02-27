@@ -57,13 +57,15 @@ data class Track(
         val _title = tag.getFirst(FieldKey.TITLE).trim()
         val _year = tag.getFirst(FieldKey.YEAR)
         var _number = tag.getFirst(FieldKey.TRACK)
-        if (_number != "") {
-            val num: Int = _number.toInt()
+        try {
+            val num = _number.toInt()
             if (num < 10) {
                 _number = "00$num"
             } else if (num < 100) {
                 _number = "0$num"
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return copy(artist = _artist, album = _album, title = _title, year = _year, number = _number)
     }
@@ -75,13 +77,15 @@ data class Track(
         val _title = tag.getFirst(FieldKey.TITLE).trim()
         val _year = tag.getFirst(FieldKey.YEAR)
         var _number = tag.getFirst(FieldKey.TRACK)
-        if (_number != "") {
-            val num: Int = _number.toInt()
+        try {
+            val num = _number.toInt()
             if (num < 10) {
                 _number = "00$num"
             } else if (num < 100) {
                 _number = "0$num"
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return copy(artist = _artist, album = _album, title = _title, year = _year, number = _number)
     }
