@@ -67,7 +67,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 
     fun providePresenter() =
-        MusicTransmitterPresenter(applicationContext, settings, trackInfoStorage)
+        MusicTransmitterPresenter(this, settings, trackInfoStorage)
 
     private fun injectDependencies() {
         if (application is App) {
@@ -77,15 +77,20 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         }
     }
 
-    private val presenter by moxyPresenter {
+    private val _presenter by lazy {
         injectDependencies()
         providePresenter()
+    }
+    private val presenter by moxyPresenter {
+        _presenter
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_transmitter)
+
+        presenter
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
 

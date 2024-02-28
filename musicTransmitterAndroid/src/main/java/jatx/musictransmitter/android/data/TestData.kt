@@ -1,5 +1,6 @@
 package jatx.musictransmitter.android.data
 
+import android.util.Log
 import jatx.musictransmitter.android.db.entity.Track
 import jatx.musictransmitter.android.domain.ContentStorage
 import jatx.musictransmitter.android.domain.TrackInfoStorage
@@ -73,7 +74,11 @@ class TrackInfoStorageTestImpl : TrackInfoStorage {
     override var files: List<File> = listOf()
         set(value) {
             field = value
-            onUpdateTrackListListener?.onUpdateTrackList(value.map { getTrackFromFile(it) })
+            try {
+                onUpdateTrackListListener?.onUpdateTrackList(value.map { getTrackFromFile(it) })
+            } catch (e: Exception) {
+                Log.e("test error", "when set files")
+            }
         }
     override fun getTrackFromFile(file: File): Track = trackByFileMap[file]!!
 

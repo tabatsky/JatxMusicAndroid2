@@ -80,6 +80,7 @@ class UITest {
         onView(withText("Title 1 1")).check(matches(isDisplayed()))
         onView(withText("Title 1 3")).check(matches(isDisplayed()))
         onView(isRoot()).check(matches(withViewCountAtLeast(withText("Artist 2 | 1:37"), 4)))
+        onView(isRoot()).perform(waitFor(3000))
     }
 }
 
