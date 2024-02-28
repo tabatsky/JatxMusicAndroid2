@@ -117,7 +117,7 @@ class TrackInfoStorageImpl(
     }
 }
 
-private interface OnUpdateTrackListListener {
+interface OnUpdateTrackListListener {
     fun onUpdateTrackList(tracks: List<Track>)
 }
 

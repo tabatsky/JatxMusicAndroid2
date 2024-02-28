@@ -20,7 +20,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
-import dagger.Lazy
 import jatx.constants.*
 import jatx.debug.AppDebug
 import jatx.extensions.onSeek
@@ -28,9 +27,12 @@ import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.TestApp
 import jatx.musictransmitter.android.databinding.ActivityMusicTransmitterBinding
 import jatx.musictransmitter.android.db.entity.Track
 import jatx.musictransmitter.android.domain.ContentStorage
+import jatx.musictransmitter.android.domain.Settings
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.media.*
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
@@ -52,19 +54,36 @@ const val REQUEST_TAG_EDITOR = 2222
 
 class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     @Inject
-    lateinit var presenterProvider: Lazy<MusicTransmitterPresenter>
-    @Inject
     lateinit var contentStorage: ContentStorage
 
-    private val presenter by moxyPresenter { presenterProvider.get() }
+    @Inject
+    lateinit var settings: Settings
+
+    @Inject
+    lateinit var trackInfoStorage: TrackInfoStorage
 
     private val tracksAdapter = TrackAdapter()
 
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 
+    fun providePresenter() =
+        MusicTransmitterPresenter(applicationContext, settings, trackInfoStorage)
+
+    private fun injectDependencies() {
+        if (application is App) {
+            App.appComponent?.injectMusicTransmitterActivity(this)
+        } else if (application is TestApp) {
+            TestApp.appComponent?.injectMusicTransmitterActivity(this)
+        }
+    }
+
+    private val presenter by moxyPresenter {
+        injectDependencies()
+        providePresenter()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
-        App.appComponent?.injectMusicTransmitterActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_transmitter)
 

@@ -6,8 +6,10 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import jatx.musictransmitter.android.data.ContentStorageImpl
+import jatx.musictransmitter.android.data.ContentStorageTestImpl
 import jatx.musictransmitter.android.data.SettingsImpl
 import jatx.musictransmitter.android.data.TrackInfoStorageImpl
+import jatx.musictransmitter.android.data.TrackInfoStorageTestImpl
 import jatx.musictransmitter.android.db.AppDatabase
 import jatx.musictransmitter.android.db.dao.TrackDao
 import jatx.musictransmitter.android.domain.ContentStorage
@@ -21,8 +23,31 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
+        TestAppModule::class
+    ],
+)
+interface TestAppComponent: AppDeps {
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        fun context(context: Context): Builder
+
+        fun build(): TestAppComponent
+    }
+
+    fun injectMusicTransmitterActivity(musicTransmitterActivity: MusicTransmitterActivity)
+
+    fun injectMusicTransmitterService(musicTransmitterService: MusicTransmitterService)
+
+    fun injectMusicEditorActivity(musicEditorActivity: MusicEditorActivity)
+}
+
+
+@Singleton
+@Component(
+    modules = [
         AppModule::class
-    ]
+    ],
 )
 interface AppComponent: AppDeps {
     @Component.Builder
@@ -57,6 +82,21 @@ class AppModule {
     @Provides
     @Singleton
     fun provideTrackInfoStorage(trackDao: TrackDao): TrackInfoStorage = TrackInfoStorageImpl(trackDao)
+}
+
+@Module
+class TestAppModule {
+    @Provides
+    @Singleton
+    fun provideSettings(context: Context): Settings = SettingsImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideContentStorage(): ContentStorage = ContentStorageTestImpl()
+
+    @Provides
+    @Singleton
+    fun provideTrackInfoStorage(): TrackInfoStorage = TrackInfoStorageTestImpl()
 }
 
 interface AppDeps {

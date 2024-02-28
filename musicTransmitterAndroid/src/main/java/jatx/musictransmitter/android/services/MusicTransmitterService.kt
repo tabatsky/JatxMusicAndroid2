@@ -23,6 +23,7 @@ import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.App
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.R
+import jatx.musictransmitter.android.TestApp
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.threads.*
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
@@ -121,8 +122,16 @@ class MusicTransmitterService: Service() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    private fun injectDependencies() {
+        if (application is App) {
+            App.appComponent?.injectMusicTransmitterService(this)
+        } else if (application is TestApp) {
+            TestApp.appComponent?.injectMusicTransmitterService(this)
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        App.appComponent?.injectMusicTransmitterService(this)
+        injectDependencies()
 
         startForeground()
         lockWifi()
