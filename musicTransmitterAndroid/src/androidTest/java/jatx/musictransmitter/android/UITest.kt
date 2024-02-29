@@ -18,8 +18,14 @@ import androidx.test.espresso.util.TreeIterables
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnitRunner
+import jatx.musictransmitter.android.data.commonTrackLength
+import jatx.musictransmitter.android.di.DaggerTestAppComponent
+import jatx.musictransmitter.android.di.TestDeps
+import jatx.musictransmitter.android.media.AlbumEntry
+import jatx.musictransmitter.android.media.ArtistEntry
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -38,6 +44,15 @@ class CustomTestRunner : AndroidJUnitRunner() {
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class UITest {
+    private val appComponent = DaggerTestAppComponent
+        .builder()
+        .context(InstrumentationRegistry.getInstrumentation().context)
+        .build()
+
+    private val testDeps = TestDeps().also {
+        appComponent.injectTestDeps(it)
+    }
+
     @get:Rule
     var activityScenarioRule = activityScenarioRule<MusicTransmitterActivity>()
 
@@ -72,14 +87,44 @@ class UITest {
 
     @Test
     fun test001_artistIsAddedFromMenuCorrectly() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+        val tracks = testDeps.contentStorage.getFilesByEntry(artistEntry).map {
+            testDeps.trackInfoStorage.getTrackFromFile(it)
+        }
+
         onView(withText("REMOVE")).perform(click())
         onView(withText("Remove All")).perform(click())
         onView(withText("ADD")).perform(click())
         onView(withText("Add Artist")).perform(click())
-        onView(withText("Artist 2")).perform(click())
-        onView(withText("Title 1 1")).check(matches(isDisplayed()))
-        onView(withText("Title 1 3")).check(matches(isDisplayed()))
-        onView(isRoot()).check(matches(withViewCountAtLeast(withText("Artist 2 | 1:37"), 4)))
+        onView(withText(artistEntry.artist)).perform(click())
+        onView(withText(tracks[0].title)).check(matches(isDisplayed()))
+        onView(withText(tracks[1].title)).check(matches(isDisplayed()))
+        onView(withText(tracks[2].title)).check(matches(isDisplayed()))
+        val artistWithCommonTrackLength = "${artistEntry.artist} | $commonTrackLength"
+        onView(isRoot()).check(
+            matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))
+        onView(isRoot()).perform(waitFor(3000))
+    }
+
+    @Test
+    fun test002_albumIsAddedFromMenuCorrectly() {
+        val albumEntry = testDeps.contentStorage.getAlbumEntries()[1] as AlbumEntry
+        val tracks = testDeps.contentStorage.getFilesByEntry(albumEntry).map {
+            testDeps.trackInfoStorage.getTrackFromFile(it)
+        }
+
+        onView(withText("REMOVE")).perform(click())
+        onView(withText("Remove All")).perform(click())
+        onView(withText("ADD")).perform(click())
+        onView(withText("Add Album")).perform(click())
+        val albumWithArtist = "${albumEntry.album} (${albumEntry.artist})"
+        onView(withText(albumWithArtist)).perform(click())
+        onView(withText(tracks[0].title)).check(matches(isDisplayed()))
+        onView(withText(tracks[1].title)).check(matches(isDisplayed()))
+        onView(withText(tracks[2].title)).check(matches(isDisplayed()))
+        val artistWithCommonTrackLength = "${albumEntry.artist} | $commonTrackLength"
+        onView(isRoot()).check(
+            matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))
         onView(isRoot()).perform(waitFor(3000))
     }
 }

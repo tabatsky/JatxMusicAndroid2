@@ -10,6 +10,8 @@ import jatx.musictransmitter.android.media.MusicEntry
 import jatx.musictransmitter.android.media.TrackEntry
 import java.io.File
 
+const val commonTrackLength = "1:37"
+
 val tracks = arrayListOf<Track>().also { theTracks ->
     (1..5).forEach { artistId ->
         (1..5).forEach { albumId ->
@@ -20,7 +22,7 @@ val tracks = arrayListOf<Track>().also { theTracks ->
                     album = "Album $artistId $albumId",
                     title = "Title $albumId $titleId",
                     year = "1999",
-                    length = "1:37",
+                    length = commonTrackLength,
                     number = titleId.toString(),
                     lastModified = System.currentTimeMillis() / (1000L * 60 * 60 * 24)
                 )
@@ -78,6 +80,7 @@ class TrackInfoStorageTestImpl : TrackInfoStorage {
                 onUpdateTrackListListener?.onUpdateTrackList(value.map { getTrackFromFile(it) })
             } catch (e: Exception) {
                 Log.e("test error", "when set files")
+                field = listOf()
             }
         }
     override fun getTrackFromFile(file: File): Track = trackByFileMap[file]!!
