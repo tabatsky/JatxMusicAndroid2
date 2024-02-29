@@ -30,9 +30,11 @@ import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
 
 class CustomTestRunner : AndroidJUnitRunner() {
@@ -43,15 +45,19 @@ class CustomTestRunner : AndroidJUnitRunner() {
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class UITest {
     private val appComponent = DaggerTestAppComponent
         .builder()
-        .context(InstrumentationRegistry.getInstrumentation().context)
+        .context(InstrumentationRegistry.getInstrumentation().targetContext)
         .build()
 
     private val testDeps = TestDeps().also {
         appComponent.injectTestDeps(it)
     }
+
+    private val stringConst =
+        StringConst(InstrumentationRegistry.getInstrumentation().targetContext)
 
     @get:Rule
     var activityScenarioRule = activityScenarioRule<MusicTransmitterActivity>()
@@ -92,10 +98,10 @@ class UITest {
             testDeps.trackInfoStorage.getTrackFromFile(it)
         }
 
-        onView(withText("REMOVE")).perform(click())
-        onView(withText("Remove All")).perform(click())
-        onView(withText("ADD")).perform(click())
-        onView(withText("Add Artist")).perform(click())
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
         onView(withText(artistEntry.artist)).perform(click())
         onView(withText(tracks[0].title)).check(matches(isDisplayed()))
         onView(withText(tracks[1].title)).check(matches(isDisplayed()))
@@ -113,10 +119,10 @@ class UITest {
             testDeps.trackInfoStorage.getTrackFromFile(it)
         }
 
-        onView(withText("REMOVE")).perform(click())
-        onView(withText("Remove All")).perform(click())
-        onView(withText("ADD")).perform(click())
-        onView(withText("Add Album")).perform(click())
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddAlbum)).perform(click())
         val albumWithArtist = "${albumEntry.album} (${albumEntry.artist})"
         onView(withText(albumWithArtist)).perform(click())
         onView(withText(tracks[0].title)).check(matches(isDisplayed()))
@@ -127,6 +133,14 @@ class UITest {
             matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))
         onView(isRoot()).perform(waitFor(3000))
     }
+}
+
+class StringConst(private val context: Context) {
+    val itemAdd = context.getString(R.string.item_add)
+    val itemAddArtist = context.getString(R.string.item_add_artist)
+    val itemAddAlbum = context.getString(R.string.item_add_album)
+    val itemRemove = context.getString(R.string.item_remove)
+    val itemRemoveAll = context.getString(R.string.item_remove_all)
 }
 
 fun waitFor(delay: Long): ViewAction? {
