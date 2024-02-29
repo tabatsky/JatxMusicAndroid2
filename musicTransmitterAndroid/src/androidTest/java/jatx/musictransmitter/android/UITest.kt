@@ -135,7 +135,7 @@ class UITest {
     }
 }
 
-class StringConst(private val context: Context) {
+class StringConst(context: Context) {
     val itemAdd = context.getString(R.string.item_add)
     val itemAddArtist = context.getString(R.string.item_add_artist)
     val itemAddAlbum = context.getString(R.string.item_add_album)
@@ -143,7 +143,7 @@ class StringConst(private val context: Context) {
     val itemRemoveAll = context.getString(R.string.item_remove_all)
 }
 
-fun waitFor(delay: Long): ViewAction? {
+fun waitFor(delay: Long): ViewAction {
     return object : ViewAction {
         override fun getConstraints(): Matcher<View> = isRoot()
         override fun getDescription(): String = "wait for $delay milliseconds"
