@@ -111,6 +111,15 @@ class UITest {
         onView(withText(tracks[0].title)).check(matches(isDisplayed()))
         onView(withText(tracks[1].title)).check(matches(isDisplayed()))
         onView(withText(tracks[2].title)).check(matches(isDisplayed()))
+        listOf(8, 16).forEach { index ->
+            activityScenarioRule.scenario.onActivity {
+                it.scrollToPosition(index)
+            }
+            onView(isRoot()).perform(waitFor(3000))
+            onView(withText(tracks[index].title)).check(matches(isDisplayed()))
+            onView(withText(tracks[index + 1].title)).check(matches(isDisplayed()))
+            onView(withText(tracks[index + 2].title)).check(matches(isDisplayed()))
+        }
         val artistWithCommonTrackLength = "${artistEntry.artist} | $commonTrackLength"
         onView(isRoot()).check(
             matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))

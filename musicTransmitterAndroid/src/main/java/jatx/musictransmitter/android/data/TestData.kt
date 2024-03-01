@@ -42,7 +42,7 @@ val artistEntries = tracks.groupBy {
     ArtistEntry(artist = it.artist)
 }.map {
     val key = it.key
-    val value = it.value.map { File(it.path) }
+    val value = it.value.sortedBy { it.path }.map { File(it.path) }
     key to value
 }.toMap()
 
@@ -50,7 +50,7 @@ val albumEntries = tracks.groupBy {
     AlbumEntry(artist = it.artist, album = it.album)
 }.map {
     val key = it.key
-    val value = it.value.map { File(it.path) }
+    val value = it.value.sortedBy { it.path }.map { File(it.path) }
     key to value
 }.toMap()
 
