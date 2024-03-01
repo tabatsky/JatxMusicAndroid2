@@ -12,6 +12,12 @@ import java.io.File
 
 const val commonTrackLength = "1:37"
 
+fun makeTrackEntry(artistId: Int, albumId: Int, titleId: Int) = TrackEntry(
+    artist = "Artist $artistId",
+    album = "Album $artistId $albumId",
+    title = "Title $albumId $titleId"
+)
+
 val tracks = arrayListOf<Track>().also { theTracks ->
     (1..5).forEach { artistId ->
         (1..5).forEach { albumId ->
@@ -67,9 +73,7 @@ class ContentStorageTestImpl: ContentStorage {
 
     override fun getArtistEntries() = artistEntries.keys.toList().sortedBy { it.searchString }
 
-    override fun getTrackEntries() = trackEntries.keys.toList().sortedBy {
-        it.artist + it.album + it.title
-    }
+    override fun getTrackEntries() = trackEntries.keys.toList().sortedBy { it.searchString }
 }
 
 class TrackInfoStorageTestImpl : TrackInfoStorage {

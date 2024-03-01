@@ -25,6 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnitRunner
 import jatx.musictransmitter.android.data.commonTrackLength
+import jatx.musictransmitter.android.data.makeTrackEntry
 import jatx.musictransmitter.android.di.DaggerTestAppComponent
 import jatx.musictransmitter.android.di.TestDeps
 import jatx.musictransmitter.android.media.AlbumEntry
@@ -150,13 +151,14 @@ class UITest {
         onView(withText(stringConst.itemRemove)).perform(click())
         onView(withText(stringConst.itemRemoveAll)).perform(click())
 
-        listOf(2, 37, 98).forEach { index ->
+        listOf(1, 2, 3).forEach { id ->
             onView(withText(stringConst.itemAdd)).perform(click())
             onView(withText(stringConst.itemAddTrack)).perform(click())
+            val trackEntry = makeTrackEntry(id, id, id)
+            val index = trackEntries.indexOf(trackEntry)
             onView(withId(R.id.musicSelectorRV)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(
                 index
             ))
-            val trackEntry = trackEntries[index]
             val track = tracks[index]
             onView(withText(trackEntry.asString)).perform(click())
             onView(withText(track.title)).check(matches(isDisplayed()))
