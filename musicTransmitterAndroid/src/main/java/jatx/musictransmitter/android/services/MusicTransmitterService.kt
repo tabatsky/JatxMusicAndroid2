@@ -241,8 +241,8 @@ class MusicTransmitterService: Service() {
         initBroadcastReceivers()
 
         val tu = TimeUpdater(uiController)
-        val tc = TransmitterController(settings.volume, !settings.isLocalMode)
-        val tp = TransmitterPlayer(uiController)
+        val tc = TransmitterControllerImpl(settings.volume, !settings.isLocalMode)
+        val tp = TransmitterPlayerImpl(uiController)
         val tpda = if (settings.isLocalMode) {
             LocalPlayer()
         } else {
@@ -348,7 +348,7 @@ class MusicTransmitterService: Service() {
         } else {
             TransmitterPlayerConnectionKeeper(uiController)
         }
-        val tc = TransmitterController(settings.volume, !settings.isLocalMode)
+        val tc = TransmitterControllerImpl(settings.volume, !settings.isLocalMode)
         tk = ThreadKeeper(tk.tu, tc, tk.tp, tpda)
         tc.tk = tk
         tk.tp.tk = tk

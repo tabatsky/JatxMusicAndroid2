@@ -10,30 +10,49 @@ import jatx.musictransmitter.android.data.MIC_PATH
 import java.io.File
 import java.io.IOException
 
-class TransmitterPlayer(
+abstract class TransmitterPlayer: Thread() {
+    abstract var microphoneOk: Boolean
+    abstract var isNetworkingMode: Boolean
+    abstract var count: Int
+    abstract var isPlaying: Boolean
+    abstract var path: String?
+    abstract var files: List<File>
+    abstract var position: Int
+    abstract var startTime: Long
+    abstract var currentTime: Long
+    abstract var deltaTimeExtraSentToReceiver: Float
+    abstract var tk: ThreadKeeper?
+    abstract fun play()
+    abstract fun pause()
+    abstract fun seek(progress: Double)
+}
+
+class TransmitterPlayerImpl(
     @Volatile private var uiController: UIController
-): Thread() {
-    @Volatile var microphoneOk = false
-
-    @Volatile var isNetworkingMode = false
-
+): TransmitterPlayer() {
     @Volatile
-    var count = 0
-    @Volatile
-    var isPlaying = false
+    override var microphoneOk = false
 
     @Volatile
-    var path: String? = null
+    override var isNetworkingMode = false
 
     @Volatile
-    var files: List<File> = listOf()
+    override var count = 0
+    @Volatile
+    override var isPlaying = false
+
+    @Volatile
+    override var path: String? = null
+
+    @Volatile
+    override var files: List<File> = listOf()
         set(value) {
             field = value
             count = value.size
         }
 
     @Volatile
-    var position = 0
+    override var position = 0
         set(value) {
             pause()
 
@@ -61,13 +80,13 @@ class TransmitterPlayer(
         }
 
     @Volatile
-    var startTime: Long = 0
+    override var startTime: Long = 0
     @Volatile
-    var currentTime: Long = 0
+    override var currentTime: Long = 0
     @Volatile
-    var deltaTimeExtraSentToReceiver = 0f
+    override var deltaTimeExtraSentToReceiver = 0f
 
-    var tk: ThreadKeeper? = null
+    override var tk: ThreadKeeper? = null
 
     override fun run() {
         Log.e("starting","transmitter player")
@@ -82,7 +101,7 @@ class TransmitterPlayer(
         }
     }
 
-    fun play() {
+    override fun play() {
         isPlaying = true
         if (path == MIC_PATH) {
             try {
@@ -96,7 +115,7 @@ class TransmitterPlayer(
         }
     }
 
-    fun pause() {
+    override fun pause() {
         isPlaying = false
         if (path == MIC_PATH) {
             Microphone.stop()
@@ -104,7 +123,7 @@ class TransmitterPlayer(
         }
     }
 
-    fun seek(progress: Double) {
+    override fun seek(progress: Double) {
         val needToPlay = isPlaying
         pause()
         try {

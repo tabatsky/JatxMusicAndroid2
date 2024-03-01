@@ -16,12 +16,20 @@ const val COMMAND_PLAY = 125.toByte()
 
 const val SO_TIMEOUT = 1000
 
-class TransmitterController(
+abstract class TransmitterController: Thread() {
+    abstract var volume: Int
+    abstract var finishFlag: Boolean
+    abstract var tk: ThreadKeeper?
+    abstract fun play()
+    abstract fun pause()
+}
+
+class TransmitterControllerImpl(
     initialVolume: Int,
     private val isNetworkingMode: Boolean
-) : Thread() {
+) : TransmitterController() {
     @Volatile
-    var volume: Int = initialVolume
+    override var volume: Int = initialVolume
         set(value) {
             println("(controller) set volume: " + Integer.valueOf(value).toString())
             if (isNetworkingMode) {
@@ -33,10 +41,10 @@ class TransmitterController(
         }
 
     @Volatile
-    var finishFlag = false
+    override var finishFlag = false
 
     @Volatile
-    var tk: ThreadKeeper? = null
+    override var tk: ThreadKeeper? = null
 
     private var ss: ServerSocket? = null
 
@@ -46,7 +54,7 @@ class TransmitterController(
     private val localPlayer: LocalPlayer?
         get() = tk?.tpda as? LocalPlayer
 
-    fun play() {
+    override fun play() {
         println("(controller) play")
         if (isNetworkingMode) {
             workers.values.forEach { it.play() }
@@ -55,7 +63,7 @@ class TransmitterController(
         }
     }
 
-    fun pause() {
+    override fun pause() {
         println("(controller) pause")
         if (isNetworkingMode) {
             workers.values.forEach { it.pause() }
