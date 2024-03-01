@@ -67,7 +67,9 @@ class ContentStorageTestImpl: ContentStorage {
 
     override fun getArtistEntries() = artistEntries.keys.toList().sortedBy { it.searchString }
 
-    override fun getTrackEntries() = trackEntries.keys.toList().sortedBy { it.searchString }
+    override fun getTrackEntries() = trackEntries.keys.toList().sortedBy {
+        it.artist + it.album + it.title
+    }
 }
 
 class TrackInfoStorageTestImpl : TrackInfoStorage {
