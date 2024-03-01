@@ -69,7 +69,15 @@ class MusicTransmitterService: Service() {
     private lateinit var tcSetVolumeReceiver: BroadcastReceiver
     private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
 
-    private lateinit var tk: ThreadKeeper
+    companion object {
+        private var _tk: ThreadKeeper? = null
+        val tk: ThreadKeeper
+            get() = _tk ?: throw IllegalStateException("null thread keeper")
+
+        private fun setTk(tk: ThreadKeeper?) {
+            _tk = tk
+        }
+    }
 
     @Volatile
     private var wifiStatus = false
@@ -149,6 +157,8 @@ class MusicTransmitterService: Service() {
         tk.tc.finishFlag = true
         tk.tp.interrupt()
         tk.tpda.interrupt()
+
+        setTk(null)
 
         unregisterReceivers()
 
@@ -249,7 +259,7 @@ class MusicTransmitterService: Service() {
             TransmitterPlayerConnectionKeeper(uiController)
         }
 
-        tk = ThreadKeeper(tu, tc, tp, tpda)
+        setTk(ThreadKeeper(tu, tc, tp, tpda))
 
         tc.tk = tk
         tp.tk = tk
@@ -349,7 +359,7 @@ class MusicTransmitterService: Service() {
             TransmitterPlayerConnectionKeeper(uiController)
         }
         val tc = TransmitterControllerImpl(settings.volume, !settings.isLocalMode)
-        tk = ThreadKeeper(tk.tu, tc, tk.tp, tpda)
+        setTk(ThreadKeeper(tk.tu, tc, tk.tp, tpda))
         tc.tk = tk
         tk.tp.tk = tk
         tk.tp.isNetworkingMode = !settings.isLocalMode
