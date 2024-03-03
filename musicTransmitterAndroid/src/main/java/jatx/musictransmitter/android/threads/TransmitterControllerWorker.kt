@@ -62,7 +62,7 @@ class TransmitterControllerWorker(
             println("(controller $threadId) socket disconnect")
             println("(controller $threadId) " + Date().time % 10000)
         } finally {
-            (tk?.tpda as? TransmitterPlayerConnectionKeeper)?.getWorkerByHost(host)?.finishWorkerFlag = true
+            (tk?.tpda as? TransmitterPlayerConnectionKeeperImpl)?.getWorkerByHost(host)?.finishWorkerFlag = true
             sleep(250)
             os?.close()
             println("(controller $threadId) output stream closed")

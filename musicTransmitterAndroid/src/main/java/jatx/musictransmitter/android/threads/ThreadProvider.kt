@@ -10,3 +10,8 @@ fun Application.provideTransmitterPlayer(
     uiController: UIController
 ): TransmitterPlayer =
     TransmitterPlayerImpl(uiController)
+
+fun Application.provideTransmitterPlayerConnectionKeeper(
+    uiController: UIController
+): TransmitterPlayerConnectionKeeper =
+    TransmitterPlayerConnectionKeeperImpl(uiController)

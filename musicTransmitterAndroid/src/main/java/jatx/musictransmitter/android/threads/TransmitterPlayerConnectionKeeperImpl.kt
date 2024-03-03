@@ -8,15 +8,19 @@ import java.util.concurrent.ConcurrentHashMap
 
 const val CONNECT_PORT_PLAYER = 7171
 
-class TransmitterPlayerConnectionKeeper(
+abstract class TransmitterPlayerConnectionKeeper: TransmitterPlayerDataAcceptor() {
+    abstract fun getWorkerByHost(host: String): TransmitterPlayerWorker?
+}
+
+class TransmitterPlayerConnectionKeeperImpl(
     @Volatile private var uiController: UIController
-): TransmitterPlayerDataAcceptor() {
+): TransmitterPlayerConnectionKeeper() {
     private var ss: ServerSocket? = null
 
     @Volatile
     private var workers = ConcurrentHashMap<String, TransmitterPlayerWorker>()
 
-    fun getWorkerByHost(host: String) = workers[host]
+    override fun getWorkerByHost(host: String) = workers[host]
 
     override fun writeData(data: ByteArray) {
         workers.values.forEach {
