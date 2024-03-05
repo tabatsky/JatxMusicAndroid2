@@ -31,9 +31,12 @@ import jatx.musictransmitter.android.di.TestDeps
 import jatx.musictransmitter.android.media.AlbumEntry
 import jatx.musictransmitter.android.media.ArtistEntry
 import jatx.musictransmitter.android.media.TrackEntry
+import jatx.musictransmitter.android.services.MusicTransmitterService
+import jatx.musictransmitter.android.threads.TransmitterPlayerConnectionKeeperTestImpl
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.not
 import org.hamcrest.TypeSafeMatcher
 import org.junit.FixMethodOrder
 import org.junit.Rule
@@ -115,7 +118,7 @@ class UITest {
             activityScenarioRule.scenario.onActivity {
                 it.scrollToPosition(index)
             }
-            onView(isRoot()).perform(waitFor(3000))
+            onView(isRoot()).perform(waitFor(defaultTimeout))
             onView(withText(tracks[index].title)).check(matches(isDisplayed()))
             onView(withText(tracks[index + 1].title)).check(matches(isDisplayed()))
             onView(withText(tracks[index + 2].title)).check(matches(isDisplayed()))
@@ -123,7 +126,7 @@ class UITest {
         val artistWithCommonTrackLength = "${artistEntry.artist} | $commonTrackLength"
         onView(isRoot()).check(
             matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))
-        onView(isRoot()).perform(waitFor(3000))
+        onView(isRoot()).perform(waitFor(defaultTimeout))
     }
 
     @Test
@@ -145,7 +148,7 @@ class UITest {
         val artistWithCommonTrackLength = "${albumEntry.artist} | $commonTrackLength"
         onView(isRoot()).check(
             matches(withViewCountAtLeast(withText(artistWithCommonTrackLength), 4)))
-        onView(isRoot()).perform(waitFor(3000))
+        onView(isRoot()).perform(waitFor(defaultTimeout))
     }
 
     @Test
@@ -172,12 +175,68 @@ class UITest {
             onView(withText(trackEntry.asString)).perform(click())
             onView(withText(track.title)).check(matches(isDisplayed()))
             val artistWithCommonTrackLength = "${track.artist} | $commonTrackLength"
-            onView(isRoot()).perform(waitFor(3000))
+            onView(isRoot()).perform(waitFor(defaultTimeout))
             onView(withText(artistWithCommonTrackLength)).check(matches(isDisplayed()))
         }
-
-        onView(isRoot()).perform(waitFor(3000))
+9 
+        onView(isRoot()).perform(waitFor(defaultTimeout))
     }
+
+    @Test
+    fun test004_wifiStatusIsWorkingCorrectly() {
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+        onView(withId(R.id.wifiNoIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiOkIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText(tpck.workerCount.toString())))
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+        onView(withId(R.id.wifiNoIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiOkIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText(tpck.workerCount.toString())))
+        tpck.workerCount = 2
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+        onView(withId(R.id.wifiNoIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiOkIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText(tpck.workerCount.toString())))
+        tpck.workerCount = 3
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+        onView(withId(R.id.wifiNoIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiOkIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText(tpck.workerCount.toString())))
+        tpck.workerCount = 0
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+        onView(withId(R.id.wifiNoIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiOkIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText(tpck.workerCount.toString())))
+    }
+
+    @Test
+    fun test005_localOrNetworkingModeIsWorkingCorrectly() {
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(true)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.localModeIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiNoIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiOkIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(not(isDisplayed())))
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.localModeIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiNoIV)).check(matches(isDisplayed()))
+        onView(withId(R.id.wifiOkIV)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.wifiReceiverCount)).check(matches(withText("0")))
+     }
 }
 
 class StringConst(context: Context) {
@@ -188,6 +247,8 @@ class StringConst(context: Context) {
     val itemRemove = context.getString(R.string.item_remove)
     val itemRemoveAll = context.getString(R.string.item_remove_all)
 }
+
+const val defaultTimeout = 1000L
 
 fun waitFor(delay: Long): ViewAction {
     return object : ViewAction {

@@ -81,7 +81,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         injectDependencies()
         providePresenter()
     }
-    private val presenter by moxyPresenter {
+    internal val presenter by moxyPresenter {
         _presenter
     }
 

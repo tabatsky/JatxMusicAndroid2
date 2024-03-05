@@ -1,6 +1,7 @@
 package jatx.musictransmitter.android.threads
 
 import android.app.Application
+import jatx.musictransmitter.android.App
 
 fun Application.provideTransmitterController(
     initialVolume: Int, isNetworkingMode: Boolean): TransmitterController =
@@ -14,4 +15,8 @@ fun Application.provideTransmitterPlayer(
 fun Application.provideTransmitterPlayerConnectionKeeper(
     uiController: UIController
 ): TransmitterPlayerConnectionKeeper =
-    TransmitterPlayerConnectionKeeperImpl(uiController)
+    if (this is App) {
+        TransmitterPlayerConnectionKeeperImpl(uiController)
+    } else {
+        TransmitterPlayerConnectionKeeperTestImpl(uiController)
+    }

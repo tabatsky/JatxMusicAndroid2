@@ -47,6 +47,9 @@ class TestDeps {
 
     @Inject
     lateinit var trackInfoStorage: TrackInfoStorage
+
+    @Inject
+    lateinit var settings: Settings
 }
 
 @Module
