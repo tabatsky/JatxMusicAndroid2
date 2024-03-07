@@ -272,6 +272,88 @@ class UITest {
         onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
         onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
     }
+
+    @Test
+    fun test007_fwdButtonIsWorkingCorrectly() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+        val tracks = testDeps.contentStorage.getFilesByEntry(artistEntry).map {
+            testDeps.trackInfoStorage.getTrackFromFile(it)
+        }
+
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
+        onView(withText(artistEntry.artist)).perform(click())
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.playBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withText(tracks[0].title)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+
+        for (i in 1..30) {
+            onView(withId(R.id.fwdBtn)).perform(click())
+            onView(isRoot()).perform(waitFor(200))
+            onView(withText(tracks[i % tracks.size].title)).check(matches(isDisplayed()))
+            onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+            onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun test008_revButtonIsWorkingCorrectly() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+        val tracks = testDeps.contentStorage.getFilesByEntry(artistEntry).map {
+            testDeps.trackInfoStorage.getTrackFromFile(it)
+        }
+
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
+        onView(withText(artistEntry.artist)).perform(click())
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.playBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withText(tracks[0].title)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+
+        for (i in 0..< 30) {
+            onView(withId(R.id.revBtn)).perform(click())
+            onView(isRoot()).perform(waitFor(200))
+            onView(withText(tracks[tracks.size - 1 - i % tracks.size].title)).check(matches(isDisplayed()))
+            onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+            onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+        }
+    }
 }
 
 class StringConst(context: Context) {
