@@ -178,7 +178,7 @@ class UITest {
             onView(isRoot()).perform(waitFor(defaultTimeout))
             onView(withText(artistWithCommonTrackLength)).check(matches(isDisplayed()))
         }
-9 
+
         onView(isRoot()).perform(waitFor(defaultTimeout))
     }
 
@@ -236,7 +236,42 @@ class UITest {
         onView(withId(R.id.wifiNoIV)).check(matches(isDisplayed()))
         onView(withId(R.id.wifiOkIV)).check(matches(not(isDisplayed())))
         onView(withId(R.id.wifiReceiverCount)).check(matches(withText("0")))
-     }
+    }
+
+    @Test
+    fun test006_playAndPauseButtonsAreWorkingCorrectly() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
+        onView(withText(artistEntry.artist)).perform(click())
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.playBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.pauseBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+    }
 }
 
 class StringConst(context: Context) {
