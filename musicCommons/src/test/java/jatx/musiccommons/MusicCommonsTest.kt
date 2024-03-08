@@ -10,7 +10,7 @@ import java.io.PipedOutputStream
 import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
-class ExampleUnitTest {
+class MusicCommonsTest {
     @Test
     fun frameWritingAndReading_isCorrect() {
         val data = Random.nextBytes(4096)
