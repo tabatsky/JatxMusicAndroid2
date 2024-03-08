@@ -354,6 +354,82 @@ class UITest {
             onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
         }
     }
+
+    @Test
+    fun test009_disconnectCausesPause() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
+        onView(withText(artistEntry.artist)).perform(click())
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.playBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+
+        tpck.workerCount = 0
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+    }
+
+    @Test
+    fun test010_switchingToLocalModeCausesPause() {
+        val artistEntry = testDeps.contentStorage.getArtistEntries()[1] as ArtistEntry
+
+        onView(withText(stringConst.itemRemove)).perform(click())
+        onView(withText(stringConst.itemRemoveAll)).perform(click())
+        onView(withText(stringConst.itemAdd)).perform(click())
+        onView(withText(stringConst.itemAddArtist)).perform(click())
+        onView(withText(artistEntry.artist)).perform(click())
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(false)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        val tpck = MusicTransmitterService.tk.tpda as TransmitterPlayerConnectionKeeperTestImpl
+        tpck.workerCount = 1
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.playBtn)).perform(click())
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
+
+        activityScenarioRule.scenario.onActivity {
+            it.presenter.onSetLocalMode(true)
+        }
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+
+        onView(withId(R.id.playBtn)).check(matches(isDisplayed()))
+        onView(withId(R.id.pauseBtn)).check(matches(not(isDisplayed())))
+
+        onView(isRoot()).perform(waitFor(defaultTimeout))
+    }
 }
 
 class StringConst(context: Context) {
