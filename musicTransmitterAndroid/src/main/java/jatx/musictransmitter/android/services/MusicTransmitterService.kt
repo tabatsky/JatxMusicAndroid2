@@ -46,6 +46,7 @@ import jatx.musictransmitter.android.threads.provideTransmitterPlayerConnectionK
 import jatx.musictransmitter.android.ui.CLICK_FWD
 import jatx.musictransmitter.android.ui.CLICK_PAUSE
 import jatx.musictransmitter.android.ui.CLICK_PLAY
+import jatx.musictransmitter.android.ui.CLICK_REV
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import javax.inject.Inject
 
@@ -117,6 +118,13 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
                     keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
 
                     val intent = Intent(CLICK_FWD)
+                    sendBroadcast(intent)
+
+                    return true
+                } else if (keyEvent?.action == KeyEvent.ACTION_DOWN &&
+                    keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
+
+                    val intent = Intent(CLICK_REV)
                     sendBroadcast(intent)
 
                     return true
