@@ -347,7 +347,7 @@ class UITest {
         onView(withId(R.id.playBtn)).check(matches(not(isDisplayed())))
 
         for (i in 0..< 30) {
-            onView(withId(R.id.revBtn)).perform(click())
+            onView(withId(R.id.rewBtn)).perform(click())
             onView(isRoot()).perform(waitFor(200))
             onView(withText(tracks[tracks.size - 1 - i % tracks.size].title)).check(matches(isDisplayed()))
             onView(withId(R.id.pauseBtn)).check(matches(isDisplayed()))

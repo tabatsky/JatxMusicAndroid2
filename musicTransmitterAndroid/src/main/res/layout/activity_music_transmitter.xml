@@ -117,11 +117,11 @@
             />
         
         <ImageButton
-            android:id="@+id/revBtn"
+            android:id="@+id/rewBtn"
             android:layout_width="@dimen/button_size"
         	android:layout_height="@dimen/button_size"
         	android:padding="@dimen/button_padding"
-        	android:src="@drawable/ic_rev"
+        	android:src="@drawable/ic_rew"
         	android:scaleType="fitXY"
         	android:background="@color/gray7F"
 			app:tint="?attr/colorPrimary"

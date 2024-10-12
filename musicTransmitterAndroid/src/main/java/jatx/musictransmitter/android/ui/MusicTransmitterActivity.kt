@@ -108,7 +108,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             repeatBtn.setOnClickListener { presenter.onRepeatClick() }
             shuffleBtn.setOnClickListener { presenter.onShuffleClick() }
 
-            revBtn.setOnClickListener { presenter.onRevClick() }
+            rewBtn.setOnClickListener { presenter.onRewClick() }
             fwdBtn.setOnClickListener { presenter.onFwdClick() }
 
             volumeDownBtn.setOnClickListener { presenter.onVolumeDownClick() }

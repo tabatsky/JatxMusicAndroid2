@@ -19,7 +19,7 @@ const val CHANNEL_NAME = "jatxMusicTransmitter"
 
 const val CLICK_PLAY = "jatx.musictransmitter.android.CLICK_PLAY"
 const val CLICK_PAUSE = "jatx.musictransmitter.android.CLICK_PAUSE"
-const val CLICK_REV = "jatx.musictransmitter.android.CLICK_REV"
+const val CLICK_REW = "jatx.musictransmitter.android.CLICK_REW"
 const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 
 const val NOTIFICATION_ID = 1237
@@ -42,7 +42,7 @@ object MusicTransmitterNotification {
         val pauseIntent = Intent(CLICK_PAUSE)
         val pPauseIntent = PendingIntent.getBroadcast(context, 0, pauseIntent, flags)
 
-        val revIntent = Intent(CLICK_REV)
+        val revIntent = Intent(CLICK_REW)
         val pRevIntent = PendingIntent.getBroadcast(context, 0, revIntent, flags)
 
         val fwdIntent = Intent(CLICK_FWD)
@@ -68,7 +68,7 @@ object MusicTransmitterNotification {
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .setFullScreenIntent(contentIntent, true)
-            .addAction(R.drawable.ic_rev, "Rev", pRevIntent)
+            .addAction(R.drawable.ic_rew, "Rev", pRevIntent)
             .addAction(
                 if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
                 if (isPlaying) "Pause" else "Play",

@@ -154,7 +154,7 @@ class MusicTransmitterPresenter @Inject constructor(
         viewState.showShuffleState(false)
     }
 
-    fun onRevClick() {
+    fun onRewClick() {
         if (files.isEmpty()) return
 
         currentPosition = when {
@@ -500,10 +500,10 @@ class MusicTransmitterPresenter @Inject constructor(
 
         prevTrackReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                onRevClick()
+                onRewClick()
             }
         }
-        context.registerExportedReceiver(prevTrackReceiver, IntentFilter(CLICK_REV))
+        context.registerExportedReceiver(prevTrackReceiver, IntentFilter(CLICK_REW))
 
         clickPlayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {

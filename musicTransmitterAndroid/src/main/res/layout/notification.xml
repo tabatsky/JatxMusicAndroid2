@@ -49,11 +49,11 @@
             >
 
             <ImageButton
-                android:id="@+id/rev"
+                android:id="@+id/rew"
                 android:layout_width="@dimen/button_size_notification"
                 android:layout_height="@dimen/button_size_notification"
                 android:padding="@dimen/button_padding"
-                android:src="@drawable/ic_rev"
+                android:src="@drawable/ic_rew"
                 android:scaleType="fitXY"
                 android:background="@android:color/transparent"
                 style="@style/Widget.MusicTransmitter.NotificationButton"
