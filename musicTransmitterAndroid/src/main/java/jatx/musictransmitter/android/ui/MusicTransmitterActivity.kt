@@ -18,7 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
+import com.gun0912.tedpermission.normal.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
 import jatx.constants.*
 import jatx.debug.AppDebug
@@ -378,21 +378,21 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     private fun checkMediaPermissions(permissionListener: PermissionListener) {
         if (Build.VERSION.SDK_INT >= 33) {
-            TedPermission.with(this)
+            TedPermission.create()
                 .setPermissionListener(permissionListener)
                 .setPermissions(
                     Manifest.permission.READ_MEDIA_AUDIO
                 )
                 .check()
         } else if (Build.VERSION.SDK_INT >= 30) {
-            TedPermission.with(this)
+            TedPermission.create()
                 .setPermissionListener(permissionListener)
                 .setPermissions(
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 )
                 .check()
         } else {
-            TedPermission.with(this)
+            TedPermission.create()
                 .setPermissionListener(permissionListener)
                 .setPermissions(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -492,7 +492,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             }
         }
 
-        TedPermission.with(this)
+        TedPermission.create()
             .setPermissionListener(permissionListener)
             .setPermissions(Manifest.permission.RECORD_AUDIO)
             .check()

@@ -13,7 +13,7 @@ import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
 import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
+import com.gun0912.tedpermission.normal.TedPermission
 import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.db.entity.Track
@@ -447,7 +447,7 @@ class MusicTransmitterPresenter @Inject constructor(
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {}
         }
 
-        TedPermission.with(context)
+        TedPermission.create()
             .setPermissionListener(permissionListener)
             .setPermissions(Manifest.permission.READ_PHONE_STATE)
             .check()
@@ -461,7 +461,7 @@ class MusicTransmitterPresenter @Inject constructor(
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
-            TedPermission.with(context)
+            TedPermission.create()
                 .setPermissionListener(permissionListener)
                 .setPermissions(
                     Manifest.permission.POST_NOTIFICATIONS
