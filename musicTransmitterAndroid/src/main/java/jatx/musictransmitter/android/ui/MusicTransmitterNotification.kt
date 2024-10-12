@@ -68,12 +68,12 @@ object MusicTransmitterNotification {
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .setFullScreenIntent(contentIntent, true)
-            .addAction(R.drawable.ic_rew_vector, "Rev", pRevIntent)
+            .addAction(R.drawable.ic_rew_vector, "Rew", pRevIntent)
             .addAction(
                 if (isPlaying) R.drawable.ic_pause_vector else R.drawable.ic_play_vector,
                 if (isPlaying) "Pause" else "Play",
                 if (isPlaying) pPauseIntent else pPlayIntent)
-            .addAction(R.drawable.ic_fwd_vector, "Rev", pFwdIntent)
+            .addAction(R.drawable.ic_fwd_vector, "Fwd", pFwdIntent)
             .setStyle(
                 mediaStyle)
             .build()
