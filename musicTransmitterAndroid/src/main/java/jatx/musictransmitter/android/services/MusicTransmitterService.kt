@@ -49,6 +49,7 @@ import jatx.musictransmitter.android.ui.CLICK_PLAY
 import jatx.musictransmitter.android.ui.CLICK_REV
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 
 const val CHANNEL_ID_SERVICE = "jatxMusicTransmitterService"
@@ -90,8 +91,6 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
     private lateinit var tpSetFileListReceiver: BroadcastReceiver
     private lateinit var tcSetVolumeReceiver: BroadcastReceiver
     private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
-
-    private lateinit var mediaSessionCompat: MediaSessionCompat
 
     private var isPlaying = false
 
@@ -143,6 +142,8 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         private fun setTk(tk: ThreadKeeper?) {
             _tk = tk
         }
+
+        var mediaSessionCompat by Delegates.notNull<MediaSessionCompat>()
     }
 
     @Volatile
