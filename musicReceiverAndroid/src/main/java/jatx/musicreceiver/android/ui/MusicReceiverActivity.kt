@@ -17,9 +17,9 @@ import jatx.musicreceiver.android.R
 import jatx.musicreceiver.android.databinding.ActivityMusicReceiverBinding
 import jatx.musicreceiver.android.presentation.MusicReceiverPresenter
 import jatx.musicreceiver.android.presentation.MusicReceiverView
+import javax.inject.Inject
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
-import javax.inject.Inject
 
 class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
     @Inject

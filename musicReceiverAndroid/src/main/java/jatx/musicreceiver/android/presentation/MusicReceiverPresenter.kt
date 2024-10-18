@@ -7,7 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
+import com.gun0912.tedpermission.normal.TedPermission
 import jatx.extensions.registerExportedReceiver
 import jatx.musicreceiver.android.R
 import jatx.musicreceiver.android.data.Settings
@@ -148,7 +148,7 @@ class MusicReceiverPresenter @Inject constructor(
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
-            TedPermission.with(context)
+            TedPermission.create()
                 .setPermissionListener(permissionListener)
                 .setPermissions(
                     Manifest.permission.POST_NOTIFICATIONS
