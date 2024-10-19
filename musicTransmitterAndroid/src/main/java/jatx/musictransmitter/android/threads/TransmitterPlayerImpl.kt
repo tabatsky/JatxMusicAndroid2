@@ -162,11 +162,13 @@ class TransmitterPlayerImpl(
                     null
                 } catch (e: TrackFinishException) {
                     println("(player) track finish")
+                    pause()
                     nextTrack()
                     sleep(200)
                     null
                 } catch (e: WrongFrameException) {
                     println("(player) wrong frame")
+                    pause()
                     nextTrack()
                     sleep(200)
                     null

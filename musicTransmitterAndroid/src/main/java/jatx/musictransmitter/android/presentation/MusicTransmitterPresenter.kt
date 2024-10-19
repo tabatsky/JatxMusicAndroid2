@@ -169,10 +169,10 @@ class MusicTransmitterPresenter @Inject constructor(
             }
         }
 
-        onPlayClick()
         tpSetPosition(realPosition)
         viewState.showTracks(tracks, realPosition)
         viewState.scrollToPosition(realPosition)
+        onPlayClick()
     }
 
     fun onFwdClick() {
@@ -180,10 +180,10 @@ class MusicTransmitterPresenter @Inject constructor(
 
         currentPosition += 1
 
-        onPlayClick()
         tpSetPosition(realPosition)
         viewState.showTracks(tracks, realPosition)
         viewState.scrollToPosition(realPosition)
+        onPlayClick()
     }
 
     fun onVolumeUpClick() {
