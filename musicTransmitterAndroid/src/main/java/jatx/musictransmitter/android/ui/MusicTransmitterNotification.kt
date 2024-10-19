@@ -13,6 +13,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.services.MusicTransmitterService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val CHANNEL_ID = "jatxMusicTransmitter"
 const val CHANNEL_NAME = "jatxMusicTransmitter"
@@ -25,6 +30,8 @@ const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 const val NOTIFICATION_ID = 1237
 
 object MusicTransmitterNotification {
+    var lastTag: String? = null
+
     fun showNotification(context: Context, artist: String, title: String, albumArt: Bitmap, isPlaying: Boolean) {
         val notificationManager = NotificationManagerCompat.from(context)
 
@@ -59,7 +66,6 @@ object MusicTransmitterNotification {
             .setChannelId(CHANNEL_ID)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setSilent(true)
             .setOngoing(true)
             .setWhen(System.currentTimeMillis())
@@ -82,7 +88,17 @@ object MusicTransmitterNotification {
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.notify(System.currentTimeMillis().toString(), NOTIFICATION_ID, notification)
+            val prevTag = lastTag
+            lastTag = System.currentTimeMillis().toString()
+            notificationManager.notify(lastTag, NOTIFICATION_ID, notification)
+            prevTag?.let {
+                GlobalScope.launch {
+                    delay(500L)
+                    withContext(Dispatchers.Main) {
+                        notificationManager.cancel(it, NOTIFICATION_ID)
+                    }
+                }
+            }
         } else {
             Toast
                 .makeText(
