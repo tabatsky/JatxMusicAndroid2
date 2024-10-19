@@ -59,6 +59,7 @@ object MusicTransmitterNotification {
             .setChannelId(CHANNEL_ID)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setSilent(true)
             .setOngoing(true)
             .setWhen(System.currentTimeMillis())
@@ -81,7 +82,7 @@ object MusicTransmitterNotification {
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.notify(NOTIFICATION_ID, notification)
+            notificationManager.notify(System.currentTimeMillis().toString(), NOTIFICATION_ID, notification)
         } else {
             Toast
                 .makeText(
