@@ -30,7 +30,7 @@ const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 const val NOTIFICATION_ID = 1237
 
 object MusicTransmitterNotification {
-    var lastTag: String? = null
+    private var lastTag: String? = null
 
     fun showNotification(context: Context, artist: String, title: String, albumArt: Bitmap, isPlaying: Boolean) {
         val notificationManager = NotificationManagerCompat.from(context)
@@ -112,6 +112,7 @@ object MusicTransmitterNotification {
 
     fun hideNotification(context: Context) {
         val notificationManager = NotificationManagerCompat.from(context)
-        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(lastTag, NOTIFICATION_ID)
+        lastTag = null
     }
 }
