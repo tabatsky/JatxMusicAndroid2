@@ -7,6 +7,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup.MarginLayoutParams
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.Lazy
 import jatx.constants.*
@@ -33,6 +36,16 @@ class MusicReceiverActivity : MvpAppCompatActivity(), MusicReceiverView {
         App.appComponent?.injectMusicReceiverActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_receiver)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val paddingTop = insets.top
+            val rootLP = binding.root.layoutParams as MarginLayoutParams
+            rootLP.topMargin += paddingTop
+            binding.root.layoutParams = rootLP
+
+            WindowInsetsCompat.CONSUMED
+        }
 
         with(binding) {
             toggleBtn.setOnClickListener {

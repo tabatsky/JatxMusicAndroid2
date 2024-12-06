@@ -12,8 +12,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -66,7 +69,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 
-    fun providePresenter() =
+    private fun providePresenter() =
         MusicTransmitterPresenter(this, settings, trackInfoStorage)
 
     private fun injectDependencies() {
@@ -93,6 +96,16 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         presenter
 
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val paddingTop = insets.top
+            val rootLP = binding.root.layoutParams as MarginLayoutParams
+            rootLP.topMargin += paddingTop
+            binding.root.layoutParams = rootLP
+
+            WindowInsetsCompat.CONSUMED
+        }
 
         initTracksRV()
 
