@@ -100,8 +100,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             val paddingTop = insets.top
+            val paddingBottom = insets.bottom
             val rootLP = v.layoutParams as MarginLayoutParams
             rootLP.topMargin += paddingTop
+            rootLP.bottomMargin += paddingBottom
             v.layoutParams = rootLP
 
             WindowInsetsCompat.CONSUMED
