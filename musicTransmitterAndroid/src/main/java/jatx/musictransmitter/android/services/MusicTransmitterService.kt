@@ -6,21 +6,17 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiManager.WifiLock
 import android.os.Build
-import android.os.Bundle
-import android.os.IBinder
+import android.os.Looper
 import android.os.PowerManager
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
@@ -28,8 +24,14 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.media.MediaBrowserServiceCompat
-import androidx.media.session.MediaButtonReceiver
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.SimpleBasePlayer
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSessionService
+import androidx.test.espresso.core.internal.deps.guava.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
@@ -79,7 +81,7 @@ const val KEY_VOLUME = "volume"
 const val KEY_CURRENT_MS = "currentMs"
 const val KEY_TRACK_LENGTH_MS = "trackLengthMs"
 
-class MusicTransmitterService: MediaBrowserServiceCompat() {
+class MusicTransmitterService: MediaSessionService() {
     @Inject
     lateinit var settings: Settings
 
@@ -93,43 +95,50 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
     private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
 
     private var isPlaying = false
+    private lateinit var player: Player
+    private var mediaItems = listOf<MediaItem>()
 
-    private val mediaSessionCallback: MediaSessionCompat.Callback =
-        object : MediaSessionCompat.Callback() {
+    private val mediaSessionCallback: MediaSession.Callback =
+        object : MediaSession.Callback {
 
-            override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+            @UnstableApi
+            override fun onMediaButtonEvent(
+                session: MediaSession,
+                controllerInfo: MediaSession.ControllerInfo,
+                intent: Intent
+            ): Boolean {
                 val keyEvent =
-                    mediaButtonEvent!!.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
+                    intent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
                 Log.e("keyEvent", keyEvent.toString())
                 if (keyEvent?.action == KeyEvent.ACTION_DOWN && keyEvent.keyCode
                     in listOf(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE)) {
 
                     if (isPlaying) {
-                        val intent = Intent(CLICK_PAUSE)
-                        sendBroadcast(intent)
+                        val theIntent = Intent(CLICK_PAUSE)
+                        sendBroadcast(theIntent)
                     } else {
-                        val intent = Intent(CLICK_PLAY)
-                        sendBroadcast(intent)
+                        val theIntent = Intent(CLICK_PLAY)
+                        sendBroadcast(theIntent)
                     }
 
                     return true
                 } else if (keyEvent?.action == KeyEvent.ACTION_DOWN &&
                     keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
 
-                    val intent = Intent(CLICK_FWD)
-                    sendBroadcast(intent)
+                    val theIntent = Intent(CLICK_FWD)
+                    sendBroadcast(theIntent)
 
                     return true
                 } else if (keyEvent?.action == KeyEvent.ACTION_DOWN &&
                     keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
 
-                    val intent = Intent(CLICK_REW)
-                    sendBroadcast(intent)
+                    val theIntent = Intent(CLICK_REW)
+                    sendBroadcast(theIntent)
 
                     return true
                 }
 
-                return super.onMediaButtonEvent(mediaButtonEvent)
+                return super.onMediaButtonEvent(session, controllerInfo, intent)
             }
         }
 
@@ -143,7 +152,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
             _tk = tk
         }
 
-        var mediaSessionCompat by Delegates.notNull<MediaSessionCompat>()
+        var mediaSession by Delegates.notNull<MediaSession>()
     }
 
     @Volatile
@@ -193,25 +202,8 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         }
     }
 
-    override fun onGetRoot(
-        clientPackageName: String,
-        clientUid: Int,
-        rootHints: Bundle?
-    ): BrowserRoot? {
-        return if (TextUtils.equals(clientPackageName, packageName)) {
-            BrowserRoot(getString(R.string.app_name), null)
-        } else null
-    }
-
-    override fun onLoadChildren(
-        parentId: String,
-        result: Result<List<MediaBrowserCompat.MediaItem?>?>
-    ) {
-        result.sendResult(null)
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
+        return mediaSession
     }
 
     private fun injectDependencies() {
@@ -222,7 +214,10 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         }
     }
 
+    @UnstableApi
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+
         injectDependencies()
 
         startForeground()
@@ -331,6 +326,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         }
     }
 
+    @UnstableApi
     private fun prepareAndStart() {
         initBroadcastReceivers()
         initMediaSession()
@@ -359,27 +355,91 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         tp.start()
     }
 
+    @UnstableApi
     private fun initMediaSession() {
-        val mediaButtonReceiver = ComponentName(
-            applicationContext,
-            MediaButtonReceiver::class.java
-        )
-        mediaSessionCompat =
-            MediaSessionCompat(applicationContext, "Tag", mediaButtonReceiver, null)
-        mediaSessionCompat.setCallback(mediaSessionCallback)
-        mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        player = object: SimpleBasePlayer(Looper.getMainLooper()) {
+            private var currentState: Int = Player.STATE_IDLE
+            private var playWhenReady: Boolean = false
+            private var itemPosition: Int = 0
 
-        val flags = if (Build.VERSION.SDK_INT < 23) {
-            0
-        } else {
-            PendingIntent.FLAG_IMMUTABLE
+            override fun getState(): State {
+                val availableCommands = Player.Commands.Builder()
+                    .add(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
+                    .add(COMMAND_PLAY_PAUSE)
+                    .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
+                    .build()
+
+                return State.Builder()
+                    .setAvailableCommands(availableCommands)
+                    .setPlaylist(mediaItems.map {
+                        MediaItemData.Builder(it).build()
+                    })
+                    .setCurrentMediaItemIndex(itemPosition)
+                    .setPlayWhenReady(playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+                    .setPlaybackState(currentState)
+                    .build()
+            }
+
+            override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
+                if (this.playWhenReady != playWhenReady) {
+                    this.playWhenReady = playWhenReady
+                    currentState = if (playWhenReady) {
+                        val intent = Intent(TP_AND_TC_PLAY)
+                        sendBroadcast(intent)
+                        Player.STATE_READY
+                    } else {
+                        val intent = Intent(TP_AND_TC_PAUSE)
+                        sendBroadcast(intent)
+                        Player.STATE_IDLE
+                    }
+                    invalidateState()
+                }
+                return Futures.immediateFuture(Unit)
+            }
+
+            override fun handleSeek(
+                mediaItemIndex: Int,
+                positionMs: Long,
+                seekCommand: Int
+            ): ListenableFuture<*> {
+                this.playWhenReady = true
+                this.currentState = Player.STATE_READY
+                invalidateState()
+
+                when (seekCommand) {
+                    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
+                        Log.e("click", "rew")
+                        val intent = Intent(CLICK_REW)
+                        sendBroadcast(intent)
+                    }
+
+                    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> {
+                        Log.e("click", "fwd")
+                        val intent = Intent(CLICK_FWD)
+                        sendBroadcast(intent)
+                    }
+                }
+
+                return Futures.immediateFuture(Unit)
+            }
+
+
         }
 
-        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
-        mediaButtonIntent.setClass(this, MediaButtonReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, flags)
-        mediaSessionCompat.setMediaButtonReceiver(pendingIntent)
-        sessionToken = mediaSessionCompat.sessionToken
+        updatePlaylist()
+
+        mediaSession = MediaSession
+            .Builder(this, player)
+            .setCallback(mediaSessionCallback)
+            .build()
+    }
+
+    private fun updatePlaylist() {
+        mediaItems = settings.currentFileList.map {
+            val uri = Uri.fromFile(it)
+            val mediaItem = MediaItem.fromUri(uri)
+            mediaItem
+        }
     }
 
     private fun initBroadcastReceivers() {
@@ -393,6 +453,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         tpSetPositionReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val position = intent.getIntExtra(KEY_POSITION, 0)
+                player.seekTo(position, 0)
                 tk.tp.position = position
             }
         }
@@ -403,6 +464,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
                 isPlaying = true
                 tk.tp.play()
                 tk.tc.play()
+                player.play()
             }
         }
         registerExportedReceiver(tpAndTcPlayReceiver, IntentFilter(TP_AND_TC_PLAY))
@@ -412,6 +474,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
                 isPlaying = false
                 tk.tp.pause()
                 tk.tc.pause()
+                player.pause()
             }
         }
         registerExportedReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))
@@ -427,6 +490,7 @@ class MusicTransmitterService: MediaBrowserServiceCompat() {
         tpSetFileListReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 tk.tp.files = settings.currentFileList
+                updatePlaylist()
             }
         }
         registerExportedReceiver(tpSetFileListReceiver, IntentFilter(TP_SET_FILE_LIST))
