@@ -40,6 +40,15 @@ object MusicTransmitterNotification {
             PendingIntent.FLAG_IMMUTABLE
         }
 
+        val playIntent = Intent(CLICK_PLAY)
+        val pPlayIntent = PendingIntent.getBroadcast(context, 0, playIntent, flags)
+        val pauseIntent = Intent(CLICK_PAUSE)
+        val pPauseIntent = PendingIntent.getBroadcast(context, 0, pauseIntent, flags)
+        val revIntent = Intent(CLICK_REW)
+        val pRevIntent = PendingIntent.getBroadcast(context, 0, revIntent, flags)
+        val fwdIntent = Intent(CLICK_FWD)
+        val pFwdIntent = PendingIntent.getBroadcast(context, 0, fwdIntent, flags)
+
         val mainActivityIntent = Intent(context, MusicTransmitterActivity::class.java)
         val contentIntent =
             PendingIntent.getActivity(context, 0, mainActivityIntent, flags)
@@ -60,6 +69,12 @@ object MusicTransmitterNotification {
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .setFullScreenIntent(contentIntent, true)
+            .addAction(R.drawable.ic_rew_vector, "Rew", pRevIntent)
+            .addAction(
+                if (isPlaying) R.drawable.ic_pause_vector else R.drawable.ic_play_vector,
+                if (isPlaying) "Pause" else "Play",
+                if (isPlaying) pPauseIntent else pPlayIntent)
+            .addAction(R.drawable.ic_fwd_vector, "Fwd", pFwdIntent)
             .setStyle(
                 mediaStyle)
             .build()

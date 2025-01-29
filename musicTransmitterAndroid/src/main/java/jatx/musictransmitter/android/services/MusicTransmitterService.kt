@@ -81,6 +81,7 @@ const val KEY_VOLUME = "volume"
 const val KEY_CURRENT_MS = "currentMs"
 const val KEY_TRACK_LENGTH_MS = "trackLengthMs"
 
+@UnstableApi
 class MusicTransmitterService: MediaSessionService() {
     @Inject
     lateinit var settings: Settings
@@ -95,8 +96,74 @@ class MusicTransmitterService: MediaSessionService() {
     private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
 
     private var isPlaying = false
-    private lateinit var player: Player
     private var mediaItems = listOf<MediaItem>()
+
+    private val player: Player = object: SimpleBasePlayer(Looper.getMainLooper()) {
+        private var currentState: Int = Player.STATE_IDLE
+        private var playWhenReady: Boolean = false
+        private var itemPosition: Int = 0
+
+        override fun getState(): State {
+            val availableCommands = Player.Commands.Builder()
+                .add(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
+                .add(COMMAND_PLAY_PAUSE)
+                .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
+                .build()
+
+            return State.Builder()
+                .setAvailableCommands(availableCommands)
+                .setPlaylist(mediaItems.map {
+                    MediaItemData.Builder(it).build()
+                })
+                .setCurrentMediaItemIndex(itemPosition)
+                .setPlayWhenReady(playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+                .setPlaybackState(currentState)
+                .build()
+        }
+
+        override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
+            if (this.playWhenReady != playWhenReady) {
+                this.playWhenReady = playWhenReady
+                currentState = if (playWhenReady) {
+                    val intent = Intent(TP_AND_TC_PLAY)
+                    sendBroadcast(intent)
+                    Player.STATE_READY
+                } else {
+                    val intent = Intent(TP_AND_TC_PAUSE)
+                    sendBroadcast(intent)
+                    Player.STATE_IDLE
+                }
+                invalidateState()
+            }
+            return Futures.immediateFuture(Unit)
+        }
+
+        override fun handleSeek(
+            mediaItemIndex: Int,
+            positionMs: Long,
+            seekCommand: Int
+        ): ListenableFuture<*> {
+            this.playWhenReady = true
+            this.currentState = Player.STATE_READY
+            invalidateState()
+
+            when (seekCommand) {
+                COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
+                    Log.e("click", "rew")
+                    val intent = Intent(CLICK_REW)
+                    sendBroadcast(intent)
+                }
+
+                COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> {
+                    Log.e("click", "fwd")
+                    val intent = Intent(CLICK_FWD)
+                    sendBroadcast(intent)
+                }
+            }
+
+            return Futures.immediateFuture(Unit)
+        }
+    }
 
     private val mediaSessionCallback: MediaSession.Callback =
         object : MediaSession.Callback {
@@ -239,6 +306,8 @@ class MusicTransmitterService: MediaSessionService() {
 
         setTk(null)
 
+        mediaSession.release()
+
         unregisterReceivers()
 
         if (Build.VERSION.SDK_INT >= 24) {
@@ -330,6 +399,7 @@ class MusicTransmitterService: MediaSessionService() {
     private fun prepareAndStart() {
         initBroadcastReceivers()
         initMediaSession()
+        updatePlaylist()
 
         val tu = TimeUpdater(uiController)
         val tc = application.provideTransmitterController(settings.volume, !settings.isLocalMode)
@@ -357,77 +427,6 @@ class MusicTransmitterService: MediaSessionService() {
 
     @UnstableApi
     private fun initMediaSession() {
-        player = object: SimpleBasePlayer(Looper.getMainLooper()) {
-            private var currentState: Int = Player.STATE_IDLE
-            private var playWhenReady: Boolean = false
-            private var itemPosition: Int = 0
-
-            override fun getState(): State {
-                val availableCommands = Player.Commands.Builder()
-                    .add(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
-                    .add(COMMAND_PLAY_PAUSE)
-                    .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
-                    .build()
-
-                return State.Builder()
-                    .setAvailableCommands(availableCommands)
-                    .setPlaylist(mediaItems.map {
-                        MediaItemData.Builder(it).build()
-                    })
-                    .setCurrentMediaItemIndex(itemPosition)
-                    .setPlayWhenReady(playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
-                    .setPlaybackState(currentState)
-                    .build()
-            }
-
-            override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
-                if (this.playWhenReady != playWhenReady) {
-                    this.playWhenReady = playWhenReady
-                    currentState = if (playWhenReady) {
-                        val intent = Intent(TP_AND_TC_PLAY)
-                        sendBroadcast(intent)
-                        Player.STATE_READY
-                    } else {
-                        val intent = Intent(TP_AND_TC_PAUSE)
-                        sendBroadcast(intent)
-                        Player.STATE_IDLE
-                    }
-                    invalidateState()
-                }
-                return Futures.immediateFuture(Unit)
-            }
-
-            override fun handleSeek(
-                mediaItemIndex: Int,
-                positionMs: Long,
-                seekCommand: Int
-            ): ListenableFuture<*> {
-                this.playWhenReady = true
-                this.currentState = Player.STATE_READY
-                invalidateState()
-
-                when (seekCommand) {
-                    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
-                        Log.e("click", "rew")
-                        val intent = Intent(CLICK_REW)
-                        sendBroadcast(intent)
-                    }
-
-                    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> {
-                        Log.e("click", "fwd")
-                        val intent = Intent(CLICK_FWD)
-                        sendBroadcast(intent)
-                    }
-                }
-
-                return Futures.immediateFuture(Unit)
-            }
-
-
-        }
-
-        updatePlaylist()
-
         mediaSession = MediaSession
             .Builder(this, player)
             .setCallback(mediaSessionCallback)
