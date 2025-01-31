@@ -52,11 +52,19 @@ class AndroidSoundOut : SoundOut {
     }
 
     override fun play() {
-        audioTrack?.play()
+        try {
+            audioTrack?.play()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun pause() {
-        audioTrack?.pause()
+        try {
+            audioTrack?.pause()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 }
