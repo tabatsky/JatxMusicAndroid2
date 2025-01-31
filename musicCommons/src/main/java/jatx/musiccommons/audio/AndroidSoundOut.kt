@@ -7,6 +7,7 @@ import android.media.AudioTrack
 class AndroidSoundOut : SoundOut {
     private var audioTrack: AudioTrack? = null
 
+    @Synchronized
     override fun renew(frameRate: Int, channels: Int, depth: Int) {
         audioTrack?.stop()
         audioTrack?.release()
@@ -38,6 +39,7 @@ class AndroidSoundOut : SoundOut {
         audioTrack?.play()
     }
 
+    @Synchronized
     override fun setVolume(volume: Int) {
         audioTrack?.setVolume(volume*0.01f)
     }
@@ -46,25 +48,20 @@ class AndroidSoundOut : SoundOut {
         audioTrack?.write(data, offset, size)
     }
 
+    @Synchronized
     override fun destroy() {
         audioTrack?.stop()
         audioTrack?.release()
     }
 
+    @Synchronized
     override fun play() {
-        try {
-            audioTrack?.play()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        audioTrack?.play()
     }
 
+    @Synchronized
     override fun pause() {
-        try {
-            audioTrack?.pause()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        audioTrack?.pause()
     }
 
 }
