@@ -88,6 +88,10 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         _presenter
     }
 
+    companion object {
+        var needApplyInsets = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
         super.onCreate(savedInstanceState)
@@ -98,13 +102,17 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val paddingTop = insets.top
-            val paddingBottom = insets.bottom
-            val rootLP = v.layoutParams as MarginLayoutParams
-            rootLP.topMargin += paddingTop
-            rootLP.bottomMargin += paddingBottom
-            v.layoutParams = rootLP
+            if (needApplyInsets) {
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val paddingTop = insets.top
+                val paddingBottom = insets.bottom
+                val rootLP = v.layoutParams as MarginLayoutParams
+                rootLP.topMargin += paddingTop
+                rootLP.bottomMargin += paddingBottom
+                v.layoutParams = rootLP
+
+                needApplyInsets = false
+            }
 
             WindowInsetsCompat.CONSUMED
         }
@@ -658,6 +666,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun quit() {
+        needApplyInsets = true
         finish()
     }
 

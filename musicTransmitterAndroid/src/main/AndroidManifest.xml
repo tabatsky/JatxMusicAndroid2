@@ -50,6 +50,7 @@
             android:name=".ui.MusicTransmitterActivity"
             android:launchMode="singleTask"
             android:exported="true"
+            android:configChanges="screenSize"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
