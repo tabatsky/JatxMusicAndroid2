@@ -21,8 +21,8 @@ android {
         applicationId "jatx.musictransmitter.android"
         minSdk 21
         targetSdk 35
-        versionCode 40
-        versionName "2.6"
+        versionCode 41
+        versionName "2.6.1"
         testInstrumentationRunner "jatx.musictransmitter.android.CustomTestRunner"
     }
     buildTypes {
