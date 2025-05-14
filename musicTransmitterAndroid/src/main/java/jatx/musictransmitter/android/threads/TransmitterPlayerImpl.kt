@@ -153,10 +153,12 @@ class TransmitterPlayerImpl(
                         tryReadFrameFromDecoder()
                     }
                 } catch (e: MusicDecoderException) {
+                    uiController.errorMsg("(player) decoder exception")
                     println("(player) decoder exception")
                     sleep(200)
                     null
                 } catch (e: MicrophoneReadException) {
+                    uiController.errorMsg("(player) microphone read exception")
                     println("(player) microphone read exception")
                     sleep(200)
                     null
@@ -167,7 +169,8 @@ class TransmitterPlayerImpl(
                     sleep(200)
                     null
                 } catch (e: WrongFrameException) {
-                    println("(player) wrong frame")
+                    uiController.errorMsg(e.message ?: "(player) wrong frame")
+                    println(e.message ?: "(player) wrong frame")
                     pause()
                     nextTrack()
                     sleep(200)
