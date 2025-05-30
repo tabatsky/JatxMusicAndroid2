@@ -35,6 +35,7 @@ class ContentStorageImpl(
         }
 
         val sortOrder = MediaStore.Audio.Media.ARTIST + " || " +
+                MediaStore.Audio.Media.YEAR + " || " +
                 MediaStore.Audio.Media.ALBUM + " || " +
                 " (10000 + " + MediaStore.Audio.Media.TRACK + ") || " +
                 MediaStore.Audio.Media.TITLE + " ASC"
