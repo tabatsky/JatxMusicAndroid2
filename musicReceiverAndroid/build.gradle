@@ -16,12 +16,12 @@ android {
         }
     }
 
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "jatx.musicreceiver.android"
         minSdk 21
-        targetSdk 35
+        targetSdk 36
         versionCode 14
         versionName "1.4.3"
 
@@ -32,6 +32,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
         debug {
             signingConfig signingConfigs.config
@@ -54,10 +55,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core-ktx:1.15.0'
-    implementation "com.google.dagger:dagger:2.50"
-    kapt "com.google.dagger:dagger-compiler:2.50"
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation "com.google.dagger:dagger:2.56.2"
+    kapt "com.google.dagger:dagger-compiler:2.56.2"
     implementation 'com.github.moxy-community:moxy:2.2.2'
     kapt 'com.github.moxy-community:moxy-compiler:2.2.2'
     implementation "com.github.moxy-community:moxy-androidx:2.2.2"
