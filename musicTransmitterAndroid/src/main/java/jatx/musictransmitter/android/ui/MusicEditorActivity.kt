@@ -7,7 +7,6 @@ import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -42,13 +41,12 @@ class MusicEditorActivity : MvpAppCompatActivity(), MusicEditorView {
         setContentView(R.layout.activity_music_editor)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val paddingTop = insets.top
-            val paddingBottom = insets.bottom
-            val rootLP = v.layoutParams as MarginLayoutParams
-            rootLP.topMargin += paddingTop
-            rootLP.bottomMargin += paddingBottom
-            v.layoutParams = rootLP
+            val insets = windowInsets.getInsets(
+                (WindowInsetsCompat.Type.systemBars()
+                        or WindowInsetsCompat.Type.displayCutout()
+                        or WindowInsetsCompat.Type.ime()) // adding the ime's height
+            )
+            v.setPadding(insets.left,insets.top,  insets.right, insets.bottom)
 
             WindowInsetsCompat.CONSUMED
         }

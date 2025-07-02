@@ -4,7 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -12,7 +16,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
@@ -23,7 +26,14 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.obsez.android.lib.filechooser.ChooserDialog
-import jatx.constants.*
+import jatx.constants.DEV_SITE_URL
+import jatx.constants.FX_RECEIVER_URL
+import jatx.constants.FX_TRANSMITTER_URL
+import jatx.constants.RECEIVER_MARKET_URL1
+import jatx.constants.RECEIVER_MARKET_URL2
+import jatx.constants.SOURCE_CODE_URL
+import jatx.constants.TRANSMITTER_MARKET_URL1
+import jatx.constants.TRANSMITTER_MARKET_URL2
 import jatx.debug.AppDebug
 import jatx.extensions.onSeek
 import jatx.extensions.registerExportedReceiver
@@ -36,7 +46,7 @@ import jatx.musictransmitter.android.db.entity.Track
 import jatx.musictransmitter.android.domain.ContentStorage
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
-import jatx.musictransmitter.android.media.*
+import jatx.musictransmitter.android.media.MusicEntry
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
 import jatx.musictransmitter.android.services.EXTRA_WIFI_STATUS
@@ -88,10 +98,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         _presenter
     }
 
-    companion object {
-        var needApplyInsets = true
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         AppDebug.setAppCrashHandler()
         super.onCreate(savedInstanceState)
@@ -102,17 +108,12 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            if (needApplyInsets) {
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                val paddingTop = insets.top
-                val paddingBottom = insets.bottom
-                val rootLP = v.layoutParams as MarginLayoutParams
-                rootLP.topMargin += paddingTop
-                rootLP.bottomMargin += paddingBottom
-                v.layoutParams = rootLP
-
-                needApplyInsets = false
-            }
+            val insets = windowInsets.getInsets(
+                (WindowInsetsCompat.Type.systemBars()
+                        or WindowInsetsCompat.Type.displayCutout()
+                        or WindowInsetsCompat.Type.ime()) // adding the ime's height
+            )
+            v.setPadding(insets.left,insets.top,  insets.right, insets.bottom)
 
             WindowInsetsCompat.CONSUMED
         }
@@ -666,7 +667,6 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     }
 
     override fun quit() {
-        needApplyInsets = true
         finish()
     }
 
