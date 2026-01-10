@@ -8,7 +8,7 @@ import android.webkit.MimeTypeMap
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.domain.ContentStorage
-import jatx.musictransmitter.android.media.AlbumArtKeeper
+import jatx.musictransmitter.android.media.ArtKeeper
 import jatx.musictransmitter.android.media.AlbumEntry
 import jatx.musictransmitter.android.media.ArtistEntry
 import jatx.musictransmitter.android.media.MusicEntry
@@ -100,8 +100,8 @@ class ContentStorageImpl(
 
                 val path = it.getString(2)
 
-                if (!AlbumArtKeeper.albumArts.containsKey(albumEntry)) {
-                    AlbumArtKeeper.albumArts[albumEntry] = AlbumArtKeeper.retrieveAlbumArt(context, path)
+                if (!ArtKeeper.theArts.containsKey(albumEntry)) {
+                    ArtKeeper.theArts[albumEntry] = ArtKeeper.retrieveArt(context, path)
                 }
             }
         }
@@ -159,8 +159,8 @@ class ContentStorageImpl(
 
                 val path = it.getString(3)
 
-                if (!AlbumArtKeeper.albumArts.containsKey(trackEntry.albumEntry)) {
-                    AlbumArtKeeper.albumArts[trackEntry.albumEntry] = AlbumArtKeeper.retrieveAlbumArt(context, path)
+                if (!ArtKeeper.theArts.containsKey(trackEntry)) {
+                    ArtKeeper.theArts[trackEntry] = ArtKeeper.retrieveArt(context, path)
                 }
             }
         }

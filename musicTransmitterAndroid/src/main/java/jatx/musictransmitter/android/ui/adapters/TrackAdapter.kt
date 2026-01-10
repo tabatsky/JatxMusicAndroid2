@@ -12,10 +12,14 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.databinding.ItemTrackBinding
-import jatx.musictransmitter.android.media.AlbumArtKeeper
-import jatx.musictransmitter.android.media.AlbumEntry
+import jatx.musictransmitter.android.media.ArtKeeper
+import jatx.musictransmitter.android.media.TrackEntry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class TrackAdapter: ListAdapter<TrackElement, TrackAdapter.TrackViewHolder>(TrackDiffCallback) {
+class TrackAdapter(private val coroutineScope: CoroutineScope): ListAdapter<TrackElement, TrackAdapter.TrackViewHolder>(TrackDiffCallback) {
     var onItemClickListener: ((Int) -> Unit)? = null
     var onItemLongClickListener: ((Int) -> Unit)? = null
 
@@ -33,7 +37,8 @@ class TrackAdapter: ListAdapter<TrackElement, TrackAdapter.TrackViewHolder>(Trac
         holder.bind(
             trackElement = getItem(position),
             onClickListener = onItemClickListener,
-            onLongClickListener = onItemLongClickListener
+            onLongClickListener = onItemLongClickListener,
+            coroutineScope = coroutineScope
         )
     }
 
@@ -41,13 +46,17 @@ class TrackAdapter: ListAdapter<TrackElement, TrackAdapter.TrackViewHolder>(Trac
         fun bind(
             trackElement: TrackElement,
             onClickListener: ((Int) -> Unit)?,
-            onLongClickListener: ((Int) -> Unit)?
+            onLongClickListener: ((Int) -> Unit)?,
+            coroutineScope: CoroutineScope
         ) {
             binding.albumCoverIV.setImageBitmap(
                 getAlbumCover(
                     binding.albumCoverIV.context,
-                    trackElement
-                )
+                    trackElement,
+                    coroutineScope
+                ) {
+                    binding.albumCoverIV.setImageBitmap(it)
+                }
             )
 
             binding.root.setOnClickListener { onClickListener?.invoke(absoluteAdapterPosition) }
@@ -93,19 +102,28 @@ class TrackAdapter: ListAdapter<TrackElement, TrackAdapter.TrackViewHolder>(Trac
             }
         }
 
-        private fun getAlbumCover(context: Context, trackElement: TrackElement): Bitmap {
+        private fun getAlbumCover(context: Context, trackElement: TrackElement, coroutineScope: CoroutineScope, retrieveDone: (Bitmap) -> Unit): Bitmap {
             with(trackElement) {
-                AlbumArtKeeper.albumArts[AlbumEntry(track.artist, track.album)]?.let {
+                ArtKeeper.theArts[TrackEntry(track.artist, track.album, track.title)]?.let {
                     return it
                 }
 
                 val bitmap = if (track.path == MIC_PATH) {
                     BitmapFactory.decodeResource(context.resources, R.drawable.ic_microphone)
                 } else {
-                    AlbumArtKeeper.retrieveAlbumArt(context, track.path)
+                    BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
                 }
 
-                AlbumArtKeeper.albumArts[AlbumEntry(track.artist, track.album)] = bitmap
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val actualArt = ArtKeeper.retrieveArt(context, track.path)
+                        ArtKeeper.theArts[TrackEntry(track.artist, track.album, track.title)] =
+                            actualArt
+                        withContext(Dispatchers.Main) {
+                            retrieveDone(actualArt)
+                        }
+                    }
+                }
 
                 return bitmap
             }

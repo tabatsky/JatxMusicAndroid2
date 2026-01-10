@@ -75,7 +75,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     @Inject
     lateinit var trackInfoStorage: TrackInfoStorage
 
-    private val tracksAdapter = TrackAdapter()
+    private val tracksAdapter = TrackAdapter(lifecycleScope)
 
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 

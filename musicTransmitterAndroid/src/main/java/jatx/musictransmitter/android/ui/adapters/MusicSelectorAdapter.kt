@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import jatx.musictransmitter.android.databinding.ItemMusicSelectorBinding
-import jatx.musictransmitter.android.media.AlbumArtKeeper
+import jatx.musictransmitter.android.media.ArtKeeper
 import jatx.musictransmitter.android.media.AlbumEntry
 import jatx.musictransmitter.android.media.ArtistEntry
 import jatx.musictransmitter.android.media.MusicEntry
@@ -42,11 +42,11 @@ class MusicSelectorAdapter:
                 }
                 is AlbumEntry -> {
                     binding.musicSelectorAlbumArtIV.visibility = View.VISIBLE
-                    binding.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry])
+                    binding.musicSelectorAlbumArtIV.setImageBitmap(ArtKeeper.theArts[entry])
                 }
                 is TrackEntry -> {
                     binding.musicSelectorAlbumArtIV.visibility = View.VISIBLE
-                    binding.musicSelectorAlbumArtIV.setImageBitmap(AlbumArtKeeper.albumArts[entry.albumEntry])
+                    binding.musicSelectorAlbumArtIV.setImageBitmap(ArtKeeper.theArts[entry])
                 }
             }
 

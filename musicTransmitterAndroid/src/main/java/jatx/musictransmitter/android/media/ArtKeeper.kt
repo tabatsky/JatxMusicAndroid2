@@ -6,10 +6,10 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import jatx.musictransmitter.android.R
 
-object AlbumArtKeeper {
-    val albumArts: HashMap<AlbumEntry, Bitmap> = hashMapOf()
+object ArtKeeper {
+    val theArts: HashMap<MusicEntry, Bitmap> = hashMapOf()
 
-    fun retrieveAlbumArt(context: Context, path: String): Bitmap {
+    fun retrieveArt(context: Context, path: String): Bitmap {
         return try {
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(path)
