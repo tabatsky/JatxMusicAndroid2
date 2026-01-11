@@ -98,10 +98,14 @@ class MusicTransmitterService: MediaSessionService() {
     private var isPlaying = false
     private var mediaItems = listOf<MediaItem>()
 
-    private val player: Player = object: SimpleBasePlayer(Looper.getMainLooper()) {
-        private var currentState: Int = Player.STATE_IDLE
+    private inner class MyPlayer: SimpleBasePlayer(Looper.getMainLooper()) {
+        var currentState: Int = STATE_IDLE
         private var playWhenReady: Boolean = false
         private var itemPosition: Int = 0
+
+        fun invalidate() {
+            invalidateState()
+        }
 
         override fun getState(): State {
             val availableCommands = Player.Commands.Builder()
@@ -127,11 +131,11 @@ class MusicTransmitterService: MediaSessionService() {
                 currentState = if (playWhenReady) {
                     val intent = Intent(TP_AND_TC_PLAY)
                     sendBroadcast(intent)
-                    Player.STATE_READY
+                    STATE_READY
                 } else {
                     val intent = Intent(TP_AND_TC_PAUSE)
                     sendBroadcast(intent)
-                    Player.STATE_IDLE
+                    STATE_IDLE
                 }
                 invalidateState()
             }
@@ -144,7 +148,7 @@ class MusicTransmitterService: MediaSessionService() {
             seekCommand: Int
         ): ListenableFuture<*> {
             this.playWhenReady = true
-            this.currentState = Player.STATE_READY
+            this.currentState = STATE_READY
             invalidateState()
 
             when (seekCommand) {
@@ -164,6 +168,8 @@ class MusicTransmitterService: MediaSessionService() {
             return Futures.immediateFuture(Unit)
         }
     }
+
+    private val player = MyPlayer()
 
     private val mediaSessionCallback: MediaSession.Callback =
         object : MediaSession.Callback {
@@ -361,7 +367,7 @@ class MusicTransmitterService: MediaSessionService() {
 
     private fun lockWifi() {
         val wifiManager =
-            applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val wifiMode = if (Build.VERSION.SDK_INT >= 29) {
             WifiManager.WIFI_MODE_FULL_LOW_LATENCY
         } else {
@@ -380,7 +386,7 @@ class MusicTransmitterService: MediaSessionService() {
     private fun lockWake() {
         Log.e("wakeLock", WAKE_LOCK_TAG)
         val wifiManager =
-            applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            applicationContext.getSystemService(POWER_SERVICE) as PowerManager
         wakeLock = wifiManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG).apply {
             acquire(1200 * 1000L)
         }
@@ -436,9 +442,17 @@ class MusicTransmitterService: MediaSessionService() {
     private fun updatePlaylist() {
         mediaItems = settings.currentFileList.map {
             val uri = Uri.fromFile(it)
-            val mediaItem = MediaItem.fromUri(uri)
+            val mediaItem = MediaItem
+                .Builder()
+                .setUri(uri)
+                .setMediaId(randomAlphanumeric(16))
+                .build()
             mediaItem
         }
+        if (mediaItems.isEmpty()) {
+            player.currentState = Player.STATE_IDLE
+        }
+        player.invalidate()
     }
 
     private fun initBroadcastReceivers() {
@@ -550,5 +564,11 @@ class MusicTransmitterService: MediaSessionService() {
         service.createNotificationChannel(channel)
         return CHANNEL_ID_SERVICE
     }
+}
 
+fun randomAlphanumeric(length: Int): String {
+    val charPool = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    return (1..length)
+        .map { charPool.random() }
+        .joinToString("")
 }

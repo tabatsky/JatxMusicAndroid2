@@ -2,7 +2,6 @@ package jatx.musictransmitter.android.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
@@ -62,6 +61,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 const val REQUEST_TAG_EDITOR = 2222
 
@@ -242,7 +242,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == REQUEST_TAG_EDITOR && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_TAG_EDITOR && resultCode == RESULT_OK) {
             presenter.onReturnFromTagEditor()
         }
     }
@@ -566,14 +566,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(TRANSMITTER_MARKET_URL1)
+                    TRANSMITTER_MARKET_URL1.toUri()
                 )
             )
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(TRANSMITTER_MARKET_URL2)
+                    TRANSMITTER_MARKET_URL2.toUri()
                 )
             )
         }
@@ -584,14 +584,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(RECEIVER_MARKET_URL1)
+                    RECEIVER_MARKET_URL1.toUri()
                 )
             )
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(RECEIVER_MARKET_URL2)
+                    RECEIVER_MARKET_URL2.toUri()
                 )
             )
         }
@@ -609,7 +609,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(SOURCE_CODE_URL)
+                SOURCE_CODE_URL.toUri()
             )
         )
     }
@@ -618,7 +618,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(DEV_SITE_URL)
+                DEV_SITE_URL.toUri()
             )
         )
     }
@@ -640,14 +640,14 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
     @SuppressLint("QueryPermissionsNeeded")
     private fun makeIntentList(uri: String): List<Intent> {
-        val origIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+        val origIntent = Intent(Intent.ACTION_VIEW, uri.toUri())
         val infoList = if (Build.VERSION.SDK_INT >= 23){
             packageManager.queryIntentActivities(origIntent, PackageManager.MATCH_ALL)
         } else{
             packageManager.queryIntentActivities(origIntent, 0)
         }
         return infoList.map {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+            val intent = Intent(Intent.ACTION_VIEW, uri.toUri())
             intent.setPackage(it.activityInfo.packageName)
             intent
         }

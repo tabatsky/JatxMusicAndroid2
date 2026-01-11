@@ -16,7 +16,7 @@ object ArtKeeper {
             mmr.embeddedPicture?.let {
                 BitmapFactory.decodeByteArray(it, 0, it.size)
             } ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
         }
     }
