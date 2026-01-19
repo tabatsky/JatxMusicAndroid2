@@ -56,10 +56,12 @@ class TrackAdapter(private val coroutineScope: CoroutineScope): ListAdapter<Trac
                 trackElement.track.artist,
                 trackElement.track.album,
                 trackElement.track.title)
+            val actualTrackPath = trackElement.track.path
             binding.albumCoverIV.setImageBitmap(
                 getAlbumCover(
                     binding.albumCoverIV.context,
-                    trackElement,
+                    actualTrackEntry,
+                    actualTrackPath,
                     coroutineScope
                 ) { bmp, trackEntry ->
                     if (trackEntry == actualTrackEntry) {
@@ -111,39 +113,36 @@ class TrackAdapter(private val coroutineScope: CoroutineScope): ListAdapter<Trac
             }
         }
 
-        private fun getAlbumCover(context: Context, trackElement: TrackElement, coroutineScope: CoroutineScope, retrieveDone: (Bitmap, TrackEntry) -> Unit): Bitmap {
-            with(trackElement) {
-                val trackEntry = TrackEntry(track.artist, track.album, track.title)
+        private fun getAlbumCover(context: Context, trackEntry: TrackEntry, trackPath: String, coroutineScope: CoroutineScope, retrieveDone: (Bitmap, TrackEntry) -> Unit): Bitmap {
 
-                ArtKeeper.theArts[trackEntry]?.let {
-                    return it
-                }
-
-                val bitmap = if (track.path == MIC_PATH) {
-                    if (micArt == null) {
-                        micArt = BitmapFactory.decodeResource(context.resources, R.drawable.ic_microphone)
-                    }
-                    micArt!!
-                } else {
-                    if (defaultArt == null) {
-                        defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
-                    }
-                    defaultArt!!
-                }
-
-                coroutineScope.launch {
-                    withContext(Dispatchers.IO) {
-                        val actualArt = ArtKeeper.retrieveArt(context, track.path)
-                        ArtKeeper.theArts[trackEntry] =
-                            actualArt
-                        withContext(Dispatchers.Main) {
-                            retrieveDone(actualArt, trackEntry)
-                        }
-                    }
-                }
-
-                return bitmap
+            ArtKeeper.theArts[trackEntry]?.let {
+                return it
             }
+
+            val bitmap = if (trackPath == MIC_PATH) {
+                if (micArt == null) {
+                    micArt = BitmapFactory.decodeResource(context.resources, R.drawable.ic_microphone)
+                }
+                micArt!!
+            } else {
+                if (defaultArt == null) {
+                    defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.ic_default_album)
+                }
+                defaultArt!!
+            }
+
+            coroutineScope.launch {
+                withContext(Dispatchers.IO) {
+                    val actualArt = ArtKeeper.retrieveArt(context, trackPath)
+                    ArtKeeper.theArts[trackEntry] =
+                        actualArt
+                    withContext(Dispatchers.Main) {
+                        retrieveDone(actualArt, trackEntry)
+                    }
+                }
+            }
+
+            return bitmap
         }
     }
 
