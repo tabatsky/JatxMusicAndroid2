@@ -30,7 +30,7 @@ import androidx.media3.common.SimpleBasePlayer
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import androidx.test.espresso.core.internal.deps.guava.util.concurrent.Futures
+import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
@@ -328,11 +328,8 @@ class MusicTransmitterService: MediaSessionService() {
     private fun startForeground() {
         val actIntent = Intent()
         actIntent.setClass(this, MusicTransmitterActivity::class.java)
-        val flags = if (Build.VERSION.SDK_INT < 23) {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        } else {
+        val flags =
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        }
         val pendingIntent =
             PendingIntent.getActivity(this, 0, actIntent, flags)
 
