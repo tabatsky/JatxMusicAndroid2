@@ -22,15 +22,16 @@ android {
         applicationId "jatx.musicreceiver.android"
         minSdk 23
         targetSdk 36
-        versionCode 15
-        versionName "1.4.4"
+        versionCode 16
+        versionName "1.4.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
