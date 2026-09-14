@@ -130,8 +130,9 @@ class MusicTransmitterService: MediaSessionService() {
                 .add(COMMAND_GET_CURRENT_MEDIA_ITEM)
                 .add(COMMAND_SEEK_TO_MEDIA_ITEM)
                 .add(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
-                .add(COMMAND_PLAY_PAUSE)
                 .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
+                .add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+                .add(COMMAND_PLAY_PAUSE)
                 .build()
 
             if (currentState == STATE_IDLE) itemPosition = -1
@@ -187,6 +188,16 @@ class MusicTransmitterService: MediaSessionService() {
             when (seekCommand) {
                 COMMAND_SEEK_TO_MEDIA_ITEM -> {
                     this.itemPosition = mediaItemIndex
+                }
+
+                COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM -> {
+                    if (trackLengthMs > 0f) {
+                        currentMs = positionMs.toFloat()
+                        val progress = (positionMs.toDouble() / trackLengthMs.toDouble()).coerceIn(0.0, 1.0)
+                        val intent = Intent(TP_SEEK)
+                        intent.putExtra(KEY_PROGRESS, progress)
+                        sendBroadcast(intent)
+                    }
                 }
 
                 COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
