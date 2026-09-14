@@ -12,6 +12,8 @@ import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import jatx.extensions.registerExportedReceiver
@@ -49,7 +51,13 @@ class MusicTransmitterPresenter @Inject constructor(
 
     private val files = arrayListOf<File>()
     private var currentPosition = -1
-    private var tracks = listOf<Track>()
+    private var tracks: List<Track>
+        @OptIn(UnstableApi::class)
+        get() = MusicTransmitterService.tracks
+        @OptIn(UnstableApi::class)
+        set(value) {
+            MusicTransmitterService.tracks = value
+        }
 
     private val shuffledList = arrayListOf<Int>()
     private var isShuffle: Boolean
@@ -110,6 +118,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
     fun onQuit() = viewState.quit()
 
+    @OptIn(UnstableApi::class)
     fun onPlayClick() {
         if (files.isEmpty()) {
             return
@@ -127,6 +136,7 @@ class MusicTransmitterPresenter @Inject constructor(
         MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
     }
 
+    @OptIn(UnstableApi::class)
     fun onPauseClick(needSendBroadcast: Boolean, needShowNotification: Boolean) {
         viewState.showPlayingState(false)
         if (needSendBroadcast) {
@@ -251,8 +261,8 @@ class MusicTransmitterPresenter @Inject constructor(
             position
         }
         viewState.showTracks(tracks, realPosition)
-        onPlayClick()
         tpSetPosition(realPosition)
+        onPlayClick()
     }
 
     fun onTrackLongClick(position: Int) = viewState.showTrackLongClickDialog(position)
@@ -398,6 +408,7 @@ class MusicTransmitterPresenter @Inject constructor(
         trackInfoStorage.files = files
     }
 
+    @OptIn(UnstableApi::class)
     private fun startService() {
         val intent = Intent(context, MusicTransmitterService::class.java)
         context.startService(intent)

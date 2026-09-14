@@ -1,6 +1,8 @@
 package jatx.musictransmitter.android.di
 
 import android.content.Context
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
@@ -34,6 +36,7 @@ interface TestAppComponent: AppDeps {
 
     fun injectMusicTransmitterActivity(musicTransmitterActivity: MusicTransmitterActivity)
 
+    @OptIn(UnstableApi::class)
     fun injectMusicTransmitterService(musicTransmitterService: MusicTransmitterService)
 
     fun injectMusicEditorActivity(musicEditorActivity: MusicEditorActivity)
@@ -56,7 +59,8 @@ class TestDeps {
 class TestAppModule {
     @Provides
     @Singleton
-    fun provideSettings(context: Context): Settings = SettingsImpl(context)
+    fun provideSettings(context: Context, trackInfoStorage: TrackInfoStorage): Settings =
+        SettingsImpl(context, trackInfoStorage)
 
     @Provides
     @Singleton

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Environment
 import jatx.musictransmitter.android.domain.Settings
+import jatx.musictransmitter.android.domain.TrackInfoStorage
 import java.io.File
 
 const val PREFS_NAME = "MusicTransmitterPreferences"
@@ -16,7 +17,8 @@ const val KEY_IS_LOCAL_MODE = "isLocalMode"
 
 @SuppressLint("ApplySharedPref")
 class SettingsImpl(
-    context: Context
+    context: Context,
+    private val trackInfoStorage: TrackInfoStorage
 ): Settings {
     private val sp = context.getSharedPreferences(PREFS_NAME, 0)
 
@@ -35,7 +37,16 @@ class SettingsImpl(
             return if (listStr.isEmpty())
                 listOf()
             else
-                listStr.split("\n").map { File(it) }
+                listStr.split("\n")
+                    .map { File(it) }
+                    .mapNotNull {
+                        try {
+                            trackInfoStorage.getTrackFromFile(it)
+                            it
+                        } catch (t: Throwable) {
+                            null
+                        }
+                    }
         }
         set(value) {
             val listStr = value.joinToString("\n")

@@ -11,6 +11,7 @@ abstract class MusicDecoder {
         var position = 0
 
         fun setPath(path: String) {
+            println("set path: $path")
             val file = File(path)
             when (file.extension) {
                 "mp3" -> {
@@ -29,8 +30,8 @@ abstract class MusicDecoder {
     var msReadFromFile = 0f
     var msSentToReceiver = 0f
 
-    var currentMs = 0f
-    var trackLengthSec = 0
+    @Volatile var currentMs = 0f
+    @Volatile var trackLengthSec = 0
 
     abstract var file: File?
 

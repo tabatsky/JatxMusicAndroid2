@@ -15,6 +15,7 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiManager.WifiLock
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
@@ -37,7 +38,10 @@ import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
 import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.TestApp
+import jatx.musictransmitter.android.db.entity.Track
 import jatx.musictransmitter.android.domain.Settings
+import jatx.musictransmitter.android.domain.TrackInfoStorage
+import jatx.musictransmitter.android.media.ArtKeeper
 import jatx.musictransmitter.android.threads.LocalPlayer
 import jatx.musictransmitter.android.threads.ThreadKeeper
 import jatx.musictransmitter.android.threads.TimeUpdater
@@ -50,6 +54,7 @@ import jatx.musictransmitter.android.ui.CLICK_PAUSE
 import jatx.musictransmitter.android.ui.CLICK_PLAY
 import jatx.musictransmitter.android.ui.CLICK_REW
 import jatx.musictransmitter.android.ui.MusicTransmitterActivity
+import jatx.musictransmitter.android.ui.MusicTransmitterNotification
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -86,6 +91,9 @@ class MusicTransmitterService: MediaSessionService() {
     @Inject
     lateinit var settings: Settings
 
+    @Inject
+    lateinit var trackInfoStorage: TrackInfoStorage
+
     private lateinit var stopSelfReceiver: BroadcastReceiver
     private lateinit var tpSetPositionReceiver: BroadcastReceiver
     private lateinit var tpAndTcPlayReceiver: BroadcastReceiver
@@ -99,25 +107,53 @@ class MusicTransmitterService: MediaSessionService() {
     private var mediaItems = listOf<MediaItem>()
 
     private inner class MyPlayer: SimpleBasePlayer(Looper.getMainLooper()) {
-        var currentState: Int = STATE_IDLE
-        private var playWhenReady: Boolean = false
-        private var itemPosition: Int = 0
+        @Volatile var currentState: Int = STATE_IDLE
+        @Volatile var itemPosition: Int = 0
+        @Volatile private var playWhenReady: Boolean = false
+        private val handler = Handler(applicationLooper)
 
-        fun invalidate() {
-            invalidateState()
+        fun invalidate(after: () -> Unit) {
+            println("MyPlayer.invalidate() called")   // ①
+            handler.postDelayed( {
+                println("MyPlayer.invalidate() -> invalidateState() executing")   // ②
+                invalidateState()
+                try {
+                    after()
+                } catch (t: Throwable) {
+                    t.printStackTrace()
+                }
+            }, 500L)
         }
 
         override fun getState(): State {
             val availableCommands = Player.Commands.Builder()
+                .add(COMMAND_GET_CURRENT_MEDIA_ITEM)
+                .add(COMMAND_SEEK_TO_MEDIA_ITEM)
                 .add(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
                 .add(COMMAND_PLAY_PAUSE)
                 .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
                 .build()
 
+            if (currentState == STATE_IDLE) itemPosition = -1
+
+            println("$itemPosition $currentMs $trackLengthMs")
+
             return State.Builder()
                 .setAvailableCommands(availableCommands)
-                .setPlaylist(mediaItems.map {
-                    MediaItemData.Builder(it).build()
+//                .setContentPositionMs(
+//                    if (playWhenReady) {
+//                        PositionSupplier.getExtrapolating(currentMs.toLong(), 1f)
+//                    } else {
+//                        PositionSupplier.getConstant(currentMs.toLong())
+//                    }
+//                )
+                .setContentPositionMs(currentMs.toLong())
+                .setPlaylist(mediaItems.mapIndexed { index, item ->
+                    val builder = MediaItemData.Builder(item)
+                    if (index == itemPosition) {
+                        builder.setDurationUs(trackLengthMs.toLong() * 1000)
+                    }
+                    builder.build()
                 })
                 .setCurrentMediaItemIndex(itemPosition)
                 .setPlayWhenReady(playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
@@ -128,16 +164,15 @@ class MusicTransmitterService: MediaSessionService() {
         override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
             if (this.playWhenReady != playWhenReady) {
                 this.playWhenReady = playWhenReady
-                currentState = if (playWhenReady) {
-                    val intent = Intent(TP_AND_TC_PLAY)
-                    sendBroadcast(intent)
-                    STATE_READY
-                } else {
-                    val intent = Intent(TP_AND_TC_PAUSE)
-                    sendBroadcast(intent)
-                    STATE_IDLE
+                if (currentState == STATE_READY) {
+                    if (playWhenReady) {
+                        val intent = Intent(TP_AND_TC_PLAY)
+                        sendBroadcast(intent)
+                    } else {
+                        val intent = Intent(TP_AND_TC_PAUSE)
+                        sendBroadcast(intent)
+                    }
                 }
-                invalidateState()
             }
             return Futures.immediateFuture(Unit)
         }
@@ -148,18 +183,22 @@ class MusicTransmitterService: MediaSessionService() {
             seekCommand: Int
         ): ListenableFuture<*> {
             this.playWhenReady = true
-            this.currentState = STATE_READY
-            invalidateState()
 
             when (seekCommand) {
+                COMMAND_SEEK_TO_MEDIA_ITEM -> {
+                    this.itemPosition = mediaItemIndex
+                }
+
                 COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
                     Log.e("click", "rew")
+                    this.itemPosition = mediaItemIndex
                     val intent = Intent(CLICK_REW)
                     sendBroadcast(intent)
                 }
 
                 COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> {
                     Log.e("click", "fwd")
+                    this.itemPosition = mediaItemIndex
                     val intent = Intent(CLICK_FWD)
                     sendBroadcast(intent)
                 }
@@ -169,7 +208,14 @@ class MusicTransmitterService: MediaSessionService() {
         }
     }
 
-    private val player = MyPlayer()
+
+    private val player = MyPlayer().also {
+        it.addListener(object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                println("onEvents: pos=${player.currentPosition} dur=${player.duration}")
+            }
+        })
+    }
 
     private val mediaSessionCallback: MediaSession.Callback =
         object : MediaSession.Callback {
@@ -226,6 +272,7 @@ class MusicTransmitterService: MediaSessionService() {
         }
 
         var mediaSession by Delegates.notNull<MediaSession>()
+        var tracks = listOf<Track>()
     }
 
     @Volatile
@@ -448,8 +495,10 @@ class MusicTransmitterService: MediaSessionService() {
         }
         if (mediaItems.isEmpty()) {
             player.currentState = Player.STATE_IDLE
+        } else {
+            player.currentState = Player.STATE_READY
         }
-        player.invalidate()
+        player.invalidate({})
     }
 
     private fun initBroadcastReceivers() {
@@ -463,8 +512,13 @@ class MusicTransmitterService: MediaSessionService() {
         tpSetPositionReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val position = intent.getIntExtra(KEY_POSITION, 0)
-                player.seekTo(position, 0)
                 tk.tp.position = position
+                player.seekTo(position, 0)
+                player.invalidate({
+                    val track = tracks[position]
+                    val albumArt = ArtKeeper.retrieveArt(context, track.path)
+                    MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
+                })
             }
         }
         registerExportedReceiver(tpSetPositionReceiver, IntentFilter(TP_SET_POSITION))
@@ -493,6 +547,13 @@ class MusicTransmitterService: MediaSessionService() {
             override fun onReceive(context: Context, intent: Intent) {
                 val progress = intent.getDoubleExtra(KEY_PROGRESS, 0.0)
                 tk.tp.seek(progress)
+                val mediaItemIndex = tk.tp.position
+                player.seekTo(mediaItemIndex, (trackLengthMs * progress).toLong())
+                player.invalidate({
+                    val track = tracks[tk.tp.position]
+                    val albumArt = ArtKeeper.retrieveArt(context, track.path)
+                    MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
+                })
             }
         }
         registerExportedReceiver(tpSeekReceiver, IntentFilter(TP_SEEK))
