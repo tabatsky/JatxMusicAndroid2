@@ -9,8 +9,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import jatx.musictransmitter.android.di.DaggerTestAppComponent
 import jatx.musictransmitter.android.di.TestAppComponent
-import jatx.musictransmitter.android.ui.CHANNEL_ID
-import jatx.musictransmitter.android.ui.CHANNEL_NAME
+import jatx.musictransmitter.android.services.CHANNEL_ID
+import jatx.musictransmitter.android.services.CHANNEL_NAME
 import kotlin.properties.Delegates
 
 class TestApp : Application() {

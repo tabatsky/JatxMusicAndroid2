@@ -8,9 +8,11 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import jatx.musictransmitter.android.data.ContentStorageTestImpl
+import jatx.musictransmitter.android.data.PlaylistKeeperImpl
 import jatx.musictransmitter.android.data.SettingsImpl
 import jatx.musictransmitter.android.data.TrackInfoStorageTestImpl
 import jatx.musictransmitter.android.domain.ContentStorage
+import jatx.musictransmitter.android.domain.PlaylistKeeper
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.services.MusicTransmitterService
@@ -69,4 +71,8 @@ class TestAppModule {
     @Provides
     @Singleton
     fun provideTrackInfoStorage(): TrackInfoStorage = TrackInfoStorageTestImpl()
+
+    @Provides
+    @Singleton
+    fun providePlaylistKeeper(settings: Settings): PlaylistKeeper = PlaylistKeeperImpl(settings)
 }

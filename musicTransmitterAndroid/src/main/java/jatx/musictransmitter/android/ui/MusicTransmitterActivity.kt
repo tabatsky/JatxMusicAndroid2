@@ -48,7 +48,6 @@ import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.media.MusicEntry
 import jatx.musictransmitter.android.presentation.MusicTransmitterPresenter
 import jatx.musictransmitter.android.presentation.MusicTransmitterView
-import jatx.musictransmitter.android.services.EXTRA_WIFI_STATUS
 import jatx.musictransmitter.android.services.TP_AND_TC_PAUSE
 import jatx.musictransmitter.android.ui.adapters.TrackAdapter
 import jatx.musictransmitter.android.ui.adapters.TrackElement
@@ -62,6 +61,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import androidx.core.net.toUri
+import jatx.musictransmitter.android.domain.PlaylistKeeper
 
 const val REQUEST_TAG_EDITOR = 2222
 
@@ -75,12 +75,15 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
     @Inject
     lateinit var trackInfoStorage: TrackInfoStorage
 
+    @Inject
+    lateinit var playlistKeeper: PlaylistKeeper
+
     private val tracksAdapter = TrackAdapter(lifecycleScope)
 
     private val binding: ActivityMusicTransmitterBinding by viewBinding()
 
     private fun providePresenter() =
-        MusicTransmitterPresenter(this, settings, trackInfoStorage)
+        MusicTransmitterPresenter(this, settings, trackInfoStorage, playlistKeeper)
 
     private fun injectDependencies() {
         if (application is App) {
@@ -124,8 +127,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
             playBtn.setOnClickListener { presenter.onPlayClick() }
             pauseBtn.setOnClickListener {
                 presenter.onPauseClick(
-                    needSendBroadcast = true,
-                    needShowNotification = true
+                    needSendBroadcast = true
                 )
             }
 
@@ -148,8 +150,7 @@ class MusicTransmitterActivity : MvpAppCompatActivity(), MusicTransmitterView {
 
         val tpAndTcPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                val wifiStatus = intent.getBooleanExtra(EXTRA_WIFI_STATUS, false)
-                presenter.onPauseClick(false, wifiStatus)
+                presenter.onPauseClick(false)
             }
         }
         registerExportedReceiver(tpAndTcPauseReceiver, IntentFilter(TP_AND_TC_PAUSE))

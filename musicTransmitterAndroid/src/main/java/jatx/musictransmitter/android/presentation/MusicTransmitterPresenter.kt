@@ -13,17 +13,17 @@ import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.core.content.ContextCompat
 import androidx.media3.common.util.UnstableApi
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import jatx.extensions.registerExportedReceiver
 import jatx.musictransmitter.android.data.MIC_PATH
 import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.domain.PlaylistKeeper
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
-import jatx.musictransmitter.android.media.ArtKeeper
 import jatx.musictransmitter.android.services.*
-import jatx.musictransmitter.android.ui.*
 import jatx.musictransmitter.android.util.findFiles
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -38,7 +38,8 @@ const val ACTION_PHONE_STATE = "android.intent.action.PHONE_STATE"
 class MusicTransmitterPresenter @Inject constructor(
     private val context: Context,
     private val settings: Settings,
-    private val trackInfoStorage: TrackInfoStorage
+    private val trackInfoStorage: TrackInfoStorage,
+    private val playlistKeeper: PlaylistKeeper
 ): MvpPresenter<MusicTransmitterView>() {
 
     private lateinit var setCurrentTimeReceiver: BroadcastReceiver
@@ -49,35 +50,29 @@ class MusicTransmitterPresenter @Inject constructor(
     private lateinit var clickPauseReceiver: BroadcastReceiver
     private lateinit var incomingCallReceiver: BroadcastReceiver
 
-    private val files = arrayListOf<File>()
-    private var currentPosition = -1
-    private var tracks: List<Track>
-        @OptIn(UnstableApi::class)
-        get() = MusicTransmitterService.tracks
-        @OptIn(UnstableApi::class)
+    private val files: ArrayList<File>
+        get() = playlistKeeper.files
+    private var currentPosition: Int
+        get() = playlistKeeper.currentPosition
         set(value) {
-            MusicTransmitterService.tracks = value
+            playlistKeeper.currentPosition = value
+        }
+    private var tracks: List<Track>
+        get() = playlistKeeper.tracks
+        set(value) {
+            playlistKeeper.tracks = value
         }
 
-    private val shuffledList = arrayListOf<Int>()
+    private val shuffledList: ArrayList<Int>
+        get() = playlistKeeper.shuffledList
     private var isShuffle: Boolean
-        get() = settings.isShuffle
+        get() = playlistKeeper.isShuffle
         set(value) {
-            settings.isShuffle = value
+            playlistKeeper.isShuffle = value
         }
 
     private val realPosition: Int
-        get() = when {
-            currentPosition < 0 -> {
-                currentPosition
-            }
-            isShuffle -> {
-                shuffledList[currentPosition % shuffledList.size] % files.size
-            }
-            else -> {
-                (currentPosition % shuffledList.size) % files.size
-            }
-        }
+        get() = playlistKeeper.realPosition
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -109,7 +104,6 @@ class MusicTransmitterPresenter @Inject constructor(
     }
 
     override fun onDestroy() {
-        MusicTransmitterNotification.hideNotification(context)
         stopService()
         unregisterReceivers()
     }
@@ -130,23 +124,13 @@ class MusicTransmitterPresenter @Inject constructor(
 
         viewState.showPlayingState(true)
         tpAndTcPlay()
-
-        val track = tracks[realPosition]
-        val albumArt = ArtKeeper.retrieveArt(context, track.path)
-        MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
     }
 
     @OptIn(UnstableApi::class)
-    fun onPauseClick(needSendBroadcast: Boolean, needShowNotification: Boolean) {
+    fun onPauseClick(needSendBroadcast: Boolean) {
         viewState.showPlayingState(false)
         if (needSendBroadcast) {
             tpAndTcPause()
-        }
-
-        if (currentPosition > -1 && needShowNotification) {
-            val track = tracks[realPosition]
-            val albumArt = ArtKeeper.retrieveArt(context, track.path)
-            MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,false)
         }
     }
     
@@ -411,7 +395,7 @@ class MusicTransmitterPresenter @Inject constructor(
     @OptIn(UnstableApi::class)
     private fun startService() {
         val intent = Intent(context, MusicTransmitterService::class.java)
-        context.startService(intent)
+        ContextCompat.startForegroundService(context, intent)
     }
 
     private fun stopService() {
@@ -525,7 +509,7 @@ class MusicTransmitterPresenter @Inject constructor(
 
         clickPauseReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                onPauseClick(needSendBroadcast = true, needShowNotification = true)
+                onPauseClick(needSendBroadcast = true)
             }
         }
         context.registerExportedReceiver(clickPauseReceiver, IntentFilter(CLICK_PAUSE))
@@ -533,7 +517,7 @@ class MusicTransmitterPresenter @Inject constructor(
         incomingCallReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getStringExtra(TelephonyManager.EXTRA_STATE) == TelephonyManager.EXTRA_STATE_RINGING) {
-                    onPauseClick(needSendBroadcast = true, needShowNotification = true)
+                    onPauseClick(needSendBroadcast = true)
                 }
             }
         }

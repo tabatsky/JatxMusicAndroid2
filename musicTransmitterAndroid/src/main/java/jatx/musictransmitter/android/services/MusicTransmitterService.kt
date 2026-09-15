@@ -1,15 +1,12 @@
 package jatx.musictransmitter.android.services
 
-import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -20,25 +17,27 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import android.view.KeyEvent
-import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.SimpleBasePlayer
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.CommandButton
+import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
-import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.TestApp
-import jatx.musictransmitter.android.db.entity.Track
+import jatx.musictransmitter.android.domain.PlaylistKeeper
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.media.ArtKeeper
@@ -49,20 +48,24 @@ import jatx.musictransmitter.android.threads.UIController
 import jatx.musictransmitter.android.threads.provideTransmitterController
 import jatx.musictransmitter.android.threads.provideTransmitterPlayer
 import jatx.musictransmitter.android.threads.provideTransmitterPlayerConnectionKeeper
-import jatx.musictransmitter.android.ui.CLICK_FWD
-import jatx.musictransmitter.android.ui.CLICK_PAUSE
-import jatx.musictransmitter.android.ui.CLICK_PLAY
-import jatx.musictransmitter.android.ui.CLICK_REW
-import jatx.musictransmitter.android.ui.MusicTransmitterActivity
-import jatx.musictransmitter.android.ui.MusicTransmitterNotification
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
+const val CHANNEL_ID = "jatxMusicTransmitter"
+const val CHANNEL_NAME = "jatxMusicTransmitter"
+const val NOTIFICATION_ID = 1237
 
-const val CHANNEL_ID_SERVICE = "jatxMusicTransmitterService"
-const val CHANNEL_NAME_SERVICE = "jatxMusicTransmitterService"
 const val WAKE_LOCK_TAG = "jatxMusicTransmitterService::wakeLock"
 const val WIFI_LOCK_TAG = "music-transmitter-wifi-lock"
+
+const val CLICK_PLAY = "jatx.musictransmitter.android.CLICK_PLAY"
+const val CLICK_PAUSE = "jatx.musictransmitter.android.CLICK_PAUSE"
+const val CLICK_REW = "jatx.musictransmitter.android.CLICK_REW"
+const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 
 const val SET_WIFI_STATUS = "jatx.musictransmitter.android.SET_WIFI_STATUS"
 const val SET_CURRENT_TIME = "jatx.musictransmitter.android.SET_CURRENT_TIME"
@@ -86,6 +89,19 @@ const val KEY_VOLUME = "volume"
 const val KEY_CURRENT_MS = "currentMs"
 const val KEY_TRACK_LENGTH_MS = "trackLengthMs"
 
+@OptIn(UnstableApi::class)
+private fun shuffleButton(isShuffleEnabled: Boolean) = CommandButton.Builder(
+    if (isShuffleEnabled) {
+        CommandButton.ICON_SHUFFLE_ON
+    } else {
+        CommandButton.ICON_SHUFFLE_OFF
+    }
+)
+    .setDisplayName("Shuffle")
+    .setPlayerCommand(Player.COMMAND_SET_SHUFFLE_MODE, !isShuffleEnabled) // клик выставит противоположное значение
+    .setEnabled(true)
+    .build()
+
 @UnstableApi
 class MusicTransmitterService: MediaSessionService() {
     @Inject
@@ -93,6 +109,9 @@ class MusicTransmitterService: MediaSessionService() {
 
     @Inject
     lateinit var trackInfoStorage: TrackInfoStorage
+
+    @Inject
+    lateinit var playlistKeeper: PlaylistKeeper
 
     private lateinit var stopSelfReceiver: BroadcastReceiver
     private lateinit var tpSetPositionReceiver: BroadcastReceiver
@@ -110,18 +129,19 @@ class MusicTransmitterService: MediaSessionService() {
         @Volatile var currentState: Int = STATE_IDLE
         @Volatile var itemPosition: Int = 0
         @Volatile private var playWhenReady: Boolean = false
+        var isShuffle: Boolean
+            get() = settings.isShuffle
+            set(value) {
+                settings.isShuffle = value
+            }
+
         private val handler = Handler(applicationLooper)
 
-        fun invalidate(after: () -> Unit) {
+        fun invalidate() {
             println("MyPlayer.invalidate() called")   // ①
             handler.postDelayed( {
                 println("MyPlayer.invalidate() -> invalidateState() executing")   // ②
                 invalidateState()
-                try {
-                    after()
-                } catch (t: Throwable) {
-                    t.printStackTrace()
-                }
             }, 500L)
         }
 
@@ -133,9 +153,11 @@ class MusicTransmitterService: MediaSessionService() {
                 .add(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
                 .add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
                 .add(COMMAND_PLAY_PAUSE)
+                .add(COMMAND_SET_SHUFFLE_MODE)
+                .add(COMMAND_GET_METADATA)
                 .build()
 
-            if (currentState == STATE_IDLE) itemPosition = -1
+            itemPosition = playlistKeeper.realPosition
 
             println("$itemPosition $currentMs $trackLengthMs")
 
@@ -150,14 +172,23 @@ class MusicTransmitterService: MediaSessionService() {
 //                )
                 .setContentPositionMs(currentMs.toLong())
                 .setPlaylist(mediaItems.mapIndexed { index, item ->
-                    val builder = MediaItemData.Builder(item)
+                    val builder = MediaItemData.Builder(item.mediaId)
+                        .setMediaItem(item)
                     if (index == itemPosition) {
                         builder.setDurationUs(trackLengthMs.toLong() * 1000)
+                        val artUri = ArtKeeper.retrieveArtUri(applicationContext, playlistKeeper.tracks[index].path)
+                        val metadata = MediaMetadata.Builder()
+                            .setTitle(playlistKeeper.tracks[index].title)
+                            .setArtist(playlistKeeper.tracks[index].artist)
+                            .setArtworkUri(artUri)
+                            .build()
+                        builder.setMediaMetadata(metadata)
                     }
                     builder.build()
                 })
                 .setCurrentMediaItemIndex(itemPosition)
                 .setPlayWhenReady(playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+                .setShuffleModeEnabled(isShuffle)
                 .setPlaybackState(currentState)
                 .build()
         }
@@ -202,18 +233,26 @@ class MusicTransmitterService: MediaSessionService() {
 
                 COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> {
                     Log.e("click", "rew")
-                    this.itemPosition = mediaItemIndex
                     val intent = Intent(CLICK_REW)
                     sendBroadcast(intent)
                 }
 
                 COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> {
                     Log.e("click", "fwd")
-                    this.itemPosition = mediaItemIndex
                     val intent = Intent(CLICK_FWD)
                     sendBroadcast(intent)
                 }
             }
+
+            return Futures.immediateFuture(Unit)
+        }
+
+        override fun handleSetShuffleModeEnabled(shuffleModeEnabled: Boolean): ListenableFuture<*> {
+            this.isShuffle = shuffleModeEnabled
+//            sendBroadcast(Intent(CLICK_SHUFFLE))   // ваша существующая логика тоггла в презентере остаётся как есть
+
+            // обновляем иконку кнопки под новое состояние
+            mediaSession.setCustomLayout(ImmutableList.of(shuffleButton(shuffleModeEnabled)))
 
             return Futures.immediateFuture(Unit)
         }
@@ -283,7 +322,6 @@ class MusicTransmitterService: MediaSessionService() {
         }
 
         var mediaSession by Delegates.notNull<MediaSession>()
-        var tracks = listOf<Track>()
     }
 
     @Volatile
@@ -346,17 +384,38 @@ class MusicTransmitterService: MediaSessionService() {
     }
 
     @UnstableApi
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
+    override fun onCreate() {
+        super.onCreate()
 
         injectDependencies()
+        initMediaSession()
 
-        startForeground()
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
+        } else {
+            ""
+        }
+
+        val provider = DefaultMediaNotificationProvider.Builder(this)
+            .setChannelId(channelId)
+            .setNotificationId(NOTIFICATION_ID)
+            .build()
+
+        setMediaNotificationProvider(provider)
+
         lockWifi()
         lockWake()
         prepareAndStart()
+    }
 
-        return START_STICKY_COMPATIBILITY
+    @UnstableApi
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
+        Log.e("notif_debug", "onUpdateNotification CALLED, startInForegroundRequired=$startInForegroundRequired")
+        try {
+            super.onUpdateNotification(session, startInForegroundRequired)
+        } catch (t: Throwable) {
+            Log.e("notif_debug", "onUpdateNotification THREW", t)
+        }
     }
 
     override fun onDestroy() {
@@ -381,43 +440,6 @@ class MusicTransmitterService: MediaSessionService() {
             stopForeground(true)
         }
         super.onDestroy()
-    }
-
-    private fun startForeground() {
-        val actIntent = Intent()
-        actIntent.setClass(this, MusicTransmitterActivity::class.java)
-        val flags =
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        val pendingIntent =
-            PendingIntent.getActivity(this, 0, actIntent, flags)
-
-        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
-        } else {
-            ""
-        }
-
-        val builder = NotificationCompat.Builder(this, channelId)
-
-        val notification = builder
-            .setContentTitle("JatxMusicTransmitter")
-            .setContentText("Foreground service is running")
-            .setContentIntent(pendingIntent)
-            .build()
-
-        startForeground(2315, notification)
-
-        if (ContextCompat.checkSelfPermission(
-            this, Manifest.permission.POST_NOTIFICATIONS
-        ) != PackageManager.PERMISSION_GRANTED) {
-            Toast
-                .makeText(
-                    this,
-                    R.string.toast_please_enable_notifications,
-                    Toast.LENGTH_LONG
-                )
-                .show()
-        }
     }
 
     private fun lockWifi() {
@@ -459,7 +481,6 @@ class MusicTransmitterService: MediaSessionService() {
     @UnstableApi
     private fun prepareAndStart() {
         initBroadcastReceivers()
-        initMediaSession()
         updatePlaylist()
 
         val tu = TimeUpdater(uiController)
@@ -491,25 +512,40 @@ class MusicTransmitterService: MediaSessionService() {
         mediaSession = MediaSession
             .Builder(this, player)
             .setCallback(mediaSessionCallback)
+            .setCustomLayout(ImmutableList.of(shuffleButton(settings.isShuffle)))
             .build()
+
+        addSession(mediaSession)
     }
 
+    @kotlin.OptIn(ExperimentalCoroutinesApi::class)
     private fun updatePlaylist() {
-        mediaItems = settings.currentFileList.map {
-            val uri = Uri.fromFile(it)
-            val mediaItem = MediaItem
-                .Builder()
-                .setUri(uri)
-                .setMediaId(randomAlphanumeric(16))
-                .build()
-            mediaItem
+        lifecycleScope.launch {
+            mediaItems = withContext(Dispatchers.IO) {
+                settings.currentFileList.mapNotNull {
+                    try {
+                        val uri = Uri.fromFile(it)
+                        val mediaItem = MediaItem
+                            .Builder()
+                            .setUri(uri)
+                            .setMediaId(randomAlphanumeric(16))
+                            .build()
+                        mediaItem
+                    } catch (t: Throwable) {
+                        null
+                    }
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                if (mediaItems.isEmpty()) {
+                    player.currentState = Player.STATE_IDLE
+                } else {
+                    player.currentState = Player.STATE_READY
+                }
+                player.invalidate()
+            }
         }
-        if (mediaItems.isEmpty()) {
-            player.currentState = Player.STATE_IDLE
-        } else {
-            player.currentState = Player.STATE_READY
-        }
-        player.invalidate({})
     }
 
     private fun initBroadcastReceivers() {
@@ -525,11 +561,7 @@ class MusicTransmitterService: MediaSessionService() {
                 val position = intent.getIntExtra(KEY_POSITION, 0)
                 tk.tp.position = position
                 player.seekTo(position, 0)
-                player.invalidate({
-                    val track = tracks[position]
-                    val albumArt = ArtKeeper.retrieveArt(context, track.path)
-                    MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
-                })
+                player.invalidate()
             }
         }
         registerExportedReceiver(tpSetPositionReceiver, IntentFilter(TP_SET_POSITION))
@@ -560,11 +592,7 @@ class MusicTransmitterService: MediaSessionService() {
                 tk.tp.seek(progress)
                 val mediaItemIndex = tk.tp.position
                 player.seekTo(mediaItemIndex, (trackLengthMs * progress).toLong())
-                player.invalidate({
-                    val track = tracks[tk.tp.position]
-                    val albumArt = ArtKeeper.retrieveArt(context, track.path)
-                    MusicTransmitterNotification.showNotification(context, track.artist, track.title, albumArt,true)
-                })
+                player.invalidate()
             }
         }
         registerExportedReceiver(tpSeekReceiver, IntentFilter(TP_SEEK))
@@ -625,13 +653,13 @@ class MusicTransmitterService: MediaSessionService() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(): String {
-        val channel = NotificationChannel(CHANNEL_ID_SERVICE, CHANNEL_NAME_SERVICE, NotificationManager.IMPORTANCE_MIN)
+    private fun createNotificationChannel(channelId: String, channelName: String): String {
+        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
         channel.lightColor = Color.BLUE
         channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         val service = NotificationManagerCompat.from(this)
         service.createNotificationChannel(channel)
-        return CHANNEL_ID_SERVICE
+        return channelId
     }
 }
 

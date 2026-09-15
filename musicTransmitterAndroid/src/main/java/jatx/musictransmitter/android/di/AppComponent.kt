@@ -8,11 +8,13 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import jatx.musictransmitter.android.data.ContentStorageImpl
+import jatx.musictransmitter.android.data.PlaylistKeeperImpl
 import jatx.musictransmitter.android.data.SettingsImpl
 import jatx.musictransmitter.android.data.TrackInfoStorageImpl
 import jatx.musictransmitter.android.db.AppDatabase
 import jatx.musictransmitter.android.db.dao.TrackDao
 import jatx.musictransmitter.android.domain.ContentStorage
+import jatx.musictransmitter.android.domain.PlaylistKeeper
 import jatx.musictransmitter.android.domain.Settings
 import jatx.musictransmitter.android.domain.TrackInfoStorage
 import jatx.musictransmitter.android.services.MusicTransmitterService
@@ -61,6 +63,10 @@ class AppModule {
     @Provides
     @Singleton
     fun provideTrackInfoStorage(trackDao: TrackDao): TrackInfoStorage = TrackInfoStorageImpl(trackDao)
+
+    @Provides
+    @Singleton
+    fun providePlaylistKeeper(settings: Settings): PlaylistKeeper = PlaylistKeeperImpl(settings)
 }
 
 interface AppDeps {
