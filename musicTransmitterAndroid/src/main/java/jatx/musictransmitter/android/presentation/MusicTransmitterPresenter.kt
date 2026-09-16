@@ -13,7 +13,6 @@ import android.telephony.TelephonyManager
 import android.text.format.Formatter
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.core.content.ContextCompat
 import androidx.media3.common.util.UnstableApi
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
@@ -48,6 +47,7 @@ class MusicTransmitterPresenter @Inject constructor(
     private lateinit var prevTrackReceiver: BroadcastReceiver
     private lateinit var clickPlayReceiver: BroadcastReceiver
     private lateinit var clickPauseReceiver: BroadcastReceiver
+    private lateinit var clickShuffleNotificationReceiver: BroadcastReceiver
     private lateinit var incomingCallReceiver: BroadcastReceiver
 
     private val files: ArrayList<File>
@@ -138,6 +138,7 @@ class MusicTransmitterPresenter @Inject constructor(
         isShuffle = true
         currentPosition = shuffledList.indexOf(currentPosition)
         viewState.showShuffleState(true)
+        invalidatePlayer()
     }
 
     fun onShuffleClick() {
@@ -146,6 +147,15 @@ class MusicTransmitterPresenter @Inject constructor(
             currentPosition = shuffledList[currentPosition]
         }
         viewState.showShuffleState(false)
+        invalidatePlayer()
+    }
+
+    fun onNotificationShuffleClick() {
+        if (isShuffle) {
+            onShuffleClick()
+        } else {
+            onRepeatClick()
+        }
     }
 
     fun onRewClick() {
@@ -395,7 +405,7 @@ class MusicTransmitterPresenter @Inject constructor(
     @OptIn(UnstableApi::class)
     private fun startService() {
         val intent = Intent(context, MusicTransmitterService::class.java)
-        ContextCompat.startForegroundService(context, intent)
+        context.startService(intent)
     }
 
     private fun stopService() {
@@ -433,6 +443,11 @@ class MusicTransmitterPresenter @Inject constructor(
 
     private fun switchNetworkingOrLocalMode() {
         val intent = Intent(SWITCH_NETWORKING_OR_LOCAL_MODE)
+        context.sendBroadcast(intent)
+    }
+
+    private fun invalidatePlayer() {
+        val intent = Intent(APPLY_SHUFFLE)
         context.sendBroadcast(intent)
     }
 
@@ -514,6 +529,13 @@ class MusicTransmitterPresenter @Inject constructor(
         }
         context.registerExportedReceiver(clickPauseReceiver, IntentFilter(CLICK_PAUSE))
 
+        clickShuffleNotificationReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                onNotificationShuffleClick()
+            }
+        }
+        context.registerExportedReceiver(clickShuffleNotificationReceiver, IntentFilter(CLICK_SHUFFLE_NOTIFICATION))
+
         incomingCallReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getStringExtra(TelephonyManager.EXTRA_STATE) == TelephonyManager.EXTRA_STATE_RINGING) {
@@ -532,5 +554,6 @@ class MusicTransmitterPresenter @Inject constructor(
         context.unregisterReceiver(clickPlayReceiver)
         context.unregisterReceiver(clickPauseReceiver)
         context.unregisterReceiver(incomingCallReceiver)
+        context.unregisterReceiver(clickShuffleNotificationReceiver)
     }
 }

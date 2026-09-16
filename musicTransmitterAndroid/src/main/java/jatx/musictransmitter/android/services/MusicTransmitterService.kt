@@ -57,7 +57,7 @@ import kotlin.properties.Delegates
 
 const val CHANNEL_ID = "jatxMusicTransmitter"
 const val CHANNEL_NAME = "jatxMusicTransmitter"
-const val NOTIFICATION_ID = 1237
+const val NOTIFICATION_ID_MEDIA = 1237
 
 const val WAKE_LOCK_TAG = "jatxMusicTransmitterService::wakeLock"
 const val WIFI_LOCK_TAG = "music-transmitter-wifi-lock"
@@ -66,6 +66,7 @@ const val CLICK_PLAY = "jatx.musictransmitter.android.CLICK_PLAY"
 const val CLICK_PAUSE = "jatx.musictransmitter.android.CLICK_PAUSE"
 const val CLICK_REW = "jatx.musictransmitter.android.CLICK_REW"
 const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
+const val CLICK_SHUFFLE_NOTIFICATION = "jatx.musictransmitter.android.CLICK_SHUFFLE_NOTIFICATION"
 
 const val SET_WIFI_STATUS = "jatx.musictransmitter.android.SET_WIFI_STATUS"
 const val SET_CURRENT_TIME = "jatx.musictransmitter.android.SET_CURRENT_TIME"
@@ -79,6 +80,8 @@ const val TP_SEEK = "jatx.musictransmitter.android.TP_SEEK"
 const val TP_SET_FILE_LIST = "jatx.musictransmitter.android.TP_SET_FILE_LIST"
 const val TC_SET_VOLUME = "jatx.musictransmitter.android.TC_SET_VOLUME"
 const val SWITCH_NETWORKING_OR_LOCAL_MODE = "jatx.musictransmitter.android.SWITCH_NETWORKING_OR_LOCAL_MODE"
+
+const val APPLY_SHUFFLE = "jatx.musictransmitter.android.APPLY_SHUFFLE"
 
 const val EXTRA_WIFI_STATUS = "isWifiOk"
 const val EXTRA_WIFI_RECEIVER_COUNT = "wifiReceiverCount"
@@ -121,6 +124,7 @@ class MusicTransmitterService: MediaSessionService() {
     private lateinit var tpSetFileListReceiver: BroadcastReceiver
     private lateinit var tcSetVolumeReceiver: BroadcastReceiver
     private lateinit var tcSwitchNetworkingOrLocalModeReceiver: BroadcastReceiver
+    private lateinit var applyShuffleReceiver: BroadcastReceiver
 
     private var isPlaying = false
     private var mediaItems = listOf<MediaItem>()
@@ -159,7 +163,7 @@ class MusicTransmitterService: MediaSessionService() {
 
             itemPosition = playlistKeeper.realPosition
 
-            println("$itemPosition $currentMs $trackLengthMs")
+            println("$itemPosition $currentMs $trackLengthMs $isShuffle")
 
             return State.Builder()
                 .setAvailableCommands(availableCommands)
@@ -181,6 +185,12 @@ class MusicTransmitterService: MediaSessionService() {
                             .setTitle(playlistKeeper.tracks[index].title)
                             .setArtist(playlistKeeper.tracks[index].artist)
                             .setArtworkUri(artUri)
+                            .build()
+                        builder.setMediaMetadata(metadata)
+                    } else {
+                        val metadata = MediaMetadata.Builder()
+                            .setTitle("Music Transmitter")
+                            .setArtist("Player is idle")
                             .build()
                         builder.setMediaMetadata(metadata)
                     }
@@ -248,12 +258,11 @@ class MusicTransmitterService: MediaSessionService() {
         }
 
         override fun handleSetShuffleModeEnabled(shuffleModeEnabled: Boolean): ListenableFuture<*> {
-            this.isShuffle = shuffleModeEnabled
-//            sendBroadcast(Intent(CLICK_SHUFFLE))   // ваша существующая логика тоггла в презентере остаётся как есть
+            println("set shuffle mode: $shuffleModeEnabled")
+            sendBroadcast(Intent(CLICK_SHUFFLE_NOTIFICATION))   // ваша существующая логика тоггла в презентере остаётся как есть
 
             // обновляем иконку кнопки под новое состояние
-            mediaSession.setCustomLayout(ImmutableList.of(shuffleButton(shuffleModeEnabled)))
-
+            mediaSession.setMediaButtonPreferences(ImmutableList.of(shuffleButton(shuffleModeEnabled)))
             return Futures.immediateFuture(Unit)
         }
     }
@@ -398,7 +407,7 @@ class MusicTransmitterService: MediaSessionService() {
 
         val provider = DefaultMediaNotificationProvider.Builder(this)
             .setChannelId(channelId)
-            .setNotificationId(NOTIFICATION_ID)
+            .setNotificationId(NOTIFICATION_ID_MEDIA)
             .build()
 
         setMediaNotificationProvider(provider)
@@ -512,7 +521,7 @@ class MusicTransmitterService: MediaSessionService() {
         mediaSession = MediaSession
             .Builder(this, player)
             .setCallback(mediaSessionCallback)
-            .setCustomLayout(ImmutableList.of(shuffleButton(settings.isShuffle)))
+            .setMediaButtonPreferences(ImmutableList.of(shuffleButton(settings.isShuffle)))   // ← вместо setCustomLayout
             .build()
 
         addSession(mediaSession)
@@ -620,6 +629,16 @@ class MusicTransmitterService: MediaSessionService() {
         }
         registerExportedReceiver(tcSwitchNetworkingOrLocalModeReceiver,
             IntentFilter(SWITCH_NETWORKING_OR_LOCAL_MODE)
+        )
+
+        applyShuffleReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                mediaSession.setMediaButtonPreferences(ImmutableList.of(shuffleButton(settings.isShuffle)))
+                player.invalidate()
+            }
+        }
+        registerExportedReceiver(applyShuffleReceiver,
+            IntentFilter(APPLY_SHUFFLE)
         )
     }
 
