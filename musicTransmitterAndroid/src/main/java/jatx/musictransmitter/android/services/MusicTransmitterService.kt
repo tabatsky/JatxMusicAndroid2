@@ -12,6 +12,7 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiManager.WifiLock
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
@@ -30,12 +31,15 @@ import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import jatx.extensions.registerExportedReceiver
 import jatx.extensions.showToast
 import jatx.musictransmitter.android.App
+import jatx.musictransmitter.android.R
 import jatx.musictransmitter.android.TestApp
 import jatx.musictransmitter.android.domain.PlaylistKeeper
 import jatx.musictransmitter.android.domain.Settings
@@ -67,6 +71,7 @@ const val CLICK_PAUSE = "jatx.musictransmitter.android.CLICK_PAUSE"
 const val CLICK_REW = "jatx.musictransmitter.android.CLICK_REW"
 const val CLICK_FWD = "jatx.musictransmitter.android.CLICK_FWD"
 const val CLICK_SHUFFLE_NOTIFICATION = "jatx.musictransmitter.android.CLICK_SHUFFLE_NOTIFICATION"
+const val CLICK_LOCAL_MODE_NOTIFICATION = "jatx.musictransmitter.android.CLICK_LOCAL_MODE_NOTIFICATION"
 
 const val SET_WIFI_STATUS = "jatx.musictransmitter.android.SET_WIFI_STATUS"
 const val SET_CURRENT_TIME = "jatx.musictransmitter.android.SET_CURRENT_TIME"
@@ -80,7 +85,6 @@ const val TP_SEEK = "jatx.musictransmitter.android.TP_SEEK"
 const val TP_SET_FILE_LIST = "jatx.musictransmitter.android.TP_SET_FILE_LIST"
 const val TC_SET_VOLUME = "jatx.musictransmitter.android.TC_SET_VOLUME"
 const val SWITCH_NETWORKING_OR_LOCAL_MODE = "jatx.musictransmitter.android.SWITCH_NETWORKING_OR_LOCAL_MODE"
-
 const val APPLY_SHUFFLE = "jatx.musictransmitter.android.APPLY_SHUFFLE"
 
 const val EXTRA_WIFI_STATUS = "isWifiOk"
@@ -92,16 +96,45 @@ const val KEY_VOLUME = "volume"
 const val KEY_CURRENT_MS = "currentMs"
 const val KEY_TRACK_LENGTH_MS = "trackLengthMs"
 
+val COMMAND_TOGGLE_LOCAL_MODE = SessionCommand(
+    "jatx.musictransmitter.android.TOGGLE_LOCAL_MODE", Bundle.EMPTY
+)
+
 @OptIn(UnstableApi::class)
-private fun shuffleButton(isShuffleEnabled: Boolean) = CommandButton.Builder(
-    if (isShuffleEnabled) {
-        CommandButton.ICON_SHUFFLE_ON
-    } else {
-        CommandButton.ICON_SHUFFLE_OFF
-    }
+private fun toggleLocalModeButton(isLocalMode: Boolean) = CommandButton.Builder(
+    CommandButton.ICON_UNDEFINED
+)
+    .setDisplayName("LocalMode")
+    .setSessionCommand(COMMAND_TOGGLE_LOCAL_MODE)
+    .setIconResId(
+        if (isLocalMode) {
+            R.drawable.ic_sound
+        } else {
+            R.drawable.ic_wifi_ok
+        }
+    )
+    .setEnabled(true)
+    .build()
+
+@OptIn(UnstableApi::class)
+private fun toggleShuffleButton(isShuffleEnabled: Boolean) = CommandButton.Builder(
+//    if (isShuffleEnabled) {
+//        CommandButton.ICON_SHUFFLE_ON
+//    } else {
+//        CommandButton.ICON_SHUFFLE_OFF
+//    }
+//)
+    CommandButton.ICON_UNDEFINED
 )
     .setDisplayName("Shuffle")
     .setPlayerCommand(Player.COMMAND_SET_SHUFFLE_MODE, !isShuffleEnabled) // клик выставит противоположное значение
+    .setIconResId(
+        if (isShuffleEnabled) {
+            R.drawable.ic_shuffle
+        } else {
+            R.drawable.ic_repeat
+        }
+    )
     .setEnabled(true)
     .build()
 
@@ -262,7 +295,12 @@ class MusicTransmitterService: MediaSessionService() {
             sendBroadcast(Intent(CLICK_SHUFFLE_NOTIFICATION))   // ваша существующая логика тоггла в презентере остаётся как есть
 
             // обновляем иконку кнопки под новое состояние
-            mediaSession.setMediaButtonPreferences(ImmutableList.of(shuffleButton(shuffleModeEnabled)))
+            mediaSession.setMediaButtonPreferences(
+                ImmutableList.of(
+                    toggleShuffleButton(shuffleModeEnabled),
+                    toggleLocalModeButton(settings.isLocalMode)
+                )
+            )
             return Futures.immediateFuture(Unit)
         }
     }
@@ -278,6 +316,34 @@ class MusicTransmitterService: MediaSessionService() {
 
     private val mediaSessionCallback: MediaSession.Callback =
         object : MediaSession.Callback {
+
+            override fun onConnect(
+                session: MediaSession,
+                controller: MediaSession.ControllerInfo
+            ): MediaSession.ConnectionResult {
+                val sessionCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
+                    .buildUpon()
+                    .add(COMMAND_TOGGLE_LOCAL_MODE)
+                    .build()
+                return MediaSession.ConnectionResult.accept(
+                    sessionCommands,
+                    MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
+                )
+            }
+
+            override fun onCustomCommand(
+                session: MediaSession,
+                controller: MediaSession.ControllerInfo,
+                customCommand: SessionCommand,
+                args: Bundle
+            ): ListenableFuture<SessionResult> {
+                if (customCommand.customAction == COMMAND_TOGGLE_LOCAL_MODE.customAction) {
+                    // ваша логика по клику
+                    sendBroadcast(Intent(CLICK_LOCAL_MODE_NOTIFICATION))
+                    return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+                }
+                return super.onCustomCommand(session, controller, customCommand, args)
+            }
 
             @UnstableApi
             override fun onMediaButtonEvent(
@@ -521,7 +587,12 @@ class MusicTransmitterService: MediaSessionService() {
         mediaSession = MediaSession
             .Builder(this, player)
             .setCallback(mediaSessionCallback)
-            .setMediaButtonPreferences(ImmutableList.of(shuffleButton(settings.isShuffle)))   // ← вместо setCustomLayout
+            .setMediaButtonPreferences(
+                ImmutableList.of(
+                    toggleShuffleButton(settings.isShuffle),
+                    toggleLocalModeButton(settings.isLocalMode)
+                )
+            )   // ← вместо setCustomLayout
             .build()
 
         addSession(mediaSession)
@@ -625,6 +696,7 @@ class MusicTransmitterService: MediaSessionService() {
         tcSwitchNetworkingOrLocalModeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 switchNetworkingOrLocalMode()
+                refreshShuffleAndLocalMode()
             }
         }
         registerExportedReceiver(tcSwitchNetworkingOrLocalModeReceiver,
@@ -633,8 +705,7 @@ class MusicTransmitterService: MediaSessionService() {
 
         applyShuffleReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
-                mediaSession.setMediaButtonPreferences(ImmutableList.of(shuffleButton(settings.isShuffle)))
-                player.invalidate()
+                refreshShuffleAndLocalMode()
             }
         }
         registerExportedReceiver(applyShuffleReceiver,
@@ -669,6 +740,17 @@ class MusicTransmitterService: MediaSessionService() {
         tpda.tk = tk
         tc.start()
         tpda.start()
+    }
+
+    private fun refreshShuffleAndLocalMode() {
+        mediaSession
+            .setMediaButtonPreferences(
+                ImmutableList.of(
+                    toggleShuffleButton(settings.isShuffle),
+                    toggleLocalModeButton(settings.isLocalMode)
+                )
+            )
+        player.invalidate()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -48,6 +48,7 @@ class MusicTransmitterPresenter @Inject constructor(
     private lateinit var clickPlayReceiver: BroadcastReceiver
     private lateinit var clickPauseReceiver: BroadcastReceiver
     private lateinit var clickShuffleNotificationReceiver: BroadcastReceiver
+    private lateinit var clickLocalModeNotificationReceiver: BroadcastReceiver
     private lateinit var incomingCallReceiver: BroadcastReceiver
 
     private val files: ArrayList<File>
@@ -138,7 +139,7 @@ class MusicTransmitterPresenter @Inject constructor(
         isShuffle = true
         currentPosition = shuffledList.indexOf(currentPosition)
         viewState.showShuffleState(true)
-        invalidatePlayer()
+        applyShuffle()
     }
 
     fun onShuffleClick() {
@@ -147,7 +148,7 @@ class MusicTransmitterPresenter @Inject constructor(
             currentPosition = shuffledList[currentPosition]
         }
         viewState.showShuffleState(false)
-        invalidatePlayer()
+        applyShuffle()
     }
 
     fun onNotificationShuffleClick() {
@@ -268,6 +269,10 @@ class MusicTransmitterPresenter @Inject constructor(
         settings.isLocalMode = isLocalMode
         viewState.showLocalMode(isLocalMode)
         switchNetworkingOrLocalMode()
+    }
+
+    fun onNotificationLocalModeClick() {
+        onSetLocalMode(!settings.isLocalMode)
     }
 
     fun onDeleteTrack(position: Int) {
@@ -446,7 +451,7 @@ class MusicTransmitterPresenter @Inject constructor(
         context.sendBroadcast(intent)
     }
 
-    private fun invalidatePlayer() {
+    private fun applyShuffle() {
         val intent = Intent(APPLY_SHUFFLE)
         context.sendBroadcast(intent)
     }
@@ -535,6 +540,13 @@ class MusicTransmitterPresenter @Inject constructor(
             }
         }
         context.registerExportedReceiver(clickShuffleNotificationReceiver, IntentFilter(CLICK_SHUFFLE_NOTIFICATION))
+
+        clickLocalModeNotificationReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                onNotificationLocalModeClick()
+            }
+        }
+        context.registerExportedReceiver(clickLocalModeNotificationReceiver, IntentFilter(CLICK_LOCAL_MODE_NOTIFICATION))
 
         incomingCallReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
