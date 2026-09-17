@@ -10,4 +10,6 @@ interface PlaylistKeeper {
     val shuffledList: ArrayList<Int>
     var isShuffle: Boolean
     val realPosition: Int
+
+    fun reset()
 }

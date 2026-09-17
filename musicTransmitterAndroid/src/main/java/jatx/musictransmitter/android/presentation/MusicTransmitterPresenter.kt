@@ -105,6 +105,7 @@ class MusicTransmitterPresenter @Inject constructor(
     }
 
     override fun onDestroy() {
+        playlistKeeper.reset()
         stopService()
         unregisterReceivers()
     }
@@ -567,5 +568,6 @@ class MusicTransmitterPresenter @Inject constructor(
         context.unregisterReceiver(clickPauseReceiver)
         context.unregisterReceiver(incomingCallReceiver)
         context.unregisterReceiver(clickShuffleNotificationReceiver)
+        context.unregisterReceiver(clickLocalModeNotificationReceiver)
     }
 }

@@ -722,6 +722,7 @@ class MusicTransmitterService: MediaSessionService() {
         unregisterReceiver(tpSetFileListReceiver)
         unregisterReceiver(tcSetVolumeReceiver)
         unregisterReceiver(tcSwitchNetworkingOrLocalModeReceiver)
+        unregisterReceiver(applyShuffleReceiver)
     }
 
     private fun switchNetworkingOrLocalMode() {

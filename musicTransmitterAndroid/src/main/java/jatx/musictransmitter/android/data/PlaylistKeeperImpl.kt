@@ -31,4 +31,11 @@ class PlaylistKeeperImpl(
                 (currentPosition % shuffledList.size) % files.size
             }
         }
+
+    override fun reset() {
+        files.clear()
+        currentPosition = -1
+        tracks = listOf()
+        shuffledList.clear()
+    }
 }
