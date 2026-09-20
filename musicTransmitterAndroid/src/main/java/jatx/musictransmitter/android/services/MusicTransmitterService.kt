@@ -3,6 +3,7 @@ package jatx.musictransmitter.android.services
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -52,6 +53,7 @@ import jatx.musictransmitter.android.threads.UIController
 import jatx.musictransmitter.android.threads.provideTransmitterController
 import jatx.musictransmitter.android.threads.provideTransmitterPlayer
 import jatx.musictransmitter.android.threads.provideTransmitterPlayerConnectionKeeper
+import jatx.musictransmitter.android.ui.MusicTransmitterActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -584,9 +586,14 @@ class MusicTransmitterService: MediaSessionService() {
 
     @UnstableApi
     private fun initMediaSession() {
+        val activityIntent = Intent(this, MusicTransmitterActivity::class.java)
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val sessionActivityPendingIntent = PendingIntent.getActivity(this, 0, activityIntent, flags)
+
         mediaSession = MediaSession
             .Builder(this, player)
             .setCallback(mediaSessionCallback)
+            .setSessionActivity(sessionActivityPendingIntent)
             .setMediaButtonPreferences(
                 ImmutableList.of(
                     toggleShuffleButton(settings.isShuffle),
